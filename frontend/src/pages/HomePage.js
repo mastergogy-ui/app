@@ -207,22 +207,30 @@ export default function HomePage() {
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
         <div className="flex items-center justify-around py-3">
-          <button data-testid="nav-home" onClick={() => navigate('/')} className="flex flex-col items-center gap-1 text-blue-600">
+          <button data-testid="nav-home" onClick={() => navigate('/')} className="flex flex-col items-center gap-1 text-gray-600">
             <Home size={24} />
             <span className="text-xs font-medium">Home</span>
           </button>
-          <button data-testid="nav-upload" onClick={() => navigate('/upload')} className="flex flex-col items-center gap-1 text-gray-600">
-            <PlusCircle size={24} />
-            <span className="text-xs font-medium">Upload</span>
-          </button>
-          <button data-testid="nav-messages" onClick={() => navigate('/messages')} className="flex flex-col items-center gap-1 text-gray-600">
-            <MessageSquare size={24} />
-            <span className="text-xs font-medium">Messages</span>
-          </button>
-          <button data-testid="nav-profile" onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 text-gray-600">
-            <User size={24} />
-            <span className="text-xs font-medium">Profile</span>
-          </button>
+          {isAuthenticated && (
+            <>
+              <button data-testid="nav-upload" onClick={() => navigate('/upload')} className="flex flex-col items-center gap-1 text-red-500">
+                <PlusCircle size={24} />
+                <span className="text-xs font-medium">Upload</span>
+              </button>
+              <button data-testid="nav-messages" onClick={() => navigate('/messages')} className="flex flex-col items-center gap-1 text-gray-600">
+                <MessageSquare size={24} />
+                <span className="text-xs font-medium">Messages</span>
+              </button>
+              <button data-testid="nav-dashboard" onClick={() => navigate('/dashboard')} className="flex flex-col items-center gap-1 text-gray-600">
+                <Home size={24} />
+                <span className="text-xs font-medium">Dashboard</span>
+              </button>
+              <button data-testid="nav-profile" onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 text-gray-600">
+                <User size={24} />
+                <span className="text-xs font-medium">Profile</span>
+              </button>
+            </>
+          )}
         </div>
       </nav>
     </div>
