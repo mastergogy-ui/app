@@ -608,6 +608,16 @@ async def send_message(sid, data):
     await db.messages.insert_one(message_doc)
     message_doc.pop("_id")
     
+    # Convert datetime to ISO string for JSON serialization
+    message_doc["timestamp"] = message_doc["timestamp"].isoformat()
+    
+    # Emit to both users in their respective rooms
+    room1 = f"{data['ad_id']}_{data['sender_id']}_{data['receiver_id']}"
+    room2 = f"{data['ad_id']}_{data['receiver_id']}_{data['sender_id']}"
+    
+    await sio.emit("new_message", message_doc, room=room1)
+    await sio.emit("new_message", message_doc, room=room2)
+    
     room = f"{data['ad_id']}_{data['sender_id']}_{data['receiver_id']}"
     room2 = f"{data['ad_id']}_{data['receiver_id']}_{data['sender_id']}"
     await sio.emit("new_message", message_doc, room=room)
