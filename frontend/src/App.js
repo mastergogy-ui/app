@@ -44,6 +44,7 @@ function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [user, setUser] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.state?.user) {
@@ -55,13 +56,22 @@ function ProtectedRoute({ children }) {
     const checkAuth = async () => {
       try {
         const response = await fetch(`${API}/auth/me`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          }
         });
-        if (!response.ok) throw new Error('Not authenticated');
+        
+        if (!response.ok) {
+          console.log('Auth check failed:', response.status);
+          throw new Error('Not authenticated');
+        }
+        
         const userData = await response.json();
         setIsAuthenticated(true);
         setUser(userData);
       } catch (error) {
+        console.error('Authentication error:', error);
         setIsAuthenticated(false);
       }
     };
@@ -69,11 +79,18 @@ function ProtectedRoute({ children }) {
   }, [location]);
 
   if (isAuthenticated === null) {
-    return <div className="flex items-center justify-center h-screen"><div className="text-lg">Loading...</div></div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return children;
