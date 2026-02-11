@@ -26,16 +26,16 @@ export default function RegisterPage() {
         credentials: 'include'
       });
       
+      const data = await response.json();
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Registration failed');
+        throw new Error(data.detail || 'Registration failed');
       }
       
-      const data = await response.json();
       toast.success('Account created successfully!');
       navigate('/dashboard', { state: { user: data.user } });
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
