@@ -78,16 +78,45 @@ export default function ChatPage() {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user) return;
+    if ((!newMessage.trim() && !selectedImage) || !user) return;
 
-    socketRef.current.emit('send_message', {
+    const messageData = {
       sender_id: user.user_id,
       receiver_id: otherUserId,
       ad_id: adId,
-      message: newMessage
-    });
+      message: newMessage.trim() || '[Image]',
+      image: imagePreview || null
+    };
+
+    socketRef.current.emit('send_message', messageData);
 
     setNewMessage('');
+    setSelectedImage(null);
+    setImagePreview('');
+  };
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const scrollToBottom = () => {
