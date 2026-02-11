@@ -117,7 +117,7 @@ export default function ProfilePage() {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-2xl border border-gray-100 p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
           <div className="flex flex-col items-center mb-8">
             <div className="relative mb-4">
               <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center overflow-hidden">
@@ -143,59 +143,88 @@ export default function ProfilePage() {
                 />
               </label>
             </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: 'Manrope' }}>{user.name}</h2>
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
 
-          <form onSubmit={handleUpdateProfile} className="space-y-6">
-            <div>
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
-              <Input
-                data-testid="name-input"
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                required
-                className="mt-1 h-12 rounded-lg bg-gray-50"
-              />
-            </div>
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
+            <form onSubmit={handleUpdateProfile} className="space-y-6">
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
+                <Input
+                  data-testid="name-input"
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  required
+                  className="mt-1 h-12 rounded-lg bg-gray-50"
+                />
+              </div>
 
-            <div>
-              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
-              <Input
-                data-testid="phone-input"
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 XXXXXXXXXX"
-                className="mt-1 h-12 rounded-lg bg-gray-50"
-              />
-            </div>
+              <div>
+                <Label htmlFor="email-display" className="text-sm font-medium text-gray-700">Email Address</Label>
+                <Input
+                  id="email-display"
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="mt-1 h-12 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              </div>
 
-            <div>
-              <Label htmlFor="city" className="text-sm font-medium text-gray-700">City</Label>
-              <Input
-                data-testid="city-input"
-                id="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Your city"
-                className="mt-1 h-12 rounded-lg bg-gray-50"
-              />
-            </div>
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
+                <Input
+                  data-testid="phone-input"
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 XXXXXXXXXX"
+                  className="mt-1 h-12 rounded-lg bg-gray-50"
+                />
+              </div>
 
-            <Button
-              data-testid="save-profile-btn"
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </form>
+              <div>
+                <Label htmlFor="city" className="text-sm font-medium text-gray-700">City</Label>
+                <Input
+                  data-testid="city-input"
+                  id="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Your city"
+                  className="mt-1 h-12 rounded-lg bg-gray-50"
+                />
+              </div>
+
+              <Button
+                data-testid="save-profile-btn"
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Actions</h3>
+          <Button
+            data-testid="logout-btn"
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full h-12 rounded-full border-red-200 text-red-500 hover:bg-red-50 font-semibold"
+          >
+            <LogOut size={20} className="mr-2" />
+            Logout
+          </Button>
         </div>
       </div>
     </div>
