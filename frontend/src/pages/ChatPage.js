@@ -65,22 +65,28 @@ export default function ChatPage() {
 
     socketRef.current.on('connect', () => {
       console.log('Socket connected');
+      // Join the chat room for this ad
       socketRef.current.emit('join_chat', {
         ad_id: adId,
         user1: user?.user_id,
         user2: otherUserId
       });
+      
+      // Also join personal room for notifications
+      socketRef.current.emit('join_user_room', {
+        user_id: user?.user_id
+      });
     });
 
     socketRef.current.on('new_message', (message) => {
       console.log('Received new message:', message);
-      // Only add if it's not our own message (we already added it optimistically)
       setMessages((prev) => {
-        // Check if message already exists (by checking sender, receiver, timestamp)
+        // Check if message already exists
         const exists = prev.some(m => 
-          m.sender_id === message.sender_id && 
-          m.timestamp === message.timestamp &&
-          m.message === message.message
+          m.message_id === message.message_id ||
+          (m.sender_id === message.sender_id && 
+           m.timestamp === message.timestamp &&
+           m.message === message.message)
         );
         if (exists) {
           return prev;
@@ -89,19 +95,13 @@ export default function ChatPage() {
       });
     });
 
-    socketRef.current.on('message_seen', (data) => {
-      setMessages((prev) => 
-        prev.map(msg => 
-          msg.message_id === data.message_id ? { ...msg, seen: true } : msg
-        )
-      );
-    });
-
     socketRef.current.on('messages_seen', (data) => {
-      // Mark all messages in this conversation as seen
+      // Mark all messages to this receiver as seen
       setMessages((prev) => 
         prev.map(msg => 
-          msg.ad_id === data.ad_id && msg.sender_id === user?.user_id 
+          msg.ad_id === data.ad_id && 
+          msg.sender_id === user?.user_id &&
+          msg.receiver_id === data.receiver_id
             ? { ...msg, seen: true } 
             : msg
         )
