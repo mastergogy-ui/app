@@ -606,7 +606,12 @@ async def send_message(sid, data):
 
 app.include_router(api_router)
 
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+@app.get("/uploads/{filename}")
+async def serve_upload(filename: str):
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_path)
 
 app.add_middleware(
     CORSMiddleware,
