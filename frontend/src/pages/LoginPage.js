@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -11,11 +12,12 @@ const API = `${BACKEND_URL}/api`;
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const from = location.state?.from || '/dashboard';
+  const from = location.state?.from || '/';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,10 +36,11 @@ export default function LoginPage() {
         throw new Error(data.detail || 'Login failed');
       }
       
+      login(data.user);
       toast.success('Login successful!');
       // Redirect to home page by default, unless user was trying to access a specific page
       const redirectTo = from === '/dashboard' ? '/' : from;
-      navigate(redirectTo, { state: { user: data.user }, replace: true });
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       toast.error('Invalid email or password');
     } finally {
