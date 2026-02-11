@@ -601,6 +601,7 @@ async def send_message(sid, data):
         "receiver_id": data["receiver_id"],
         "ad_id": data["ad_id"],
         "message": data["message"],
+        "image": data.get("image"),
         "timestamp": datetime.now(timezone.utc),
         "seen": False
     }
