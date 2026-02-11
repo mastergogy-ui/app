@@ -553,6 +553,13 @@ async def get_messages(ad_id: str, other_user_id: str, current_user: dict = Depe
     
     return messages
 
+@api_router.get("/uploads/{filename}")
+async def serve_upload(filename: str):
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_path)
+
 @api_router.get("/admin/ads")
 async def admin_get_ads(current_user: dict = Depends(get_current_user)):
     ads = await db.ads.find({}, {"_id": 0}).to_list(1000)
