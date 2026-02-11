@@ -64,16 +64,44 @@ export default function ChatPage() {
     });
 
     socketRef.current.on('connect', () => {
+      console.log('Socket connected');
       socketRef.current.emit('join_chat', {
         ad_id: adId,
-        user1: otherUserId,
-        user2: user?.user_id
+        user1: user?.user_id,
+        user2: otherUserId
       });
     });
 
     socketRef.current.on('new_message', (message) => {
-      setMessages((prev) => [...prev, message]);
+      console.log('Received new message:', message);
+      // Only add if it's not our own message (we already added it optimistically)
+      setMessages((prev) => {
+        // Check if message already exists (by checking sender, receiver, timestamp)
+        const exists = prev.some(m => 
+          m.sender_id === message.sender_id && 
+          m.timestamp === message.timestamp &&
+          m.message === message.message
+        );
+        if (exists) {
+          return prev;
+        }
+        return [...prev, message];
+      });
     });
+
+    socketRef.current.on('message_seen', (data) => {
+      setMessages((prev) => 
+        prev.map(msg => 
+          msg.message_id === data.message_id ? { ...msg, seen: true } : msg
+        )
+      );
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   };
 
   const handleSendMessage = async (e) => {
