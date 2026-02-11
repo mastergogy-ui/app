@@ -4,6 +4,7 @@ import { Home, PlusCircle, MessageSquare, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -20,24 +21,14 @@ const categories = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [nearbyAds, setNearbyAds] = useState([]);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuth();
     getLocation();
   }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch(`${API}/auth/me`, { credentials: 'include' });
-      setIsAuthenticated(response.ok);
-    } catch (error) {
-      setIsAuthenticated(false);
-    }
-  };
 
   const getLocation = () => {
     if (navigator.geolocation) {
