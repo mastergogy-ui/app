@@ -154,6 +154,8 @@ async def register(user_data: UserCreate):
     
     user_doc.pop("password")
     user_doc.pop("_id")
+    if "created_at" in user_doc and isinstance(user_doc["created_at"], datetime):
+        user_doc["created_at"] = user_doc["created_at"].isoformat()
     
     response = JSONResponse({"user": user_doc, "session_token": session_token})
     response.set_cookie(
@@ -184,6 +186,8 @@ async def login(login_data: UserLogin):
     
     user_doc.pop("password")
     user_doc.pop("_id")
+    if "created_at" in user_doc and isinstance(user_doc["created_at"], datetime):
+        user_doc["created_at"] = user_doc["created_at"].isoformat()
     
     response = JSONResponse({"user": user_doc, "session_token": session_token})
     response.set_cookie(
