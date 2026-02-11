@@ -75,16 +75,9 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${API}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      toast.success('Logged out successfully');
-      navigate('/');
-    } catch (error) {
-      toast.error('Failed to logout');
-    }
+    await logout();
+    toast.success('Logged out successfully');
+    navigate('/');
   };
 
   if (!user) {
