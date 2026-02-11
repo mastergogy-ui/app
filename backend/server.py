@@ -611,7 +611,7 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=["https://rentspot-83.preview.emergentagent.com", "http://localhost:3000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
