@@ -617,11 +617,6 @@ async def send_message(sid, data):
     
     await sio.emit("new_message", message_doc, room=room1)
     await sio.emit("new_message", message_doc, room=room2)
-    
-    room = f"{data['ad_id']}_{data['sender_id']}_{data['receiver_id']}"
-    room2 = f"{data['ad_id']}_{data['receiver_id']}_{data['sender_id']}"
-    await sio.emit("new_message", message_doc, room=room)
-    await sio.emit("new_message", message_doc, room=room2)
 
 app.include_router(api_router)
 
