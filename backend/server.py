@@ -589,12 +589,14 @@ async def disconnect(sid):
 
 @sio.event
 async def join_chat(sid, data):
-    room = f"{data['ad_id']}_{data['user1']}_{data['user2']}"
+    # Use simpler room naming - just the ad_id so both users are in same room
+    room = f"chat_{data['ad_id']}"
     await sio.enter_room(sid, room)
+    print(f"User joined room: {room}")
     
     # Mark all messages from the other user as seen
     if data.get('user1') and data.get('user2'):
-        await db.messages.update_many(
+        result = await db.messages.update_many(
             {
                 "ad_id": data['ad_id'],
                 "sender_id": data['user2'],
@@ -603,10 +605,13 @@ async def join_chat(sid, data):
             },
             {"$set": {"seen": True}}
         )
+        print(f"Marked {result.modified_count} messages as seen")
         
         # Notify sender that messages were seen
-        seen_room = f"{data['ad_id']}_{data['user2']}_{data['user1']}"
-        await sio.emit("messages_seen", {"ad_id": data['ad_id']}, room=seen_room)
+        await sio.emit("messages_seen", {
+            "ad_id": data['ad_id'],
+            "receiver_id": data['user1']
+        }, room=room)
 
 @sio.event
 async def send_message(sid, data):
@@ -627,12 +632,24 @@ async def send_message(sid, data):
     # Convert datetime to ISO string for JSON serialization
     message_doc["timestamp"] = message_doc["timestamp"].isoformat()
     
-    # Emit to both users in their respective rooms
-    room1 = f"{data['ad_id']}_{data['sender_id']}_{data['receiver_id']}"
-    room2 = f"{data['ad_id']}_{data['receiver_id']}_{data['sender_id']}"
+    # Emit to the ad's chat room - both users will receive it
+    room = f"chat_{data['ad_id']}"
+    await sio.emit("new_message", message_doc, room=room)
+    print(f"Message sent to room {room}: {data['message']}")
     
-    await sio.emit("new_message", message_doc, room=room1)
-    await sio.emit("new_message", message_doc, room=room2)
+    # Also send a notification to the receiver if they're not in the chat
+    await sio.emit("notification", {
+        "message": message_doc,
+        "sender_id": data["sender_id"],
+        "receiver_id": data["receiver_id"]
+    }, room=f"user_{data['receiver_id']}")
+
+@sio.event
+async def join_user_room(sid, data):
+    # Each user joins their personal room for notifications
+    user_room = f"user_{data['user_id']}"
+    await sio.enter_room(sid, user_room)
+    print(f"User joined personal room: {user_room}")
 
 app.include_router(api_router)
 
