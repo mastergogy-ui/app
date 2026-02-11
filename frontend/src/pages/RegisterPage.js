@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +34,9 @@ export default function RegisterPage() {
         throw new Error(data.detail || 'Registration failed');
       }
       
+      login(data.user);
       toast.success('Account created successfully!');
-      navigate('/', { state: { user: data.user } });
+      navigate('/');
     } catch (error) {
       toast.error(error.message || 'Registration failed');
     } finally {
