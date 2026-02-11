@@ -253,6 +253,9 @@ async def create_session(request: Request):
     }
     await db.user_sessions.insert_one(session_doc)
     
+    if "created_at" in user_doc and isinstance(user_doc["created_at"], datetime):
+        user_doc["created_at"] = user_doc["created_at"].isoformat()
+    
     return {"user": user_doc, "session_token": session_token}
 
 @api_router.get("/auth/me")
