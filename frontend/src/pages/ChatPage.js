@@ -194,7 +194,33 @@ export default function ChatPage() {
 
       <div className="bg-white border-t border-gray-100 flex-shrink-0">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <form onSubmit={handleSendMessage} className="flex gap-3">
+          {imagePreview && (
+            <div className="mb-3 relative inline-block">
+              <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-lg border-2 border-blue-500" />
+              <button
+                onClick={removeImage}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          <form onSubmit={handleSendMessage} className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="h-12 w-12 rounded-full p-0 flex items-center justify-center border-gray-200"
+            >
+              <ImageIcon size={20} />
+            </Button>
             <Input
               data-testid="message-input"
               type="text"
@@ -206,7 +232,8 @@ export default function ChatPage() {
             <Button
               data-testid="send-btn"
               type="submit"
-              className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 p-0 flex items-center justify-center"
+              disabled={!newMessage.trim() && !selectedImage}
+              className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 p-0 flex items-center justify-center disabled:opacity-50"
             >
               <Send size={20} />
             </Button>
