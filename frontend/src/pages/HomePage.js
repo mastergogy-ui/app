@@ -120,7 +120,7 @@ export default function HomePage() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {isAuthenticated && (
                 <button
                   data-testid="notification-btn"
@@ -128,7 +128,7 @@ export default function HomePage() {
                   className="relative rounded-full p-2 hover:bg-gray-100 transition-colors"
                 >
                   <Bell 
-                    size={24} 
+                    size={22} 
                     className={hasNewMessage ? "text-green-500" : "text-blue-600"}
                     fill={hasNewMessage ? "currentColor" : "none"}
                   />
@@ -139,12 +139,12 @@ export default function HomePage() {
                   )}
                 </button>
               )}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+                <span className="text-white font-bold text-base">R</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'Manrope' }}>RENT WALA</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900" style={{ fontFamily: 'Manrope' }}>RENT WALA</h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {isAuthenticated ? (
                 <>
                   <Button 
@@ -167,17 +167,17 @@ export default function HomePage() {
                   <Button 
                     data-testid="dashboard-btn-desktop" 
                     onClick={() => navigate('/dashboard')} 
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-semibold"
+                    className="hidden sm:flex rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 font-semibold text-sm md:text-base"
                   >
                     Dashboard
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button data-testid="login-btn" variant="outline" onClick={() => navigate('/login')} className="rounded-full border-gray-200 px-6">
+                  <Button data-testid="login-btn" variant="outline" onClick={() => navigate('/login')} className="rounded-full border-gray-200 px-4 md:px-6 text-sm md:text-base">
                     Login
                   </Button>
-                  <Button data-testid="register-btn" onClick={() => navigate('/register')} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6">
+                  <Button data-testid="register-btn" onClick={() => navigate('/register')} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 text-sm md:text-base">
                     Register
                   </Button>
                 </>
