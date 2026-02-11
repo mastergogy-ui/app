@@ -592,7 +592,7 @@ async def join_chat(sid, data):
     # Use simpler room naming - just the ad_id so both users are in same room
     room = f"chat_{data['ad_id']}"
     await sio.enter_room(sid, room)
-    print(f"User joined room: {room}")
+    print(f"User {data.get('user1')} joined room: {room}")
     
     # Mark all messages from the other user as seen
     if data.get('user1') and data.get('user2'):
@@ -612,6 +612,12 @@ async def join_chat(sid, data):
             "ad_id": data['ad_id'],
             "receiver_id": data['user1']
         }, room=room)
+
+@sio.event
+async def leave_chat(sid, data):
+    room = f"chat_{data['ad_id']}"
+    await sio.leave_room(sid, room)
+    print(f"User left room: {room}")
 
 @sio.event
 async def send_message(sid, data):
@@ -635,21 +641,26 @@ async def send_message(sid, data):
     # Emit to the ad's chat room - both users will receive it
     room = f"chat_{data['ad_id']}"
     await sio.emit("new_message", message_doc, room=room)
-    print(f"Message sent to room {room}: {data['message']}")
+    print(f"Message sent to room {room}: {data['message'][:50]}")
     
-    # Also send a notification to the receiver if they're not in the chat
+    # Get sender info for notification
+    sender = await db.users.find_one({"user_id": data["sender_id"]}, {"_id": 0, "name": 1})
+    
+    # Send a notification to the receiver's personal room
     await sio.emit("notification", {
         "message": message_doc,
         "sender_id": data["sender_id"],
+        "sender_name": sender.get("name") if sender else "Someone",
         "receiver_id": data["receiver_id"]
     }, room=f"user_{data['receiver_id']}")
+    print(f"Notification sent to user_{data['receiver_id']}")
 
 @sio.event
 async def join_user_room(sid, data):
     # Each user joins their personal room for notifications
     user_room = f"user_{data['user_id']}"
     await sio.enter_room(sid, user_room)
-    print(f"User joined personal room: {user_room}")
+    print(f"User {data['user_id']} joined personal room: {user_room}")
 
 app.include_router(api_router)
 
