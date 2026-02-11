@@ -77,7 +77,10 @@ export default function AdDetailsPage() {
 
   const handleChat = () => {
     if (!user) {
-      navigate('/login');
+      // Store the intended chat destination
+      sessionStorage.setItem('pendingChat', JSON.stringify({ adId, ownerId: ad.owner.user_id }));
+      toast.info('Please login to start chatting');
+      navigate('/login', { state: { from: `/ad/${adId}` } });
       return;
     }
     navigate(`/chat/${adId}/${ad.owner.user_id}`);
