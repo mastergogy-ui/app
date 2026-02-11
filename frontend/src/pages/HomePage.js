@@ -58,6 +58,43 @@ export default function HomePage() {
     }
   };
 
+  const checkUnreadMessages = async () => {
+    try {
+      const response = await fetch(`${API}/conversations`, { credentials: 'include' });
+      if (response.ok) {
+        const conversations = await response.json();
+        const unread = conversations.filter(conv => !conv.seen && conv.last_message).length;
+        setUnreadCount(unread);
+        if (unread > 0) {
+          setHasNewMessage(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking messages:', error);
+    }
+  };
+
+  const setupSocketListener = () => {
+    const socket = io(BACKEND_URL, {
+      transports: ['websocket', 'polling']
+    });
+
+    socket.on('new_message', (message) => {
+      if (message.receiver_id === user?.user_id) {
+        setUnreadCount(prev => prev + 1);
+        setHasNewMessage(true);
+        playNotificationSound();
+      }
+    });
+
+    return () => socket.disconnect();
+  };
+
+  const playNotificationSound = () => {
+    const audio = new Audio('data:audio/wav;base64,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');
+    audio.play().catch(e => console.log('Audio play failed:', e));
+  };
+
   const fetchNearbyAds = async (loc = null) => {
     try {
       let url = `${API}/ads?`;
