@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { user: authUser, logout } = useAuth();
   const [user, setUser] = useState(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -20,24 +22,16 @@ export default function ProfilePage() {
   const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const fetchUser = async () => {
-    try {
-      const response = await fetch(`${API}/auth/me`, { credentials: 'include' });
-      const data = await response.json();
-      setUser(data);
-      setName(data.name || '');
-      setPhone(data.phone || '');
-      setCity(data.location?.city || '');
-      if (data.picture) {
-        setImagePreview(data.picture.startsWith('http') ? data.picture : `${BACKEND_URL}${data.picture}`);
+    if (authUser) {
+      setUser(authUser);
+      setName(authUser.name || '');
+      setPhone(authUser.phone || '');
+      setCity(authUser.location?.city || '');
+      if (authUser.picture) {
+        setImagePreview(authUser.picture.startsWith('http') ? authUser.picture : `${BACKEND_URL}${authUser.picture}`);
       }
-    } catch (error) {
-      console.error('Error fetching user:', error);
     }
-  };
+  }, [authUser]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
