@@ -38,6 +38,16 @@ export default function LoginPage() {
       const data = await response.json();
       login(data.user);
       toast.success('Login successful!');
+      
+      // Check if there's a pending chat
+      const pendingChat = sessionStorage.getItem('pendingChat');
+      if (pendingChat) {
+        const { adId, ownerId } = JSON.parse(pendingChat);
+        sessionStorage.removeItem('pendingChat');
+        navigate(`/chat/${adId}/${ownerId}`, { replace: true });
+        return;
+      }
+      
       // Redirect to home page by default, unless user was trying to access a specific page
       const redirectTo = from === '/dashboard' ? '/' : from;
       navigate(redirectTo, { replace: true });
