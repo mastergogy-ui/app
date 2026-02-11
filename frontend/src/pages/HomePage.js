@@ -93,9 +93,23 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
-                <Button data-testid="dashboard-btn" onClick={() => navigate('/dashboard')} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2">
-                  Dashboard
-                </Button>
+                <>
+                  <Button 
+                    data-testid="upload-btn-desktop" 
+                    onClick={() => navigate('/upload')} 
+                    className="hidden md:flex items-center gap-2 rounded-full bg-red-500 hover:bg-red-600 text-white px-6 py-2 font-semibold"
+                  >
+                    <PlusCircle size={20} />
+                    <span>Upload</span>
+                  </Button>
+                  <Button 
+                    data-testid="dashboard-btn-desktop" 
+                    onClick={() => navigate('/dashboard')} 
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-semibold"
+                  >
+                    Dashboard
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button data-testid="login-btn" variant="outline" onClick={() => navigate('/login')} className="rounded-full border-gray-200 px-6">
