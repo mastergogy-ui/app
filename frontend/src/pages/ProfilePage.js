@@ -12,7 +12,7 @@ const API = `${BACKEND_URL}/api`;
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user: authUser, logout } = useAuth();
+  const { user: authUser, logout, login } = useAuth();
   const [user, setUser] = useState(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
