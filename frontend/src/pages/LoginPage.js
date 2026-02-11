@@ -10,9 +10,12 @@ const API = `${BACKEND_URL}/api`;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from || '/dashboard';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,7 +35,7 @@ export default function LoginPage() {
       }
       
       toast.success('Login successful!');
-      navigate('/dashboard', { state: { user: data.user } });
+      navigate(from, { state: { user: data.user }, replace: true });
     } catch (error) {
       toast.error('Invalid email or password');
     } finally {
