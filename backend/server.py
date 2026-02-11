@@ -298,7 +298,7 @@ async def update_profile(
         img.thumbnail((500, 500))
         img.save(filepath)
         
-        update_data["picture"] = f"/uploads/{filename}"
+        update_data["picture"] = f"/api/uploads/{filename}"
     
     if update_data:
         await db.users.update_one(
