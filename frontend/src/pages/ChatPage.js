@@ -224,11 +224,25 @@ export default function ChatPage() {
                   {msg.message && msg.message !== '[Image]' && (
                     <p className="text-sm leading-relaxed">{msg.message}</p>
                   )}
-                  <p className={`text-xs mt-1 ${
-                    isMe ? 'text-blue-100' : 'text-gray-400'
+                  <div className={`flex items-center gap-1 mt-1 text-xs ${
+                    isMe ? 'text-blue-100 justify-end' : 'text-gray-400'
                   }`}>
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                    <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    {isMe && (
+                      <span className="ml-1">
+                        {msg.seen ? (
+                          <svg className="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/>
+                            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" transform="translate(3, 0)"/>
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/>
+                          </svg>
+                        )}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
