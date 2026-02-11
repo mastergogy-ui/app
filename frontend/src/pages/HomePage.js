@@ -121,6 +121,24 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {isAuthenticated && (
+                <button
+                  data-testid="notification-btn"
+                  onClick={() => navigate('/messages')}
+                  className="relative rounded-full p-2 hover:bg-gray-100 transition-colors"
+                >
+                  <Bell 
+                    size={24} 
+                    className={hasNewMessage ? "text-green-500" : "text-blue-600"}
+                    fill={hasNewMessage ? "currentColor" : "none"}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+              )}
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">R</span>
               </div>
