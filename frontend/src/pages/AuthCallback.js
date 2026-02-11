@@ -43,6 +43,17 @@ export default function AuthCallback() {
 
         login(data.user);
         toast.success('Login successful!');
+        
+        // Check if there's a pending chat
+        const pendingChat = sessionStorage.getItem('pendingChat');
+        if (pendingChat) {
+          const { adId, ownerId } = JSON.parse(pendingChat);
+          sessionStorage.removeItem('pendingChat');
+          navigate(`/chat/${adId}/${ownerId}`, { replace: true });
+          return;
+        }
+        
+        // Default redirect to home
         navigate('/', { replace: true });
       } catch (error) {
         toast.error('Authentication failed');
