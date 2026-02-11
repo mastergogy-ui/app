@@ -1,0 +1,185 @@
+import { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import io from 'socket.io-client';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+export default function ChatPage() {
+  const { adId, otherUserId } = useParams();
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [user, setUser] = useState(null);
+  const [otherUser, setOtherUser] = useState(null);
+  const [ad, setAd] = useState(null);
+  const socketRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    fetchData();
+    initializeSocket();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, [adId, otherUserId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const fetchData = async () => {
+    try {
+      const [userRes, messagesRes, adRes] = await Promise.all([
+        fetch(`${API}/auth/me`, { credentials: 'include' }),
+        fetch(`${API}/messages/${adId}/${otherUserId}`, { credentials: 'include' }),
+        fetch(`${API}/ads/${adId}`)
+      ]);
+
+      const userData = await userRes.json();
+      const messagesData = await messagesRes.json();
+      const adData = await adRes.json();
+
+      setUser(userData);
+      setMessages(messagesData);
+      setAd(adData);
+      setOtherUser(adData.owner);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const initializeSocket = () => {
+    socketRef.current = io(BACKEND_URL, {
+      transports: ['websocket', 'polling']
+    });
+
+    socketRef.current.on('connect', () => {
+      socketRef.current.emit('join_chat', {
+        ad_id: adId,
+        user1: otherUserId,
+        user2: user?.user_id
+      });
+    });
+
+    socketRef.current.on('new_message', (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !user) return;
+
+    socketRef.current.emit('send_message', {
+      sender_id: user.user_id,
+      receiver_id: otherUserId,
+      ad_id: adId,
+      message: newMessage
+    });
+
+    setNewMessage('');
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  if (!user || !ad) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen bg-[#FAFAFA] flex flex-col">
+      <header className="bg-white border-b border-gray-100 flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              data-testid="back-btn"
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="rounded-full"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center overflow-hidden">
+                {otherUser?.picture ? (
+                  <img src={otherUser.picture} alt={otherUser.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-bold">{otherUser?.name[0]}</span>
+                )}
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">{otherUser?.name}</h2>
+                <p className="text-sm text-gray-500 truncate">{ad.title}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto px-4 py-6" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.map((msg, index) => {
+            const isMe = msg.sender_id === user.user_id;
+            return (
+              <div
+                key={index}
+                data-testid={`message-${index}`}
+                className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`chat-bubble px-4 py-3 rounded-2xl ${
+                    isMe
+                      ? 'bg-blue-600 text-white rounded-br-md'
+                      : 'bg-white text-gray-900 rounded-bl-md border border-gray-100'
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed">{msg.message}</p>
+                  <p className={`text-xs mt-1 ${
+                    isMe ? 'text-blue-100' : 'text-gray-400'
+                  }`}>
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      <div className="bg-white border-t border-gray-100 flex-shrink-0">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <form onSubmit={handleSendMessage} className="flex gap-3">
+            <Input
+              data-testid="message-input"
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 h-12 rounded-full bg-gray-50 border-gray-200"
+            />
+            <Button
+              data-testid="send-btn"
+              type="submit"
+              className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 p-0 flex items-center justify-center"
+            >
+              <Send size={20} />
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
