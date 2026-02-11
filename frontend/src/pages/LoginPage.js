@@ -35,7 +35,9 @@ export default function LoginPage() {
       }
       
       toast.success('Login successful!');
-      navigate(from, { state: { user: data.user }, replace: true });
+      // Redirect to home page by default, unless user was trying to access a specific page
+      const redirectTo = from === '/dashboard' ? '/' : from;
+      navigate(redirectTo, { state: { user: data.user }, replace: true });
     } catch (error) {
       toast.error('Invalid email or password');
     } finally {
