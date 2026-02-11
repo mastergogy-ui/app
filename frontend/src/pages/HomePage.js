@@ -79,6 +79,33 @@ export default function HomePage() {
       transports: ['websocket', 'polling']
     });
 
+    socket.on('connect', () => {
+      console.log('Socket connected on homepage');
+      // Join personal notification room
+      if (user?.user_id) {
+        socket.emit('join_user_room', {
+          user_id: user.user_id
+        });
+      }
+    });
+
+    socket.on('notification', (data) => {
+      console.log('Received notification:', data);
+      if (data.receiver_id === user?.user_id) {
+        setUnreadCount(prev => prev + 1);
+        setHasNewMessage(true);
+        playNotificationSound();
+        
+        // Show toast notification
+        if (window.Notification && Notification.permission === 'granted') {
+          new Notification('New Message', {
+            body: data.message.message,
+            icon: '/logo192.png'
+          });
+        }
+      }
+    });
+
     socket.on('new_message', (message) => {
       if (message.receiver_id === user?.user_id) {
         setUnreadCount(prev => prev + 1);
