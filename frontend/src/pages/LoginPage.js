@@ -25,9 +25,12 @@ export default function LoginPage() {
         credentials: 'include'
       });
       
-      if (!response.ok) throw new Error('Login failed');
-      
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Login failed');
+      }
+      
       toast.success('Login successful!');
       navigate('/dashboard', { state: { user: data.user } });
     } catch (error) {
