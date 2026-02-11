@@ -14,6 +14,7 @@ import ChatPage from "./pages/ChatPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import { Toaster } from "./components/ui/sonner";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -41,43 +42,10 @@ function AppRouter() {
 }
 
 function ProtectedRoute({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [user, setUser] = useState(null);
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.state?.user) {
-      setIsAuthenticated(true);
-      setUser(location.state.user);
-      return;
-    }
-
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(`${API}/auth/me`, {
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json',
-          }
-        });
-        
-        if (!response.ok) {
-          console.log('Auth check failed:', response.status);
-          throw new Error('Not authenticated');
-        }
-        
-        const userData = await response.json();
-        setIsAuthenticated(true);
-        setUser(userData);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        setIsAuthenticated(false);
-      }
-    };
-    checkAuth();
-  }, [location]);
-
-  if (isAuthenticated === null) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -97,12 +65,14 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-      <Toaster />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+        <Toaster />
+      </div>
+    </AuthProvider>
   );
 }
 
