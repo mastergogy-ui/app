@@ -94,6 +94,15 @@ export default function HomePage() {
                     <span>Upload</span>
                   </Button>
                   <Button 
+                    data-testid="profile-btn-desktop" 
+                    onClick={() => navigate('/profile')} 
+                    variant="outline"
+                    className="hidden md:flex items-center gap-2 rounded-full border-gray-200 px-6 py-2 font-semibold"
+                  >
+                    <User size={20} />
+                    <span>Profile</span>
+                  </Button>
+                  <Button 
                     data-testid="dashboard-btn-desktop" 
                     onClick={() => navigate('/dashboard')} 
                     className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-semibold"
