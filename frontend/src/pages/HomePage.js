@@ -22,14 +22,20 @@ const categories = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [nearbyAds, setNearbyAds] = useState([]);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
 
   useEffect(() => {
     getLocation();
-  }, []);
+    if (isAuthenticated && user) {
+      checkUnreadMessages();
+      setupSocketListener();
+    }
+  }, [isAuthenticated, user]);
 
   const getLocation = () => {
     if (navigator.geolocation) {
