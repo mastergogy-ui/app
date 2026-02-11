@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import socketService from '../services/socketService';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -21,6 +22,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    // Connect socket when user is authenticated
+    if (user?.user_id) {
+      socketService.connect(user.user_id);
+    }
+    
+    return () => {
+      // Don't disconnect on unmount, keep connection alive
+    };
+  }, [user]);
 
   const checkAuth = async () => {
     try {
@@ -51,6 +63,8 @@ export function AuthProvider({ children }) {
   const login = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
+    // Connect socket immediately on login
+    socketService.connect(userData.user_id);
   };
 
   const logout = async () => {
@@ -64,6 +78,7 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null);
       setIsAuthenticated(false);
+      socketService.disconnect();
     }
   };
 
