@@ -82,46 +82,39 @@ export default function HomePage() {
   };
 
   const setupSocketListener = () => {
-    const socket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling']
-    });
+    const socket = socketService.getSocket();
+    if (!socket) {
+      console.log('Socket not available');
+      return;
+    }
 
-    socket.on('connect', () => {
-      console.log('Socket connected on homepage');
-      // Join personal notification room
-      if (user?.user_id) {
-        socket.emit('join_user_room', {
-          user_id: user.user_id
-        });
-      }
-    });
-
-    socket.on('notification', (data) => {
+    // Listen for notifications
+    socketService.onNotification((data) => {
       console.log('Received notification:', data);
       if (data.receiver_id === user?.user_id) {
         setUnreadCount(prev => prev + 1);
         setHasNewMessage(true);
         playNotificationSound();
         
-        // Show toast notification
-        if (window.Notification && Notification.permission === 'granted') {
-          new Notification('New Message', {
-            body: data.message.message,
-            icon: '/logo192.png'
-          });
-        }
+        toast.success(`New message from ${data.sender_name || 'someone'}`, {
+          description: data.message?.message || 'Click to view',
+          action: {
+            label: 'View',
+            onClick: () => navigate('/messages')
+          }
+        });
       }
     });
 
-    socket.on('new_message', (message) => {
+    // Also listen for direct new_message events
+    socketService.onNewMessage((message) => {
+      console.log('Received new_message:', message);
       if (message.receiver_id === user?.user_id) {
         setUnreadCount(prev => prev + 1);
         setHasNewMessage(true);
         playNotificationSound();
       }
     });
-
-    return () => socket.disconnect();
   };
 
   const playNotificationSound = () => {
