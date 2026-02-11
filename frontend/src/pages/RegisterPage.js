@@ -33,7 +33,7 @@ export default function RegisterPage() {
       }
       
       toast.success('Account created successfully!');
-      navigate('/dashboard', { state: { user: data.user } });
+      navigate('/', { state: { user: data.user } });
     } catch (error) {
       toast.error(error.message || 'Registration failed');
     } finally {
