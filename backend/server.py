@@ -119,6 +119,9 @@ async def get_current_user(request: Request) -> dict:
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
     
+    if "created_at" in user_doc and isinstance(user_doc["created_at"], datetime):
+        user_doc["created_at"] = user_doc["created_at"].isoformat()
+    
     return user_doc
 
 @api_router.post("/auth/register")
