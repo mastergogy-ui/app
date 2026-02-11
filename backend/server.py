@@ -337,7 +337,7 @@ async def create_ad(
         image_obj.thumbnail((1200, 1200))
         image_obj.save(filepath)
         
-        image_urls.append(f"/uploads/{filename}")
+        image_urls.append(f"/api/uploads/{filename}")
     
     import json
     location_data = json.loads(location)
