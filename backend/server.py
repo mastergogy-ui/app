@@ -82,6 +82,7 @@ class Message(BaseModel):
     receiver_id: str
     ad_id: str
     message: str
+    image: Optional[str] = None
     timestamp: datetime
     seen: bool = False
 
