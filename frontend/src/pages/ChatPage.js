@@ -76,7 +76,7 @@ export default function ChatPage() {
     });
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if ((!newMessage.trim() && !selectedImage) || !user) return;
 
@@ -85,11 +85,18 @@ export default function ChatPage() {
       receiver_id: otherUserId,
       ad_id: adId,
       message: newMessage.trim() || '[Image]',
-      image: imagePreview || null
+      image: imagePreview || null,
+      timestamp: new Date().toISOString(),
+      seen: false
     };
 
+    // Add message to UI immediately (optimistic update)
+    setMessages(prev => [...prev, messageData]);
+
+    // Send via Socket.io
     socketRef.current.emit('send_message', messageData);
 
+    // Clear inputs
     setNewMessage('');
     setSelectedImage(null);
     setImagePreview('');
