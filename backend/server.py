@@ -306,6 +306,8 @@ async def update_profile(
         )
     
     updated_user = await db.users.find_one({"user_id": current_user["user_id"]}, {"_id": 0})
+    if "created_at" in updated_user and isinstance(updated_user["created_at"], datetime):
+        updated_user["created_at"] = updated_user["created_at"].isoformat()
     return updated_user
 
 @api_router.post("/ads")
