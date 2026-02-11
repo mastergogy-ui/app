@@ -24,11 +24,14 @@ export default function ChatPage() {
 
   useEffect(() => {
     fetchData();
-    initializeSocket();
+    setupSocketListeners();
+    
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      // Leave chat room when component unmounts
+      socketService.leaveChat(adId);
+      // Clean up listeners
+      socketService.offNewMessage();
+      socketService.offMessagesSeen();
     };
   }, [adId, otherUserId]);
 
