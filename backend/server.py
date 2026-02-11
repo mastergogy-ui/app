@@ -40,8 +40,6 @@ api_router = APIRouter(prefix="/api")
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
-
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     user_id: str
