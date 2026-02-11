@@ -104,14 +104,6 @@ export default function ProfilePage() {
               </Button>
               <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'Manrope' }}>Profile</h1>
             </div>
-            <Button
-              data-testid="logout-btn"
-              variant="ghost"
-              onClick={handleLogout}
-              className="rounded-full text-red-500 hover:text-red-600 hover:bg-red-50"
-            >
-              <LogOut size={20} />
-            </Button>
           </div>
         </div>
       </header>
