@@ -60,28 +60,15 @@ export default function ChatPage() {
     }
   };
 
-  const initializeSocket = () => {
-    socketRef.current = io(BACKEND_URL, {
-      transports: ['websocket', 'polling']
-    });
+  const setupSocketListeners = () => {
+    if (!user) return;
 
-    socketRef.current.on('connect', () => {
-      console.log('Socket connected');
-      // Join the chat room for this ad
-      socketRef.current.emit('join_chat', {
-        ad_id: adId,
-        user1: user?.user_id,
-        user2: otherUserId
-      });
-      
-      // Also join personal room for notifications
-      socketRef.current.emit('join_user_room', {
-        user_id: user?.user_id
-      });
-    });
+    // Join chat room
+    socketService.joinChat(adId, user.user_id, otherUserId);
 
-    socketRef.current.on('new_message', (message) => {
-      console.log('Received new message:', message);
+    // Listen for new messages
+    socketService.onNewMessage((message) => {
+      console.log('Chat received new message:', message);
       setMessages((prev) => {
         // Check if message already exists
         const exists = prev.some(m => 
@@ -97,8 +84,8 @@ export default function ChatPage() {
       });
     });
 
-    socketRef.current.on('messages_seen', (data) => {
-      // Mark all messages to this receiver as seen
+    // Listen for messages seen
+    socketService.onMessagesSeen((data) => {
       setMessages((prev) => 
         prev.map(msg => 
           msg.ad_id === data.ad_id && 
@@ -109,12 +96,6 @@ export default function ChatPage() {
         )
       );
     });
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-    };
   };
 
   const handleSendMessage = async (e) => {
