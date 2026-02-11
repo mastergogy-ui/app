@@ -30,12 +30,12 @@ export default function LoginPage() {
         credentials: 'include'
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.detail || 'Login failed');
+        const errorData = await response.json().catch(() => ({ detail: 'Login failed' }));
+        throw new Error(errorData.detail || 'Login failed');
       }
       
+      const data = await response.json();
       login(data.user);
       toast.success('Login successful!');
       // Redirect to home page by default, unless user was trying to access a specific page
