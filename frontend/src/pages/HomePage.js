@@ -33,8 +33,15 @@ export default function HomePage() {
     getLocation();
     if (isAuthenticated && user) {
       checkUnreadMessages();
+      // Set up socket listeners
       setupSocketListener();
     }
+    
+    return () => {
+      // Clean up listeners but don't disconnect socket
+      socketService.offNotification();
+      socketService.offNewMessage();
+    };
   }, [isAuthenticated, user]);
 
   const getLocation = () => {
