@@ -116,7 +116,7 @@ export default function ChatPage() {
     setMessages(prev => [...prev, messageData]);
 
     // Send via Socket.io
-    socketRef.current.emit('send_message', messageData);
+    socketService.sendMessage(messageData);
 
     // Clear inputs
     setNewMessage('');
