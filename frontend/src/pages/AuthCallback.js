@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -33,11 +35,15 @@ export default function AuthCallback() {
           credentials: 'include'
         });
 
-        if (!response.ok) throw new Error('Session creation failed');
-
         const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.detail || 'Session creation failed');
+        }
+
+        login(data.user);
         toast.success('Login successful!');
-        navigate('/dashboard', { state: { user: data.user }, replace: true });
+        navigate('/', { replace: true });
       } catch (error) {
         toast.error('Authentication failed');
         navigate('/login');
@@ -45,7 +51,7 @@ export default function AuthCallback() {
     };
 
     processSession();
-  }, [navigate]);
+  }, [navigate, login]);
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
