@@ -178,7 +178,17 @@ export default function ChatPage() {
                       : 'bg-white text-gray-900 rounded-bl-md border border-gray-100'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{msg.message}</p>
+                  {msg.image && (
+                    <img 
+                      src={msg.image} 
+                      alt="Shared" 
+                      className="rounded-lg mb-2 max-w-xs cursor-pointer"
+                      onClick={() => window.open(msg.image, '_blank')}
+                    />
+                  )}
+                  {msg.message && msg.message !== '[Image]' && (
+                    <p className="text-sm leading-relaxed">{msg.message}</p>
+                  )}
                   <p className={`text-xs mt-1 ${
                     isMe ? 'text-blue-100' : 'text-gray-400'
                   }`}>
