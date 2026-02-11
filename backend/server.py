@@ -606,6 +606,8 @@ async def send_message(sid, data):
 
 app.include_router(api_router)
 
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
