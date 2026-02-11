@@ -66,6 +66,7 @@ export default function ProfilePage() {
 
       const data = await response.json();
       setUser(data);
+      login(data); // Update the auth context with new user data
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error('Failed to update profile');
