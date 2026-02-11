@@ -28,12 +28,12 @@ export default function RegisterPage() {
         credentials: 'include'
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.detail || 'Registration failed');
+        const errorData = await response.json().catch(() => ({ detail: 'Registration failed' }));
+        throw new Error(errorData.detail || 'Registration failed');
       }
       
+      const data = await response.json();
       login(data.user);
       toast.success('Account created successfully!');
       navigate('/');
