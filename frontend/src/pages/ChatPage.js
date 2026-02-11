@@ -97,6 +97,17 @@ export default function ChatPage() {
       );
     });
 
+    socketRef.current.on('messages_seen', (data) => {
+      // Mark all messages in this conversation as seen
+      setMessages((prev) => 
+        prev.map(msg => 
+          msg.ad_id === data.ad_id && msg.sender_id === user?.user_id 
+            ? { ...msg, seen: true } 
+            : msg
+        )
+      );
+    });
+
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
