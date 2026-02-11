@@ -591,6 +591,22 @@ async def disconnect(sid):
 async def join_chat(sid, data):
     room = f"{data['ad_id']}_{data['user1']}_{data['user2']}"
     await sio.enter_room(sid, room)
+    
+    # Mark all messages from the other user as seen
+    if data.get('user1') and data.get('user2'):
+        await db.messages.update_many(
+            {
+                "ad_id": data['ad_id'],
+                "sender_id": data['user2'],
+                "receiver_id": data['user1'],
+                "seen": False
+            },
+            {"$set": {"seen": True}}
+        )
+        
+        # Notify sender that messages were seen
+        seen_room = f"{data['ad_id']}_{data['user2']}_{data['user1']}"
+        await sio.emit("messages_seen", {"ad_id": data['ad_id']}, room=seen_room)
 
 @sio.event
 async def send_message(sid, data):
