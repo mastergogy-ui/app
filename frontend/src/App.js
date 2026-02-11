@@ -44,7 +44,6 @@ function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.state?.user) {
