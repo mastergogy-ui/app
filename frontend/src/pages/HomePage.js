@@ -174,7 +174,7 @@ export default function HomePage() {
                   )}
                 </button>
               )}
-              <img src="/logo.png" alt="RentWala" className="h-12 w-auto" />
+              <img src="/logo.png" alt="RentWala" className="h-14 md:h-16 w-auto" />
             </div>
             <div className="flex items-center gap-2 md:gap-3">
               {isAuthenticated ? (

@@ -39,10 +39,10 @@ export default function ChatPage() {
     fetchData();
     setupSocketListeners();
     
-    // Poll for new messages every 3 seconds (fallback for WebSocket)
+    // Poll for new messages every 1 second (faster real-time)
     const pollInterval = setInterval(() => {
       fetchNewMessages();
-    }, 3000);
+    }, 1000);
     
     return () => {
       clearInterval(pollInterval);
