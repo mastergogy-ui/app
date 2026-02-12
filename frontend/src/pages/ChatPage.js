@@ -161,6 +161,59 @@ export default function ChatPage() {
     }
   };
 
+  const handleSendPoints = async () => {
+    const amount = parseInt(pointsToSend);
+    if (!amount || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+    if (amount > gogoPoints) {
+      toast.error(`Insufficient points. You have ${formatPoints(gogoPoints)} points.`);
+      return;
+    }
+
+    setSendingPoints(true);
+    try {
+      const response = await fetch(`${API}/user/transfer-points`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          to_user_id: otherUserId,
+          amount: amount,
+          ad_id: adId
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(`Successfully sent ${formatPoints(amount)} Gogo Points!`);
+        updatePoints(data.new_balance);
+        setShowPointsModal(false);
+        setPointsToSend('');
+        
+        // Send a message about the points transfer
+        const messageData = {
+          sender_id: user.user_id,
+          receiver_id: otherUserId,
+          ad_id: adId,
+          message: `🎁 Sent ${formatPoints(amount)} Gogo Points!`,
+          image: null,
+          timestamp: new Date().toISOString(),
+          seen: false
+        };
+        setMessages(prev => [...prev, messageData]);
+        socketService.sendMessage(messageData);
+      } else {
+        toast.error(data.detail || 'Failed to send points');
+      }
+    } catch (error) {
+      toast.error('Failed to send points');
+    } finally {
+      setSendingPoints(false);
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
