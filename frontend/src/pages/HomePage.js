@@ -174,10 +174,7 @@ export default function HomePage() {
                   )}
                 </button>
               )}
-              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-base">R</span>
-              </div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900" style={{ fontFamily: 'Manrope' }}>RENT WALA</h1>
+              <img src="/logo.png" alt="RentWala" className="h-10 w-auto" />
             </div>
             <div className="flex items-center gap-2 md:gap-3">
               {isAuthenticated ? (
