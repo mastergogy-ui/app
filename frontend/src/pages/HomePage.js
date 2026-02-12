@@ -182,6 +182,15 @@ export default function HomePage() {
             <div className="flex items-center gap-2 md:gap-3">
               {isAuthenticated ? (
                 <>
+                  {/* Gogo Points Display */}
+                  <div 
+                    data-testid="gogo-points-display"
+                    className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1.5 rounded-full font-semibold text-sm cursor-pointer hover:from-amber-500 hover:to-orange-600 transition-all"
+                    onClick={() => navigate('/profile')}
+                  >
+                    <Coins size={16} />
+                    <span>{formatPoints(gogoPoints)}</span>
+                  </div>
                   <Button 
                     data-testid="upload-btn-desktop" 
                     onClick={() => navigate('/upload')} 
