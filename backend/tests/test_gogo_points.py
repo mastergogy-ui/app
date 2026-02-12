@@ -242,12 +242,18 @@ class TestGogoPointsSystem:
     
     def test_successful_points_transfer(self):
         """Test successful points transfer between users"""
-        # Create two users
+        # Create two separate sessions for sender and receiver
+        sender_session = requests.Session()
+        sender_session.headers.update({"Content-Type": "application/json"})
+        
+        receiver_session = requests.Session()
+        receiver_session.headers.update({"Content-Type": "application/json"})
+        
         sender_email = f"TEST_sender_{uuid.uuid4().hex[:8]}@test.com"
         receiver_email = f"TEST_receiver_{uuid.uuid4().hex[:8]}@test.com"
         
         # Register sender
-        response = self.session.post(f"{BASE_URL}/api/auth/register", json={
+        response = sender_session.post(f"{BASE_URL}/api/auth/register", json={
             "email": sender_email,
             "password": "testpass123",
             "name": "TEST Sender"
@@ -258,8 +264,8 @@ class TestGogoPointsSystem:
         sender_user = sender_data["user"]
         initial_sender_points = sender_user["gogo_points"]
         
-        # Register receiver
-        response = self.session.post(f"{BASE_URL}/api/auth/register", json={
+        # Register receiver with separate session
+        response = receiver_session.post(f"{BASE_URL}/api/auth/register", json={
             "email": receiver_email,
             "password": "testpass123",
             "name": "TEST Receiver"
@@ -272,9 +278,9 @@ class TestGogoPointsSystem:
         
         # Transfer points from sender to receiver
         transfer_amount = 100
-        self.session.headers.update({"Authorization": f"Bearer {sender_token}"})
+        sender_session.headers.update({"Authorization": f"Bearer {sender_token}"})
         
-        response = self.session.post(f"{BASE_URL}/api/user/transfer-points", json={
+        response = sender_session.post(f"{BASE_URL}/api/user/transfer-points", json={
             "to_user_id": receiver_user["user_id"],
             "amount": transfer_amount
         })
@@ -287,8 +293,8 @@ class TestGogoPointsSystem:
             f"Sender balance should be {initial_sender_points - transfer_amount}, got {transfer_data['new_balance']}"
         
         # Verify receiver got the points
-        self.session.headers.update({"Authorization": f"Bearer {receiver_token}"})
-        response = self.session.get(f"{BASE_URL}/api/user/points")
+        receiver_session.headers.update({"Authorization": f"Bearer {receiver_token}"})
+        response = receiver_session.get(f"{BASE_URL}/api/user/points")
         assert response.status_code == 200
         receiver_points = response.json()["gogo_points"]
         
