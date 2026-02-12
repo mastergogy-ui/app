@@ -128,7 +128,19 @@ export default function ChatPage() {
     // Add message to UI immediately (optimistic update)
     setMessages(prev => [...prev, messageData]);
 
-    // Send via Socket.io
+    // Send via HTTP API (more reliable than WebSocket)
+    try {
+      await fetch(`${API}/messages/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(messageData)
+      });
+    } catch (error) {
+      console.error('Failed to send message via HTTP:', error);
+    }
+
+    // Also try Socket.io as backup
     socketService.sendMessage(messageData);
 
     // Clear inputs
