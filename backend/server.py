@@ -711,6 +711,32 @@ async def get_messages(ad_id: str, other_user_id: str, current_user: dict = Depe
     
     return messages
 
+class MessageCreate(BaseModel):
+    sender_id: str
+    receiver_id: str
+    ad_id: str
+    message: str
+    image: Optional[str] = None
+
+@api_router.post("/messages/send")
+async def send_message_http(msg: MessageCreate, current_user: dict = Depends(get_current_user)):
+    """Send a message via HTTP (fallback for WebSocket issues)"""
+    message_id = f"msg_{uuid.uuid4().hex[:12]}"
+    message_doc = {
+        "message_id": message_id,
+        "sender_id": current_user["user_id"],
+        "receiver_id": msg.receiver_id,
+        "ad_id": msg.ad_id,
+        "message": msg.message,
+        "image": msg.image,
+        "timestamp": datetime.now(timezone.utc),
+        "seen": False
+    }
+    await db.messages.insert_one(message_doc)
+    message_doc.pop("_id")
+    message_doc["timestamp"] = message_doc["timestamp"].isoformat()
+    return message_doc
+
 @api_router.get("/uploads/{filename}")
 async def serve_upload(filename: str):
     file_path = UPLOAD_DIR / filename
