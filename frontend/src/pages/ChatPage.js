@@ -39,7 +39,13 @@ export default function ChatPage() {
     fetchData();
     setupSocketListeners();
     
+    // Poll for new messages every 3 seconds (fallback for WebSocket)
+    const pollInterval = setInterval(() => {
+      fetchNewMessages();
+    }, 3000);
+    
     return () => {
+      clearInterval(pollInterval);
       // Leave chat room when component unmounts
       socketService.leaveChat(adId);
       // Clean up listeners
@@ -51,6 +57,24 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const fetchNewMessages = async () => {
+    try {
+      const response = await fetch(`${API}/messages/${adId}/${otherUserId}`, { credentials: 'include' });
+      if (response.ok) {
+        const newMessages = await response.json();
+        setMessages(prev => {
+          // Only update if there are new messages
+          if (newMessages.length > prev.length) {
+            return newMessages;
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      // Silently fail polling
+    }
+  };
 
   const fetchData = async () => {
     try {
