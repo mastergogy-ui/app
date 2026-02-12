@@ -97,7 +97,16 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* Gogo Points Card */}
+          <div className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-white/80">Gogo Points</p>
+              <Coins size={20} className="text-white" />
+            </div>
+            <p className="text-3xl font-bold text-white" data-testid="dashboard-points">{formatPoints(gogoPoints)}</p>
+            <p className="text-xs text-white/70 mt-1">Available balance</p>
+          </div>
           <div className="bg-white rounded-xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-gray-500">Total Ads</p>
