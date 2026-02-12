@@ -96,6 +96,21 @@ class SavedAd(BaseModel):
     ad_id: str
     saved_at: datetime
 
+class Transaction(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    transaction_id: str
+    from_user_id: str
+    to_user_id: str
+    amount: int
+    transaction_type: str  # "transfer", "registration_bonus", "ad_post_deduction"
+    description: str
+    timestamp: datetime
+
+class PointsTransfer(BaseModel):
+    to_user_id: str
+    amount: int
+    ad_id: Optional[str] = None
+
 async def get_current_user(request: Request) -> dict:
     session_token = request.cookies.get("session_token")
     if not session_token:
@@ -144,10 +159,23 @@ async def register(user_data: UserCreate):
         "picture": None,
         "phone": None,
         "location": None,
+        "gogo_points": 1000,
         "created_at": datetime.now(timezone.utc)
     }
     
     await db.users.insert_one(user_doc)
+    
+    # Record registration bonus transaction
+    bonus_transaction = {
+        "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+        "from_user_id": "system",
+        "to_user_id": user_id,
+        "amount": 1000,
+        "transaction_type": "registration_bonus",
+        "description": "Welcome bonus on registration",
+        "timestamp": datetime.now(timezone.utc)
+    }
+    await db.transactions.insert_one(bonus_transaction)
     
     session_token = f"session_{uuid.uuid4().hex}"
     session_doc = {
@@ -239,10 +267,23 @@ async def create_session(request: Request):
             "picture": picture,
             "phone": None,
             "location": None,
+            "gogo_points": 1000,
             "created_at": datetime.now(timezone.utc)
         }
         await db.users.insert_one(user_doc)
         user_doc.pop("_id")
+        
+        # Record registration bonus transaction for Google sign-up
+        bonus_transaction = {
+            "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+            "from_user_id": "system",
+            "to_user_id": user_id_custom,
+            "amount": 1000,
+            "transaction_type": "registration_bonus",
+            "description": "Welcome bonus on registration",
+            "timestamp": datetime.now(timezone.utc)
+        }
+        await db.transactions.insert_one(bonus_transaction)
     else:
         user_id_custom = user_doc["user_id"]
         await db.users.update_one(
