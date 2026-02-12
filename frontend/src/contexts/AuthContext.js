@@ -18,6 +18,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [gogoPoints, setGogoPoints] = useState(0);
 
   useEffect(() => {
     checkAuth();
@@ -27,6 +28,7 @@ export function AuthProvider({ children }) {
     // Connect socket when user is authenticated
     if (user?.user_id) {
       socketService.connect(user.user_id);
+      setGogoPoints(user.gogo_points || 0);
     }
     
     return () => {
@@ -47,14 +49,17 @@ export function AuthProvider({ children }) {
         const userData = await response.json();
         setUser(userData);
         setIsAuthenticated(true);
+        setGogoPoints(userData.gogo_points || 0);
       } else {
         setUser(null);
         setIsAuthenticated(false);
+        setGogoPoints(0);
       }
     } catch (error) {
       console.error('Auth check error:', error);
       setUser(null);
       setIsAuthenticated(false);
+      setGogoPoints(0);
     } finally {
       setLoading(false);
     }
@@ -63,6 +68,7 @@ export function AuthProvider({ children }) {
   const login = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
+    setGogoPoints(userData.gogo_points || 0);
     // Connect socket immediately on login
     socketService.connect(userData.user_id);
   };
@@ -78,8 +84,28 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null);
       setIsAuthenticated(false);
+      setGogoPoints(0);
       socketService.disconnect();
     }
+  };
+
+  const refreshPoints = async () => {
+    if (!isAuthenticated) return;
+    try {
+      const response = await fetch(`${API}/user/points`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setGogoPoints(data.gogo_points || 0);
+      }
+    } catch (error) {
+      console.error('Error refreshing points:', error);
+    }
+  };
+
+  const updatePoints = (newPoints) => {
+    setGogoPoints(newPoints);
   };
 
   const value = {
@@ -88,7 +114,10 @@ export function AuthProvider({ children }) {
     loading,
     login,
     logout,
-    checkAuth
+    checkAuth,
+    gogoPoints,
+    refreshPoints,
+    updatePoints
   };
 
   return (
