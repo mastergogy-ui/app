@@ -288,8 +288,15 @@ export default function HomePage() {
                   onClick={() => navigate(`/ad/${ad.ad_id}`)}
                   className="listing-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer"
                 >
-                  <div className="relative h-48 overflow-hidden">
-                    <img src={`${BACKEND_URL}${ad.images[0]}`} alt={ad.title} className="w-full h-full object-cover" />
+                  <div className="relative h-48 overflow-hidden bg-gray-100">
+                    <img 
+                      src={`${BACKEND_URL}${ad.images[0]}`} 
+                      alt={ad.title} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/400x300?text=No+Image';
+                      }}
+                    />
                     {ad.distance && (
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-900">
                         {ad.distance} km
