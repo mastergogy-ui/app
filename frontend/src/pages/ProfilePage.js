@@ -12,7 +12,7 @@ const API = `${BACKEND_URL}/api`;
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user: authUser, logout, login } = useAuth();
+  const { user: authUser, logout, login, gogoPoints, refreshPoints } = useAuth();
   const [user, setUser] = useState(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -20,6 +20,16 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [showTransactions, setShowTransactions] = useState(false);
+
+  // Format large numbers
+  const formatPoints = (points) => {
+    if (points >= 1000000000) return `${(points / 1000000000).toFixed(1)}B`;
+    if (points >= 1000000) return `${(points / 1000000).toFixed(1)}M`;
+    if (points >= 1000) return `${(points / 1000).toFixed(1)}K`;
+    return points.toString();
+  };
 
   useEffect(() => {
     if (authUser) {
@@ -30,8 +40,21 @@ export default function ProfilePage() {
       if (authUser.picture) {
         setImagePreview(authUser.picture.startsWith('http') ? authUser.picture : `${BACKEND_URL}${authUser.picture}`);
       }
+      fetchTransactions();
     }
   }, [authUser]);
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await fetch(`${API}/user/transactions`, { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setTransactions(data.slice(0, 10)); // Show last 10 transactions
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
