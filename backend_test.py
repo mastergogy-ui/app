@@ -6,7 +6,7 @@ import uuid
 import os
 
 class RentWalaAPITester:
-    def __init__(self, base_url="https://rentspot-83.preview.emergentagent.com"):
+    def __init__(self, base_url="https://rent-marketplace-10.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.session_token = None
