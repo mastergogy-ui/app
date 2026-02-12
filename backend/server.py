@@ -251,7 +251,6 @@ async def create_session(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to get session data: {str(e)}")
     
-    user_id = session_data.get("id")
     email = session_data.get("email")
     name = session_data.get("name")
     picture = session_data.get("picture")
