@@ -22,12 +22,20 @@ const categories = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, gogoPoints } = useAuth();
   const [nearbyAds, setNearbyAds] = useState([]);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasNewMessage, setHasNewMessage] = useState(false);
+
+  // Format large numbers
+  const formatPoints = (points) => {
+    if (points >= 1000000000) return `${(points / 1000000000).toFixed(1)}B`;
+    if (points >= 1000000) return `${(points / 1000000).toFixed(1)}M`;
+    if (points >= 1000) return `${(points / 1000).toFixed(1)}K`;
+    return points.toString();
+  };
 
   useEffect(() => {
     getLocation();
