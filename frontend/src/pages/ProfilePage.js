@@ -163,6 +163,59 @@ export default function ProfilePage() {
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
 
+          {/* Gogo Points Section */}
+          <div className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-2xl p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <Coins size={24} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm font-medium">Gogo Points Balance</p>
+                  <p className="text-white text-3xl font-bold" data-testid="points-balance">{formatPoints(gogoPoints)}</p>
+                </div>
+              </div>
+              <Button
+                data-testid="view-transactions-btn"
+                onClick={() => setShowTransactions(!showTransactions)}
+                variant="outline"
+                className="bg-white/20 border-white/30 text-white hover:bg-white/30 rounded-full px-4"
+              >
+                {showTransactions ? 'Hide History' : 'View History'}
+              </Button>
+            </div>
+            
+            {showTransactions && transactions.length > 0 && (
+              <div className="mt-4 bg-white/10 rounded-xl p-4 max-h-64 overflow-y-auto">
+                <p className="text-white/80 text-sm font-medium mb-3">Recent Transactions</p>
+                <div className="space-y-3">
+                  {transactions.map((txn, index) => (
+                    <div key={index} className="flex items-center justify-between text-white">
+                      <div className="flex items-center gap-2">
+                        {txn.transaction_type === 'registration_bonus' || txn.transaction_type === 'admin_bonus' ? (
+                          <Gift size={16} className="text-green-300" />
+                        ) : txn.from_user_id === user.user_id ? (
+                          <ArrowUpRight size={16} className="text-red-300" />
+                        ) : (
+                          <ArrowDownLeft size={16} className="text-green-300" />
+                        )}
+                        <span className="text-sm truncate max-w-[150px]">{txn.description}</span>
+                      </div>
+                      <span className={`font-semibold ${
+                        txn.from_user_id === user.user_id && txn.transaction_type !== 'registration_bonus' && txn.transaction_type !== 'admin_bonus'
+                          ? 'text-red-300' 
+                          : 'text-green-300'
+                      }`}>
+                        {txn.from_user_id === user.user_id && txn.transaction_type !== 'registration_bonus' && txn.transaction_type !== 'admin_bonus' ? '-' : '+'}
+                        {formatPoints(txn.amount)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="border-t border-gray-100 pt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
