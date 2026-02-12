@@ -369,6 +369,11 @@ async def create_ad(
     images: List[UploadFile] = File(...),
     current_user: dict = Depends(get_current_user)
 ):
+    # Check if user has enough points
+    user_points = current_user.get("gogo_points", 0)
+    if user_points < 1:
+        raise HTTPException(status_code=400, detail="Not enough Gogo Points. You need at least 1 point to post an ad.")
+    
     if len(images) > 5:
         raise HTTPException(status_code=400, detail="Maximum 5 images allowed")
     
@@ -407,6 +412,25 @@ async def create_ad(
     
     await db.ads.insert_one(ad_doc)
     ad_doc.pop("_id")
+    
+    # Deduct 1 Gogo Point for posting an ad
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$inc": {"gogo_points": -1}}
+    )
+    
+    # Record the transaction
+    deduction_transaction = {
+        "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+        "from_user_id": current_user["user_id"],
+        "to_user_id": "system",
+        "amount": 1,
+        "transaction_type": "ad_post_deduction",
+        "description": f"Ad post: {title}",
+        "timestamp": datetime.now(timezone.utc)
+    }
+    await db.transactions.insert_one(deduction_transaction)
+    
     return ad_doc
 
 @api_router.get("/ads")
