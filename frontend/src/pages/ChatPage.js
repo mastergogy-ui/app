@@ -13,6 +13,7 @@ const API = `${BACKEND_URL}/api`;
 export default function ChatPage() {
   const { adId, otherUserId } = useParams();
   const navigate = useNavigate();
+  const { gogoPoints, refreshPoints, updatePoints } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState(null);
@@ -20,8 +21,19 @@ export default function ChatPage() {
   const [ad, setAd] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [showPointsModal, setShowPointsModal] = useState(false);
+  const [pointsToSend, setPointsToSend] = useState('');
+  const [sendingPoints, setSendingPoints] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Format large numbers
+  const formatPoints = (points) => {
+    if (points >= 1000000000) return `${(points / 1000000000).toFixed(1)}B`;
+    if (points >= 1000000) return `${(points / 1000000).toFixed(1)}M`;
+    if (points >= 1000) return `${(points / 1000).toFixed(1)}K`;
+    return points.toString();
+  };
 
   useEffect(() => {
     fetchData();
