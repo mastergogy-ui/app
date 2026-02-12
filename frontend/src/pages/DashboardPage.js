@@ -10,11 +10,20 @@ const API = `${BACKEND_URL}/api`;
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { gogoPoints } = useAuth();
   const [user, setUser] = useState(null);
   const [myAds, setMyAds] = useState([]);
   const [savedAds, setSavedAds] = useState([]);
   const [activeTab, setActiveTab] = useState('my-ads');
   const [loading, setLoading] = useState(true);
+
+  // Format large numbers
+  const formatPoints = (points) => {
+    if (points >= 1000000000) return `${(points / 1000000000).toFixed(1)}B`;
+    if (points >= 1000000) return `${(points / 1000000).toFixed(1)}M`;
+    if (points >= 1000) return `${(points / 1000).toFixed(1)}K`;
+    return points.toString();
+  };
 
   useEffect(() => {
     fetchData();
