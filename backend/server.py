@@ -573,6 +573,95 @@ async def get_saved_ads(current_user: dict = Depends(get_current_user)):
     
     return ads
 
+# ============== GOGO POINTS ENDPOINTS ==============
+
+@api_router.get("/user/points")
+async def get_user_points(current_user: dict = Depends(get_current_user)):
+    """Get user's Gogo Points balance"""
+    return {"gogo_points": current_user.get("gogo_points", 0)}
+
+@api_router.get("/user/transactions")
+async def get_user_transactions(current_user: dict = Depends(get_current_user)):
+    """Get user's transaction history"""
+    transactions = await db.transactions.find(
+        {"$or": [{"from_user_id": current_user["user_id"]}, {"to_user_id": current_user["user_id"]}]},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(100)
+    
+    for txn in transactions:
+        if isinstance(txn.get("timestamp"), datetime):
+            txn["timestamp"] = txn["timestamp"].isoformat()
+    
+    return transactions
+
+@api_router.post("/user/transfer-points")
+async def transfer_points(transfer: PointsTransfer, current_user: dict = Depends(get_current_user)):
+    """Transfer Gogo Points to another user"""
+    # Validate amount
+    if transfer.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be greater than 0")
+    
+    # Check if sender has enough points
+    sender_points = current_user.get("gogo_points", 0)
+    if sender_points < transfer.amount:
+        raise HTTPException(status_code=400, detail=f"Insufficient Gogo Points. You have {sender_points} points.")
+    
+    # Check if receiver exists
+    receiver = await db.users.find_one({"user_id": transfer.to_user_id})
+    if not receiver:
+        raise HTTPException(status_code=404, detail="Receiver not found")
+    
+    # Prevent self-transfer
+    if transfer.to_user_id == current_user["user_id"]:
+        raise HTTPException(status_code=400, detail="Cannot transfer points to yourself")
+    
+    # Perform atomic transfer using MongoDB transaction-like operations
+    # Deduct from sender
+    result = await db.users.update_one(
+        {"user_id": current_user["user_id"], "gogo_points": {"$gte": transfer.amount}},
+        {"$inc": {"gogo_points": -transfer.amount}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Transfer failed. Insufficient points.")
+    
+    # Add to receiver
+    await db.users.update_one(
+        {"user_id": transfer.to_user_id},
+        {"$inc": {"gogo_points": transfer.amount}}
+    )
+    
+    # Record transaction
+    transaction_doc = {
+        "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+        "from_user_id": current_user["user_id"],
+        "to_user_id": transfer.to_user_id,
+        "amount": transfer.amount,
+        "transaction_type": "transfer",
+        "description": f"Points transfer to {receiver.get('name', 'User')}",
+        "timestamp": datetime.now(timezone.utc)
+    }
+    await db.transactions.insert_one(transaction_doc)
+    
+    # Get updated balance
+    updated_user = await db.users.find_one({"user_id": current_user["user_id"]}, {"_id": 0, "gogo_points": 1})
+    
+    return {
+        "message": f"Successfully transferred {transfer.amount} Gogo Points",
+        "new_balance": updated_user.get("gogo_points", 0),
+        "transaction_id": transaction_doc["transaction_id"]
+    }
+
+@api_router.get("/user/{user_id}/points")
+async def get_other_user_points(user_id: str):
+    """Get another user's Gogo Points balance (public info)"""
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "gogo_points": 1, "name": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"gogo_points": user.get("gogo_points", 0), "name": user.get("name", "")}
+
+# ============== END GOGO POINTS ENDPOINTS ==============
+
 @api_router.get("/conversations")
 async def get_conversations(current_user: dict = Depends(get_current_user)):
     messages = await db.messages.find(
