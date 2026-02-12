@@ -228,18 +228,28 @@ export default function ChatPage() {
         setShowPointsModal(false);
         setPointsToSend('');
         
-        // Send a message about the points transfer
+        // Send a message about the points transfer via HTTP
         const messageData = {
           sender_id: user.user_id,
           receiver_id: otherUserId,
           ad_id: adId,
-          message: `🎁 Sent ${formatPoints(amount)} Gogo Points!`,
-          image: null,
-          timestamp: new Date().toISOString(),
-          seen: false
+          message: `🎁 Sent ${amount} Gogo Points!`,
+          image: null
         };
-        setMessages(prev => [...prev, messageData]);
-        socketService.sendMessage(messageData);
+        
+        // Save to database via HTTP
+        await fetch(`${API}/messages/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(messageData)
+        });
+        
+        // Update local messages
+        setMessages(prev => [...prev, {...messageData, timestamp: new Date().toISOString(), seen: false}]);
+        
+        // Refresh points
+        refreshPoints();
       } else {
         toast.error(data.detail || 'Failed to send points');
       }
