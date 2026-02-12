@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, PlusCircle, MessageSquare, User, Bell } from "lucide-react";
+import { Home, PlusCircle, MessageSquare, User, Bell, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
