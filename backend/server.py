@@ -48,6 +48,10 @@ class User(BaseModel):
     picture: Optional[str] = None
     phone: Optional[str] = None
     location: Optional[dict] = None
+    gogo_points: int = 1000
+    total_call_clicks: int = 0
+    total_active_time: int = 0
+    last_activity: Optional[datetime] = None
     created_at: datetime
 
 class UserCreate(BaseModel):
