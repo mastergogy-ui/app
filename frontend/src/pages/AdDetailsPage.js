@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,usecallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Phone, MessageCircle, Heart, Share2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ export default function AdDetailsPage() {
   useEffect(() => {
     fetchAd();
     checkAuth();
-  }, [adId]);
+  }, [fetchad]);
 
   const checkAuth = async () => {
     try {
@@ -36,7 +36,7 @@ export default function AdDetailsPage() {
     }
   };
 
-  const fetchAd = async () => {
+  const fetchAd = usecallback(async () => {
     try {
       const response = await fetch(`${API}/ads/${adId}`);
       const data = await response.json();
@@ -47,7 +47,7 @@ export default function AdDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  },[]);
 
   const handleSave = async () => {
     if (!user) {
