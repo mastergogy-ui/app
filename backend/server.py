@@ -865,8 +865,11 @@ async def google_login():
     return RedirectResponse(url)
 
 
+from fastapi.responses import RedirectResponse
+
 @app.get("/auth/google/callback")
 async def google_callback(code: str):
+
     token_url = "https://oauth2.googleapis.com/token"
 
     data = {
@@ -877,10 +880,67 @@ async def google_callback(code: str):
         "grant_type": "authorization_code",
     }
 
-    response = requests.post(token_url, data=data)
-    token_data = response.json()
+    token_response = requests.post(token_url, data=data)
+    token_json = token_response.json()
 
-    return token_data
+    access_token = token_json.get("access_token")
+
+    if not access_token:
+        raise HTTPException(status_code=400, detail="Failed to get access token")
+
+    userinfo_response = requests.get(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    userinfo = userinfo_response.json()
+
+    email = userinfo.get("email")
+    name = userinfo.get("name")
+    picture = userinfo.get("picture")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Google login failed")
+
+    user_doc = await db.users.find_one({"email": email})
+
+    if not user_doc:
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        user_doc = {
+            "user_id": user_id,
+            "email": email,
+            "name": name,
+            "picture": picture,
+            "gogo_points": 1000,
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.users.insert_one(user_doc)
+    else:
+        user_id = user_doc["user_id"]
+
+    session_token = f"session_{uuid.uuid4().hex}"
+
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "created_at": datetime.now(timezone.utc)
+    })
+
+    redirect = RedirectResponse("https://rentwala.vercel.app")
+
+    redirect.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=7*24*60*60
+    )
+
+    return redirect
+
 
 app.include_router(api_router)
 
