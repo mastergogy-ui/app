@@ -272,7 +272,11 @@ async def logout(request: Request, response: Response):
     session_token = request.cookies.get("session_token")
     if session_token:
         await db.user_sessions.delete_one({"session_token": session_token})
-    response.delete_cookie("session_token", path="/")
+    response.delete_cookie(
+    key="session_token",
+    path="/",
+    domain=".onrender.com"
+)
     return {"message": "Logged out"}
 
 @api_router.put("/user/profile")
