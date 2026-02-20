@@ -58,14 +58,15 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
+ const handleGoogleLogin = () => {
   const redirectUrl =
     window.location.origin +
     (from && from !== '/dashboard' ? from : '/');
 
   window.location.href =
-    `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
+    `${https://app-2-2zca.onrender.com}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
 };
+
 
 
   return (
