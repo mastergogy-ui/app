@@ -59,11 +59,14 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-    const redirectUrl = window.location.origin + (from && from !== '/dashboard' ? from : '/');
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
+  const redirectUrl =
+    window.location.origin +
+    (from && from !== '/dashboard' ? from : '/');
 
-  };
+  window.location.href =
+    `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
+};
+
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center px-4">
