@@ -50,7 +50,14 @@ app.add_middleware(
 
 api_router = APIRouter(prefix="/api")
 
-sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins=[
+        "https://rentwala.vercel.app",
+        "http://localhost:3000"
+    ]
+)
+
 
 
 class User(BaseModel):
