@@ -903,6 +903,3 @@ socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 app = socket_app
 
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
