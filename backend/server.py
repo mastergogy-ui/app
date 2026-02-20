@@ -35,10 +35,21 @@ UPLOAD_DIR = ROOT_DIR / 'uploads'
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://rentwala.vercel.app",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 api_router = APIRouter(prefix="/api")
 
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+
 
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -235,74 +246,7 @@ async def login(login_data: UserLogin):
     )
     return response
 
-@api_router.get("/auth/session")
-async def create_session(request: Request):
-    session_id = request.headers.get("X-Session-ID")
-    if not session_id:
-        raise HTTPException(status_code=400, detail="Session ID required")
-    
-    try:
-        response = requests.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_id}
-        )
-        response.raise_for_status()
-        session_data = response.json()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to get session data: {str(e)}")
-    
-    email = session_data.get("email")
-    name = session_data.get("name")
-    picture = session_data.get("picture")
-    session_token = session_data.get("session_token")
-    
-    user_doc = await db.users.find_one({"email": email})
-    if not user_doc:
-        user_id_custom = f"user_{uuid.uuid4().hex[:12]}"
-        user_doc = {
-            "user_id": user_id_custom,
-            "email": email,
-            "name": name,
-            "picture": picture,
-            "phone": None,
-            "location": None,
-            "gogo_points": 1000,
-            "created_at": datetime.now(timezone.utc)
-        }
-        await db.users.insert_one(user_doc)
-        user_doc.pop("_id")
-        
-        # Record registration bonus transaction for Google sign-up
-        bonus_transaction = {
-            "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
-            "from_user_id": "system",
-            "to_user_id": user_id_custom,
-            "amount": 1000,
-            "transaction_type": "registration_bonus",
-            "description": "Welcome bonus on registration",
-            "timestamp": datetime.now(timezone.utc)
-        }
-        await db.transactions.insert_one(bonus_transaction)
-    else:
-        user_id_custom = user_doc["user_id"]
-        await db.users.update_one(
-            {"user_id": user_id_custom},
-            {"$set": {"name": name, "picture": picture}}
-        )
-        user_doc = await db.users.find_one({"user_id": user_id_custom}, {"_id": 0})
-    
-    session_doc = {
-        "user_id": user_id_custom,
-        "session_token": session_token,
-        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
-        "created_at": datetime.now(timezone.utc)
-    }
-    await db.user_sessions.insert_one(session_doc)
-    
-    if "created_at" in user_doc and isinstance(user_doc["created_at"], datetime):
-        user_doc["created_at"] = user_doc["created_at"].isoformat()
-    
-    return {"user": user_doc, "session_token": session_token}
+
 
 @api_router.get("/auth/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
@@ -942,21 +886,6 @@ async def google_callback(code: str):
     return redirect
 
 
-app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["https://rentwala.vercel.app", "http://localhost:3000"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
