@@ -2,26 +2,27 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 export default function GoogleCallback() {
-
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    fetch(`${BACKEND_URL}/api/auth/me`, {
+    fetch(`${API}/auth/me`, {
+      method: "GET",
       credentials: "include"
     })
-    .then(res => {
-      if(res.ok){
-        navigate("/dashboard");
-      }else{
+      .then(res => {
+        if (res.ok) {
+          navigate("/dashboard");
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch(() => {
         navigate("/login");
-      }
-    })
+      });
+  }, [navigate]);
 
-  }, []);
-
-  return <h2>Logging you in...</h2>;
+  return <div>Logging you in...</div>;
 }
-
