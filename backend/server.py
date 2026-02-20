@@ -880,7 +880,8 @@ async def google_callback(code: str):
         "created_at": datetime.now(timezone.utc)
     })
 
-    redirect = RedirectResponse("https://rentwala.vercel.app")
+    redirect = RedirectResponse("https://rentwala.vercel.app/auth/google/callback")
+
 
     redirect.set_cookie(
         key="session_token",
