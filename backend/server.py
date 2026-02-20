@@ -890,14 +890,15 @@ async def google_callback(code: str):
 
 
     redirect.set_cookie(
-        key="session_token",
-        value=session_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age=7*24*60*60
-    )
+    key="session_token",
+    value=session_token,
+    httponly=True,
+    secure=True,
+    samesite="none",
+    domain=".onrender.com",
+    path="/",
+    max_age=7*24*60*60
+)
 
     return redirect
 
