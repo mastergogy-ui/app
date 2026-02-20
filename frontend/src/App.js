@@ -18,8 +18,7 @@ import GoogleCallback from "./pages/GoogleCallback";
 
 
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+
 
 function AppRouter() {
   const location = useLocation();
