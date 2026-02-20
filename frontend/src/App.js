@@ -44,14 +44,35 @@ function AppRouter() {
 }
 
 function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    fetch(`${API}/auth/me`, {
+      method: "GET",
+      credentials: "include"
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAuth(true);
+        } else {
+          setIsAuth(false);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setIsAuth(false);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Checking login...</div>;
+
+  if (!isAuth) return <Navigate to="/login" replace />;
 
   return children;
 }
+
 
 
 function App() {
