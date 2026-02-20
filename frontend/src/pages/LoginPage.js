@@ -64,7 +64,7 @@ export default function LoginPage() {
     (from && from !== '/dashboard' ? from : '/');
 
   window.location.href =
-    `${https://app-2-2zca.onrender.com}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
+    `${BACKEND_URL}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
 };
 
 
