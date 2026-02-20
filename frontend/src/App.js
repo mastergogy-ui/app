@@ -49,12 +49,8 @@ function ProtectedRoute({ children }) {
 
   useEffect(() => {
 
-    fetch(`${API}/auth/me`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      }
+    apiFetch("/auth/me", {
+      method: "GET"
     })
       .then(res => {
         if (res.status === 200) {
@@ -68,8 +64,21 @@ function ProtectedRoute({ children }) {
         setIsAuth(false);
         setLoading(false);
       });
+    }, []);
 
-  }, []);
+  if (loading) return <div>Checking login...</div>;
+
+  if (!isAuth) return <Navigate to="/login" replace />;
+
+  return children;
+}
+
+  if (loading) return <div>Checking login...</div>;
+
+  if (!isAuth) return <Navigate to="/login" replace />;
+
+  return children;
+}
 
   if (loading) return <div>Checking login...</div>;
 
