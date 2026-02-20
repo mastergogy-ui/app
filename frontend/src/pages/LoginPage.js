@@ -22,7 +22,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`${API}/auth/login`, {
+      const response = await apiFetch("/auth/login", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
