@@ -14,6 +14,7 @@ import ChatPage from "./pages/ChatPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import { Toaster } from "./components/ui/sonner";
+import GoogleCallback from "./pages/GoogleCallback";
 
 
 
