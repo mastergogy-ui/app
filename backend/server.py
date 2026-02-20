@@ -37,10 +37,13 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://rentwala.vercel.app",
-        "http://localhost:3000"
-    ],
+    
+    allow_origins=["*"],
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
+expose_headers=["set-cookie"],
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
