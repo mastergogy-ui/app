@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { apiFetch } from "../api";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function RegisterPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
-        credentials: 'include'
+        
       });
       
       if (!response.ok) {
@@ -44,7 +45,10 @@ export default function RegisterPage() {
   };
 
  const handleGoogleLogin = () => {
-  window.location.href = `${BACKEND_URL}/auth/google`;
+  const redirectUrl = window.location.origin + '/';
+
+  window.location.href =
+    `${BACKEND_URL}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`;
 };
 
   return (
