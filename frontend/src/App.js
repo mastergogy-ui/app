@@ -44,10 +44,33 @@ function AppRouter() {
 }
 
 function ProtectedRoute({ children }) {
+
   const [loading, setLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
 
- 
+  useEffect(() => {
+
+    fetch(`${API}/auth/me`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => {
+        if (res.status === 200) {
+          setIsAuth(true);
+        } else {
+          setIsAuth(false);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setIsAuth(false);
+        setLoading(false);
+      });
+
+  }, []);
 
   if (loading) return <div>Checking login...</div>;
 
@@ -55,22 +78,6 @@ function ProtectedRoute({ children }) {
 
   return children;
 }
-useEffect(() => {
-  fetch(`${API}/auth/me`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-    .then(res => {
-      if (res.status === 200) {
-        setIsAuth(true);
-      } else {
-        setIsAuth(false);
-      }
-      setLoading(false);
-    })
 
 
 function App() {
