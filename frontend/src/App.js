@@ -29,7 +29,8 @@ function AppRouter() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/auth/google/callback" element={<div>Logging in...</div>} />
+      <Route path="/auth/google/callback" element={<GoogleCallback />} />
+
       <Route path="/category/:category" element={<CategoryPage />} />
       <Route path="/ad/:adId" element={<AdDetailsPage />} />
       <Route path="/upload" element={<ProtectedRoute><UploadAdPage /></ProtectedRoute>} />
