@@ -217,14 +217,15 @@ async def register(user_data: UserCreate, response: Response):
     
     response = JSONResponse({"user": user_doc, "session_token": session_token})
     response.set_cookie(
-        key="session_token",
-        value=session_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age=7*24*60*60
-    )
+    key="session_token",
+    value=session_token,
+    httponly=True,
+    secure=True,
+    samesite="none",
+    domain=".onrender.com",
+    path="/",
+    max_age=7*24*60*60
+)
     return response
 
 @api_router.post("/auth/login")
