@@ -44,10 +44,9 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const redirectUrl = window.location.origin + '/';
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
-  };
+ const handleGoogleLogin = () => {
+  window.location.href = `${BACKEND_URL}/auth/google`;
+};
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center px-4">
