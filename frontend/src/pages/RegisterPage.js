@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { apiFetch } from "../api";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -21,7 +20,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`${API}/auth/register`, {
+      const response = await apiFetch("/auth/register", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
