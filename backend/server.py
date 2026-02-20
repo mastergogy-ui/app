@@ -187,23 +187,7 @@ async def register(user_data: UserCreate, response: Response):
     
     await db.users.insert_one(user_doc)
 
-    session_token = str(uuid.uuid4())
-
-await db.sessions.insert_one({
-    "token": session_token,
-    "user_id": user_id
-})
-
-response.set_cookie(
-    key="session_token",
-    value=session_token,
-    httponly=True,
-    secure=True,
-    samesite="none",
-    domain=".onrender.com",
-    path="/",
-    max_age=7*24*60*60
-)
+    
     
     # Record registration bonus transaction
     bonus_transaction = {
