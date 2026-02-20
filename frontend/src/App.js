@@ -15,7 +15,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import { Toaster } from "./components/ui/sonner";
 import GoogleCallback from "./pages/GoogleCallback";
-
+import { apiFetch } from "./api";
 
 
 
