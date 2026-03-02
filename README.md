@@ -1,110 +1,108 @@
-# RentWala - Full Stack Marketplace
+# GoGo Fantasy Points
 
-Production-ready marketplace app for renting friends, bikes, cars, and properties.
+GoGo Fantasy Points is a **prediction game** where users spend and earn **virtual points** on match outcomes.
+
+> **Disclaimer:** This platform uses virtual points only. No real money involved.
+
+## Folder Restructure
+
+As requested, the project is now restructured under a **`mahalakshmi/`** folder instead of the previous layout.
+
+## Can this be deployed on Vercel + Render?
+
+**Yes.**
+- Deploy the **frontend** (Next.js) on **Vercel** from `mahalakshmi/frontend`.
+- Deploy the **backend** (Express + MongoDB) on **Render** from `mahalakshmi/backend`.
 
 ## Tech Stack
-- **Frontend:** Next.js 14 App Router, TypeScript, Tailwind CSS, Axios, React Hook Form
-- **Backend:** Node.js, Express.js, MongoDB (Mongoose), JWT cookies, Google OAuth 2.0, Multer + Cloudinary
-- **Security:** Helmet, CORS, auth rate limiting, NoSQL sanitize, XSS clean, HPP
 
-## Folder Structure
+- Frontend: Next.js (React) + Tailwind CSS
+- Backend: Node.js + Express
+- Database: MongoDB (Mongoose)
+- Authentication: JWT (user/admin roles)
 
-```
-rentwala/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middlewares/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── utils/
-│   │   ├── app.js
-│   │   └── server.js
-│   └── .env.example
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   ├── types/
-│   └── .env.example
-├── render.yaml
-└── vercel.json
+## Project Structure
+
+```text
+mahalakshmi/
+  backend/
+    src/
+      app.js
+      server.js
+      config/db.js
+      controllers/
+      middlewares/
+      models/
+      routes/
+      scripts/
+    .env.example
+
+  frontend/
+    app/
+    components/
+    lib/
+    .env.example
+
+render.yaml
+vercel.json
+README.md
 ```
 
 ## Local Setup
 
 ### 1) Install dependencies
+
 ```bash
-npm install
+cd mahalakshmi/backend && npm install
+cd ../frontend && npm install
 ```
 
-### 2) Configure environment variables
+### 2) Configure env files
+
 ```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env.local
+cp mahalakshmi/backend/.env.example mahalakshmi/backend/.env
+cp mahalakshmi/frontend/.env.example mahalakshmi/frontend/.env.local
 ```
 
-### 3) Run development servers
+### 3) Seed dummy data
+
 ```bash
+cd mahalakshmi/backend
+npm run seed
+```
+
+Dummy credentials:
+- Admin: `superadmin` / `Admin@123`
+- User: `alex@gogo.com` / `Pass@123`
+
+### 4) Run apps
+
+```bash
+# backend
+cd mahalakshmi/backend
+npm run dev
+
+# frontend
+cd mahalakshmi/frontend
 npm run dev
 ```
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:5000`
 
-## Backend Environment Variables
-See `backend/.env.example`:
-- `NODE_ENV`, `PORT`
-- `MONGO_URI`
-- `JWT_SECRET`, `JWT_EXPIRES_IN`
-- `CLIENT_URL` (comma-separated allowed origins)
-- `GOOGLE_CLIENT_ID`
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+## Production Deployment
 
-## Frontend Environment Variables
-See `frontend/.env.example`:
-- `NEXT_PUBLIC_API_URL`
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+### Frontend on Vercel
 
-## API Documentation
-Base URL: `/api`
-
-### Auth
-- `POST /auth/register` - Register with `name`, `password`, and either `email` or `phone`
-- `POST /auth/login` - Login with `identifier` (email/phone) + `password`
-- `POST /auth/google` - Google OAuth login with `idToken`
-- `GET /auth/me` - Current authenticated user
-- `POST /auth/logout` - Clear auth cookie
-
-### Ads
-- `GET /ads` - List ads with filters: `category`, `location`, `q`, `page`
-- `GET /ads/:id` - Single ad details
-- `POST /ads` - Protected, create ad (multipart form with max 5 images)
-- `PUT /ads/:id` - Protected, update own ad
-- `DELETE /ads/:id` - Protected, delete own ad
-- `GET /ads/mine` - Protected, current user ads
-
-### Users
-- `PUT /users/profile` - Protected profile update
-
-## Deployment
-
-### Deploy Backend to Render
-1. Push repository to GitHub.
-2. In Render, create **Blueprint** and point to this repo.
-3. Render reads `render.yaml` and provisions `rentwala-api` service.
-4. Set all `sync: false` env vars in Render dashboard.
-5. Ensure `CLIENT_URL` points to your Vercel domain.
-
-### Deploy Frontend to Vercel
-1. Import repository in Vercel.
-2. Set root directory to `frontend` (or keep monorepo with provided `vercel.json`).
-3. Add `NEXT_PUBLIC_API_URL` to Vercel environment variables.
+1. Import repo in Vercel.
+2. Set Root Directory to `mahalakshmi/frontend`.
+3. Add env var:
+   - `NEXT_PUBLIC_API_URL=https://<your-render-service>.onrender.com/api`
 4. Deploy.
 
-## Production Notes
-- JWT tokens are stored in HTTP-only cookies.
-- CORS allows configured client origins and credentials.
-- MongoDB indexes are configured on ads for search/filter performance.
-- Next.js `Image` is used for optimization and lazy loading.
-- API list endpoint has short cache-control for improved response time.
+### Backend on Render
+
+1. Create a Render Web Service.
+2. Set Root Directory to `mahalakshmi/backend`.
+3. Add env vars:
+   - `MONGO_URI`
+   - `JWT_SECRET`
+   - `CLIENT_URL=https://<your-vercel-domain>`
+4. Deploy.
