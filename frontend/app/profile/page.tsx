@@ -1,5 +1,5 @@
 'use client';
-import api from "../../lib/api";
+import { api } from '../../lib/api'
 import { getToken } from "../../lib/auth";
 import { useEffect, useState } from 'react';
 
