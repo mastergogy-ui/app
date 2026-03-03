@@ -1,6 +1,7 @@
 'use client';
 import { useForm } from 'react-hook-form';
-import api from "../../lib/api";
+import { api } from '../../lib/api'
+
 
 type FormValues = {
   title: string;
