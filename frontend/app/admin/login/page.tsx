@@ -1,5 +1,6 @@
 'use client';
-import api from "../../../lib/api";
+import { api } from '../../lib/api'
+
 import { getToken, setToken, clearTokens } from "../../../lib/auth";
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
