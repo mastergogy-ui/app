@@ -11,7 +11,7 @@ export default function LoginPage() {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
       setToken('userToken', response.data.token);
       window.location.href = '/dashboard';
     } catch (error: any) {
