@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { api } from '../../../lib/api'
 import { getToken, setToken, clearTokens } from "../../../lib/auth";
 export default function RegisterPage() {
