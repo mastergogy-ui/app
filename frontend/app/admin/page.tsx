@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
         <button
           className="rounded bg-cyan-700 px-3 py-2"
           onClick={async () => {
-            await api.post('/admin/matches', form, { headers });
+            await api.post('/api/admin/matches', form, { headers });
             await refresh();
           }}
         >
