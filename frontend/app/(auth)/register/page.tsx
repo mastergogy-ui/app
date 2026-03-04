@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await api.post('/auth/register', { name, email, password });
+      const response = await api.post('/api/auth/register', { name, email, password });
       setToken('userToken', response.data.token);
       window.location.href = '/dashboard';
     } catch (error: any) {
