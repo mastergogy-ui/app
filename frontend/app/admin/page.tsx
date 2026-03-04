@@ -14,7 +14,7 @@ export default function AdminDashboardPage() {
   const refresh = async () => {
     const [a, m] = await Promise.all([
      api.get('/api/admin/analytics', { headers })
-      api.get('/admin/matches', { headers })
+    api.get('/api/admin/matches', { headers })
     ]);
     setAnalytics(a.data);
     setMatches(m.data);
