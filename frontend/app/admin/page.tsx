@@ -57,9 +57,9 @@ export default function AdminDashboardPage() {
             <div key={match._id} className="rounded border border-slate-700 p-3">
               <p>{match.teamA} vs {match.teamB} ({match.status})</p>
               <div className="mt-2 flex gap-2">
-                <button className="rounded bg-amber-700 px-2 py-1" onClick={async () => { await api.patch(`/admin/matches/${match._id}/close`, {}, { headers }); await refresh(); }}>Close</button>
-                <button className="rounded bg-emerald-700 px-2 py-1" onClick={async () => { await api.patch(`/admin/matches/${match._id}/winner`, { winner: 'teamA' }, { headers }); await refresh(); }}>Winner A</button>
-                <button className="rounded bg-indigo-700 px-2 py-1" onClick={async () => { await api.patch(`/admin/matches/${match._id}/winner`, { winner: 'teamB' }, { headers }); await refresh(); }}>Winner B</button>
+                <button className="rounded bg-amber-700 px-2 py-1" onClick={async () => { await api.patch(`/api/admin/matches/${match._id}/close`, {}, { headers }); await refresh(); }}>Close</button>
+                <button className="rounded bg-emerald-700 px-2 py-1" onClick={async () => { await api.patch(`/api/admin/matches/${match._id}/winner`, { winner: 'teamA' }, { headers }); await refresh(); }}>Winner A</button>
+                <button className="rounded bg-indigo-700 px-2 py-1" onClick={async () => { await api.patch(`/api/admin/matches/${match._id}/winner`, { winner: 'teamB' }, { headers }); await refresh(); }}>Winner B</button>
               </div>
             </div>
           ))}
