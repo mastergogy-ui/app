@@ -19,18 +19,17 @@ export default function HomePage() {
     <div className="space-y-6">
 
       {/* Category Grid */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-        {categories.map((cat) => (
-          <div
-            key={cat.name}
-            className="flex flex-col items-center justify-center bg-slate-800 p-4 rounded-lg cursor-pointer hover:bg-slate-700"
-          >
-            <span className="text-3xl">{cat.icon}</span>
-            <p className="text-sm mt-2">{cat.name}</p>
-          </div>
-        ))}
-      </div>
-
+    <div className="flex gap-4 overflow-x-auto pb-2">
+  {categories.map((cat) => (
+    <div
+      key={cat.name}
+      className="min-w-[90px] flex flex-col items-center justify-center bg-slate-800 p-4 rounded-lg cursor-pointer hover:bg-slate-700"
+    >
+      <span className="text-3xl">{cat.icon}</span>
+      <p className="text-sm mt-2 text-center">{cat.name}</p>
+    </div>
+  ))}
+</div>
       {/* Listings */}
       <h2 className="text-xl font-semibold">Fresh rentals</h2>
 
