@@ -10,10 +10,26 @@ const [category,setCategory] = useState("Cars")
 const [location,setLocation] = useState("")
 const [description,setDescription] = useState("")
 
-const handleSubmit = (e:any)=>{
+const handleSubmit = async (e:any)=>{
 e.preventDefault()
 
-alert("Ad posted (demo)")
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+title,
+price,
+category,
+location,
+description
+})
+})
+
+const data = await res.json()
+
+alert("Ad posted successfully")
 }
 
 return (
