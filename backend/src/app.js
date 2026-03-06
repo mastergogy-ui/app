@@ -11,6 +11,7 @@ import xssClean from 'xss-clean';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import adRoutes from './routes/adRoutes.js';
 
 dotenv.config();
 
