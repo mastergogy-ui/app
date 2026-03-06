@@ -1,18 +1,19 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Ad } from '@/types';
-
-export default function ListingCard({ ad }: { ad: Ad }) {
+export default function ListingCard() {
   return (
-    <Link href={`/listings/${ad._id}`} className="bg-white rounded-lg border overflow-hidden hover:shadow-sm">
-      <div className="relative h-48">
-        <Image src={ad.images?.[0] || '/placeholder.svg'} alt={ad.title} fill className="object-cover" loading="lazy" />
+    <div className="border rounded-lg overflow-hidden bg-white text-black">
+
+      <img
+        src="https://via.placeholder.com/300"
+        alt="item"
+        className="w-full h-40 object-cover"
+      />
+
+      <div className="p-3">
+        <p className="font-bold text-lg">₹500 / day</p>
+        <p className="text-sm">Honda City for Rent</p>
+        <p className="text-xs text-gray-500">Pune</p>
       </div>
-      <div className="p-4 space-y-1">
-        <h3 className="font-semibold">{ad.title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2">{ad.description}</p>
-        <p className="text-blue-700 font-medium">₹{ad.price}/day</p>
-      </div>
-    </Link>
+
+    </div>
   );
 }
