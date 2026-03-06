@@ -1,41 +1,39 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { getToken, clearTokens } from "../lib/auth";
+import { useState } from "react";
 
 export default function Navbar() {
-  const [hasUserToken, setHasUserToken] = useState(false);
-  const [hasAdminToken, setHasAdminToken] = useState(false);
 
-  useEffect(() => {
-    setHasUserToken(Boolean(localStorage.getItem('userToken')));
-    setHasAdminToken(Boolean(localStorage.getItem('adminToken')));
-  }, []);
+  const [location, setLocation] = useState("Select Location");
+
+  const detectLocation = () => {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setLocation("Your Location");
+    });
+  };
 
   return (
-    <nav className="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between p-4 text-slate-100">
-        <Link href="/" className="text-xl font-bold text-cyan-400">GoGo Fantasy Points</Link>
-        <div className="flex items-center gap-4 text-sm">
-          <Link href="/dashboard">Dashboard</Link>
-          <Link href="/history">History</Link>
-          <Link href="/leaderboard">Leaderboard</Link>
-          <Link href="/profile">Profile</Link>
-          <Link href="/admin">Admin</Link>
-          {(hasUserToken || hasAdminToken) && (
-            <button
-              onClick={() => {
-                clearTokens();
-                window.location.href = '/';
-              }}
-              className="rounded bg-slate-800 px-3 py-1"
-            >
-              Logout
-            </button>
-          )}
-        </div>
-      </div>
+    <nav className="bg-white text-black p-4 shadow flex items-center justify-between">
+
+      {/* Logo */}
+      <h1 className="text-2xl font-bold text-blue-600">
+        Rent Wala
+      </h1>
+
+      {/* Location */}
+      <button
+        onClick={detectLocation}
+        className="border px-3 py-1 rounded"
+      >
+        📍 {location}
+      </button>
+
+      {/* Search */}
+      <input
+        className="border px-3 py-1 rounded w-1/3"
+        placeholder="Search rentals..."
+      />
+
     </nav>
   );
 }
