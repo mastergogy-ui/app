@@ -1,18 +1,51 @@
-import Link from 'next/link';
+'use client';
+
+import ListingCard from "../components/ListingCard";
+
+const categories = [
+  { name: "Cars", icon: "🚗" },
+  { name: "Properties", icon: "🏠" },
+  { name: "Mobiles", icon: "📱" },
+  { name: "Fashion", icon: "👕" },
+  { name: "Bikes", icon: "🏍️" },
+  { name: "Electronics", icon: "💻" },
+  { name: "Commercial Vehicles", icon: "🚚" },
+  { name: "Furniture", icon: "🛋️" },
+  { name: "Rent a Friend", icon: "🤝" },
+];
 
 export default function HomePage() {
   return (
-    <section className="card space-y-4">
-      <h1 className="text-3xl font-bold text-cyan-400">GoGo Fantasy Points</h1>
-      <p className="text-slate-300">Predict match winners, manage your virtual points, and compete on the leaderboard.</p>
-      <p className="rounded border border-amber-500/60 bg-amber-500/10 p-3 text-amber-200">
-        This platform uses virtual points only. No real money involved.
-      </p>
-      <div className="flex gap-3">
-        <Link href="/login" className="rounded bg-cyan-600 px-4 py-2">User Login</Link>
-        <Link href="/register" className="rounded bg-slate-700 px-4 py-2">Register</Link>
-        <Link href="/admin/login" className="rounded bg-purple-700 px-4 py-2">Admin Login</Link>
+    <div className="space-y-6">
+
+      {/* Category Grid */}
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+        {categories.map((cat) => (
+          <div
+            key={cat.name}
+            className="flex flex-col items-center justify-center bg-slate-800 p-4 rounded-lg cursor-pointer hover:bg-slate-700"
+          >
+            <span className="text-3xl">{cat.icon}</span>
+            <p className="text-sm mt-2">{cat.name}</p>
+          </div>
+        ))}
       </div>
-    </section>
+
+      {/* Listings */}
+      <h2 className="text-xl font-semibold">Fresh rentals</h2>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <ListingCard />
+        <ListingCard />
+        <ListingCard />
+        <ListingCard />
+      </div>
+
+      {/* Floating Rent Button */}
+      <button className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-600 px-6 py-3 rounded-full font-semibold shadow-lg">
+        + RENT
+      </button>
+
+    </div>
   );
 }
