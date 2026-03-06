@@ -13,7 +13,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white text-black p-4 shadow flex items-center justify-between">
+   <nav className="sticky top-0 z-50 bg-white text-black p-4 shadow flex items-center justify-between">
 
       {/* Logo */}
       <h1 className="text-2xl font-bold text-blue-600">
