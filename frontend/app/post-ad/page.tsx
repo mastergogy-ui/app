@@ -1,48 +1,84 @@
-'use client';
+'use client'
+
+import { useState } from "react";
 
 export default function PostAdPage() {
-  return (
-    <div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg space-y-4">
 
-      <h1 className="text-2xl font-bold">Post Item for Rent</h1>
+const [title,setTitle] = useState("")
+const [price,setPrice] = useState("")
+const [category,setCategory] = useState("Cars")
+const [location,setLocation] = useState("")
+const [description,setDescription] = useState("")
 
-      <input
-        type="text"
-        placeholder="Item title"
-        className="w-full p-2 rounded text-black"
-      />
+const handleSubmit = (e:any)=>{
+e.preventDefault()
 
-      <input
-        type="number"
-        placeholder="Rent price per day"
-        className="w-full p-2 rounded text-black"
-      />
+alert("Ad posted (demo)")
+}
 
-      <select className="w-full p-2 rounded text-black">
-        <option>Select Category</option>
-        <option>Cars</option>
-        <option>Properties</option>
-        <option>Mobiles</option>
-        <option>Fashion</option>
-        <option>Bikes</option>
-        <option>Electronics</option>
-        <option>Commercial Vehicles</option>
-        <option>Furniture</option>
-        <option>Rent a Friend</option>
-      </select>
+return (
+<div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg">
 
-      <input
-        type="text"
-        placeholder="Location"
-        className="w-full p-2 rounded text-black"
-      />
+<h1 className="text-2xl font-bold mb-6">Post Your Rental Ad</h1>
 
-      <input type="file" />
+<form onSubmit={handleSubmit} className="space-y-4">
 
-      <button className="bg-blue-600 px-4 py-2 rounded w-full">
-        Post Rent Ad
-      </button>
+<input
+className="w-full p-3 rounded bg-slate-800"
+placeholder="Title"
+value={title}
+onChange={(e)=>setTitle(e.target.value)}
+/>
 
-    </div>
-  );
+<select
+className="w-full p-3 rounded bg-slate-800"
+value={category}
+onChange={(e)=>setCategory(e.target.value)}
+>
+
+<option>Cars</option>
+<option>Properties</option>
+<option>Mobiles</option>
+<option>Fashion</option>
+<option>Bikes</option>
+<option>Electronics</option>
+<option>Commercial Vehicles</option>
+<option>Furniture</option>
+<option>Rent a Friend</option>
+
+</select>
+
+<input
+className="w-full p-3 rounded bg-slate-800"
+placeholder="Price per day"
+value={price}
+onChange={(e)=>setPrice(e.target.value)}
+/>
+
+<input
+className="w-full p-3 rounded bg-slate-800"
+placeholder="Location"
+value={location}
+onChange={(e)=>setLocation(e.target.value)}
+/>
+
+<textarea
+className="w-full p-3 rounded bg-slate-800"
+placeholder="Description"
+value={description}
+onChange={(e)=>setDescription(e.target.value)}
+/>
+
+<button
+className="w-full bg-blue-600 p-3 rounded font-semibold"
+type="submit"
+>
+POST RENTAL
+</button>
+
+</form>
+
+</div>
+)
+
 }
