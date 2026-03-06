@@ -41,10 +41,13 @@ export default function HomePage() {
       </div>
 
       {/* Floating Rent Button */}
-    <button className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full font-semibold shadow-xl text-white">
+   import Link from "next/link";
+
+<Link href="/post-ad">
+<button className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full font-semibold shadow-xl text-white">
   + RENT
 </button>
-
+</Link>
     </div>
   );
 }
