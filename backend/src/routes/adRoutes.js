@@ -1,14 +1,28 @@
-import { Router } from 'express';
-import { createAd, deleteAd, getAdById, getAds, myAds, updateAd } from '../controllers/adController.js';
-import { protect } from '../middlewares/auth.js';
-import { upload } from '../middlewares/upload.js';
+import express from "express"
+import Ad from "../models/Ad.js"
 
-const router = Router();
-router.get('/', getAds);
-router.get('/mine', protect, myAds);
-router.get('/:id', getAdById);
-router.post('/', protect, upload.array('images', 5), createAd);
-router.put('/:id', protect, upload.array('images', 5), updateAd);
-router.delete('/:id', protect, deleteAd);
+const router = express.Router()
 
-export default router;
+// POST - create new ad
+router.post("/listings", async (req, res) => {
+  try {
+    const ad = new Ad(req.body)
+    await ad.save()
+    res.json(ad)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create ad" })
+  }
+})
+
+
+// GET - fetch all ads
+router.get("/listings", async (req, res) => {
+  try {
+    const ads = await Ad.find().sort({ createdAt: -1 })
+    res.json(ads)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch ads" })
+  }
+})
+
+export default router
