@@ -17,12 +17,24 @@ const categories = [
 
 export default function HomePage(){
 
-const [ads,setAds] = useState([])
+const [ads,setAds] = useState<any[]>([])
 
 useEffect(()=>{
-fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`)
-.then(res=>res.json())
-.then(data=>setAds(data))
+
+const fetchAds = async () => {
+try{
+
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`)
+const data = await res.json()
+setAds(data)
+
+}catch(err){
+console.log("API error",err)
+}
+}
+
+fetchAds()
+
 },[])
 
 return (
@@ -42,7 +54,7 @@ return (
 
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-{ads.map((ad:any)=>(
+{ads.map((ad)=>(
 <div key={ad._id} className="bg-slate-800 p-3 rounded">
 
 <h3 className="font-semibold">{ad.title}</h3>
