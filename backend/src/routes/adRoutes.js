@@ -4,8 +4,8 @@ const router = express.Router();
 
 let ads = [];
 
-/* CREATE AD */
-router.post("/", async (req, res) => {
+/* CREATE LISTING (POST AD / RENTAL) */
+router.post("/listings", async (req, res) => {
   try {
     const { title, price, category, location, description } = req.body;
 
@@ -32,12 +32,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-/* GET ALL ADS */
-router.get("/", async (req, res) => {
-  res.json({
-    success: true,
-    ads
-  });
+/* GET ALL LISTINGS */
+router.get("/listings", async (req, res) => {
+  res.json(ads);
 });
 
 export default router;
