@@ -1,24 +1,20 @@
-import express from "express";
-import cors from "cors";
-import adRoutes from "./routes/adRoutes.js";
+import express from "express"
+import cors from "cors"
+import adRoutes from "./routes/adRoutes.js"
 
-const app = express();
+const app = express()
 
-/* MIDDLEWARE */
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
 
-/* ROUTES */
-app.use("/api/ads", adRoutes);
+app.use("/api/ads", adRoutes)
 
-/* TEST ROUTE */
-app.get("/", (req, res) => {
-  res.send("API Running");
-});
+app.get("/", (req,res)=>{
+res.send("API running")
+})
 
-/* NOT FOUND */
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+app.use((req,res)=>{
+res.status(404).json({message:"Route not found"})
+})
 
-export default app;
+export default app
