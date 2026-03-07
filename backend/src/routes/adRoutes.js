@@ -5,7 +5,7 @@ const router = express.Router();
 let ads = [];
 
 /* CREATE LISTING (POST AD) */
-router.post("/listings", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { title, price, category, location, description } = req.body;
 
