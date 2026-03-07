@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL + "/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com/api",
   withCredentials: true
 });
