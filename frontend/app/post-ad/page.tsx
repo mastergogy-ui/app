@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function PostAdPage() {
+export default function PostAdPage(){
 
 const [title,setTitle] = useState("")
 const [price,setPrice] = useState("")
@@ -11,14 +11,21 @@ const [location,setLocation] = useState("")
 const [description,setDescription] = useState("")
 const [loading,setLoading] = useState(false)
 
+const API = process.env.NEXT_PUBLIC_API_URL
+
 const handleSubmit = async (e:any)=>{
 e.preventDefault()
+
+if(!title || !price || !location){
+alert("Please fill all fields")
+return
+}
 
 try{
 
 setLoading(true)
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`,{
+const res = await fetch(`${API}/api/ads`,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -32,11 +39,11 @@ description
 })
 })
 
-const data = await res.json()
-
 if(!res.ok){
-throw new Error(data.message)
+throw new Error("Failed")
 }
+
+await res.json()
 
 alert("Ad posted successfully")
 
@@ -51,14 +58,15 @@ alert("Error posting ad")
 }
 
 setLoading(false)
-
 }
 
-return (
+return(
 
 <div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg text-white">
 
-<h1 className="text-2xl font-bold mb-6">Post Your Rental Ad</h1>
+<h1 className="text-2xl font-bold mb-6">
+Post Your Rental Ad
+</h1>
 
 <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -122,5 +130,4 @@ disabled={loading}
 </div>
 
 )
-
 }
