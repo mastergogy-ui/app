@@ -9,11 +9,21 @@ const [price,setPrice] = useState("")
 const [category,setCategory] = useState("Cars")
 const [location,setLocation] = useState("")
 const [description,setDescription] = useState("")
+const [loading,setLoading] = useState(false)
 
 const handleSubmit = async (e:any)=>{
 e.preventDefault()
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`,{
+if(!title || !price || !location){
+alert("Please fill all required fields")
+return
+}
+
+try{
+
+setLoading(true)
+
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads`,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -27,13 +37,32 @@ description
 })
 })
 
-const data = await res.json()
+if(!res.ok){
+throw new Error("Failed to post ad")
+}
+
+await res.json()
 
 alert("Ad posted successfully")
+
+// clear form
+setTitle("")
+setPrice("")
+setCategory("Cars")
+setLocation("")
+setDescription("")
+
+}catch(err){
+console.error(err)
+alert("Error posting ad")
+}finally{
+setLoading(false)
+}
+
 }
 
 return (
-<div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg">
+<div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg text-white">
 
 <h1 className="text-2xl font-bold mb-6">Post Your Rental Ad</h1>
 
@@ -44,6 +73,7 @@ className="w-full p-3 rounded bg-slate-800"
 placeholder="Title"
 value={title}
 onChange={(e)=>setTitle(e.target.value)}
+required
 />
 
 <select
@@ -69,6 +99,7 @@ className="w-full p-3 rounded bg-slate-800"
 placeholder="Price per day"
 value={price}
 onChange={(e)=>setPrice(e.target.value)}
+required
 />
 
 <input
@@ -76,6 +107,7 @@ className="w-full p-3 rounded bg-slate-800"
 placeholder="Location"
 value={location}
 onChange={(e)=>setLocation(e.target.value)}
+required
 />
 
 <textarea
@@ -86,10 +118,11 @@ onChange={(e)=>setDescription(e.target.value)}
 />
 
 <button
-className="w-full bg-blue-600 p-3 rounded font-semibold"
+className="w-full bg-blue-600 p-3 rounded font-semibold hover:bg-blue-700 disabled:opacity-50"
 type="submit"
+disabled={loading}
 >
-POST RENTAL
+{loading ? "Posting..." : "POST RENTAL"}
 </button>
 
 </form>
