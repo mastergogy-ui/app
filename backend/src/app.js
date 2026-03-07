@@ -60,7 +60,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 
 /* 🔥 FIX HERE */
-app.use('/api', adRoutes);
+app.use('/api/ads', adRoutes);
 
 app.use((_, res) => res.status(404).json({ message: 'Route not found' }));
 
