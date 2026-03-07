@@ -4,7 +4,7 @@ const router = express.Router();
 
 let ads = [];
 
-/* CREATE LISTING (POST AD / RENTAL) */
+/* CREATE LISTING (POST AD) */
 router.post("/listings", async (req, res) => {
   try {
     const { title, price, category, location, description } = req.body;
@@ -28,7 +28,9 @@ router.post("/listings", async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      message: "Server error"
+    });
   }
 });
 
