@@ -4,7 +4,6 @@ const router = express.Router();
 
 let ads = [];
 
-/* CREATE AD */
 router.post("/", (req, res) => {
 
   const { title, price, category, location, description } = req.body;
@@ -24,7 +23,6 @@ router.post("/", (req, res) => {
   res.status(201).json(ad);
 });
 
-/* GET ALL ADS */
 router.get("/", (req, res) => {
   res.json(ads);
 });
