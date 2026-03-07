@@ -23,7 +23,7 @@ try{
 
 setLoading(true)
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads`,{
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
