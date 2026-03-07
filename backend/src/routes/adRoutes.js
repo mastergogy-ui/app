@@ -2,15 +2,15 @@ import express from "express";
 
 const router = express.Router();
 
-// POST /api/ads
+let ads = [];
+
+/* CREATE AD */
 router.post("/", async (req, res) => {
   try {
-
     const { title, price, category, location, description } = req.body;
 
-    console.log("Received Ad:", req.body);
-
     const ad = {
+      id: Date.now().toString(),
       title,
       price,
       category,
@@ -19,8 +19,10 @@ router.post("/", async (req, res) => {
       createdAt: new Date()
     };
 
+    ads.push(ad);
+
     res.status(201).json({
-      message: "Ad created successfully",
+      success: true,
       ad
     });
 
@@ -30,9 +32,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET /api/ads
+/* GET ALL ADS */
 router.get("/", async (req, res) => {
-  res.json([]);
+  res.json({
+    success: true,
+    ads
+  });
 });
 
 export default router;
