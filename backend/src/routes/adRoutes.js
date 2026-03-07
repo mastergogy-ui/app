@@ -4,38 +4,28 @@ const router = express.Router();
 
 let ads = [];
 
-/* CREATE LISTING (POST AD) */
-router.post("/", async (req, res) => {
-  try {
-    const { title, price, category, location, description } = req.body;
+/* CREATE AD */
+router.post("/", (req, res) => {
 
-    const ad = {
-      id: Date.now().toString(),
-      title,
-      price,
-      category,
-      location,
-      description,
-      createdAt: new Date()
-    };
+  const { title, price, category, location, description } = req.body;
 
-    ads.push(ad);
+  const ad = {
+    id: Date.now().toString(),
+    title,
+    price,
+    category,
+    location,
+    description,
+    createdAt: new Date()
+  };
 
-    res.status(201).json({
-      success: true,
-      ad
-    });
+  ads.push(ad);
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
+  res.status(201).json(ad);
 });
 
-/* GET ALL LISTINGS */
-router.get("/", async (req, res) => {
+/* GET ALL ADS */
+router.get("/", (req, res) => {
   res.json(ads);
 });
 
