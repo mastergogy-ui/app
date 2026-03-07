@@ -22,15 +22,22 @@ const [ads,setAds] = useState<any[]>([])
 useEffect(()=>{
 
 const fetchAds = async () => {
+
 try{
 
 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
 const data = await res.json()
+
+if(Array.isArray(data)){
 setAds(data)
+}else{
+setAds([])
+}
 
 }catch(err){
 console.log("API error",err)
 }
+
 }
 
 fetchAds()
@@ -55,7 +62,7 @@ return (
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
 {ads.map((ad)=>(
-<div key={ad._id} className="bg-slate-800 p-3 rounded">
+<div key={ad.id} className="bg-slate-800 p-3 rounded">
 
 <h3 className="font-semibold">{ad.title}</h3>
 
