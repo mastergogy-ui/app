@@ -48,7 +48,7 @@ app.get('/api/health', (_, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use("/", adRoutes);
+app.use("/api/ads", adRoutes);
 
 app.use((_, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((error, _, res, __) => {
