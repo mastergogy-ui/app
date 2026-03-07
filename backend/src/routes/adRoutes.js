@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
 });
 
 /* GET ALL LISTINGS */
-router.get("/listings", async (req, res) => {
+router.get("/", async (req, res) => {
   res.json(ads);
 });
 
