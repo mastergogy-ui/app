@@ -1,28 +1,30 @@
-import express from "express"
-import Ad from "../models/Ad.js"
+import express from "express";
 
-const router = express.Router()
+const router = express.Router();
 
-// POST - create new ad
-router.post("/listings", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const ad = new Ad(req.body)
-    await ad.save()
-    res.json(ad)
+    const { title, price, category, location, description } = req.body;
+
+    const newAd = {
+      title,
+      price,
+      category,
+      location,
+      description
+    };
+
+    console.log("New Ad:", newAd);
+
+    res.json({ message: "Ad created", ad: newAd });
+
   } catch (error) {
-    res.status(500).json({ message: "Failed to create ad" })
+    res.status(500).json({ message: "Server error" });
   }
-})
+});
 
+router.get("/", async (req, res) => {
+  res.json([]);
+});
 
-// GET - fetch all ads
-router.get("/listings", async (req, res) => {
-  try {
-    const ads = await Ad.find().sort({ createdAt: -1 })
-    res.json(ads)
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch ads" })
-  }
-})
-
-export default router
+export default router;
