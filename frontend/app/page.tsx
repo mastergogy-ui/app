@@ -24,7 +24,7 @@ useEffect(()=>{
 const fetchAds = async () => {
 try{
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`)
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
 const data = await res.json()
 setAds(data)
 
