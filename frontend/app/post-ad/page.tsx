@@ -1,133 +1,119 @@
-'use client'
+"use client";
 
 import { useState } from "react";
+import { api } from "../../lib/api";
 
-export default function PostAdPage(){
+export default function PostAdPage() {
 
-const [title,setTitle] = useState("")
-const [price,setPrice] = useState("")
-const [category,setCategory] = useState("Cars")
-const [location,setLocation] = useState("")
-const [description,setDescription] = useState("")
-const [loading,setLoading] = useState(false)
+  const [title,setTitle] = useState("");
+  const [category,setCategory] = useState("Bike");
+  const [price,setPrice] = useState("");
+  const [location,setLocation] = useState("");
+  const [description,setDescription] = useState("");
+  const [loading,setLoading] = useState(false);
 
-const API = process.env.NEXT_PUBLIC_API_URL
+  const submitAd = async (e:any)=>{
+    e.preventDefault();
 
-const handleSubmit = async (e:any)=>{
-e.preventDefault()
+    try{
 
-if(!title || !price || !location){
-alert("Please fill all fields")
-return
-}
+      setLoading(true);
 
-try{
+      await api.post("/ads",{
+        title,
+        category,
+        price,
+        location,
+        description
+      });
 
-setLoading(true)
+      alert("Ad posted successfully");
 
-const res = await fetch(`${API}/ads`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-title,
-price,
-category,
-location,
-description
-})
-})
+      setTitle("");
+      setPrice("");
+      setLocation("");
+      setDescription("");
 
-if(!res.ok){
-throw new Error("Failed")
-}
+    }catch(err){
+      console.log(err);
+      alert("Error posting ad");
+    }
 
-await res.json()
+    setLoading(false);
+  }
 
-alert("Ad posted successfully")
+  return(
 
-setTitle("")
-setPrice("")
-setLocation("")
-setDescription("")
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
 
-}catch(err){
-console.error(err)
-alert("Error posting ad")
-}
+      <form
+      onSubmit={submitAd}
+      className="bg-white p-8 rounded-lg shadow w-[400px]"
+      >
 
-setLoading(false)
-}
+      <h1 className="text-2xl font-bold mb-6">
+      Post Your Rental Ad
+      </h1>
 
-return(
+      <input
+      placeholder="Title"
+      className="border p-2 w-full mb-4"
+      value={title}
+      onChange={(e)=>setTitle(e.target.value)}
+      required
+      />
 
-<div className="max-w-xl mx-auto bg-slate-900 p-6 rounded-lg text-white">
+      <select
+      className="border p-2 w-full mb-4"
+      value={category}
+      onChange={(e)=>setCategory(e.target.value)}
+      >
 
-<h1 className="text-2xl font-bold mb-6">
-Post Your Rental Ad
-</h1>
+      <option>Bike</option>
+      <option>Car</option>
+      <option>House</option>
+      <option>Mobile</option>
+      <option>Electronics</option>
+      <option>Furniture</option>
+      <option>Laptop</option>
 
-<form onSubmit={handleSubmit} className="space-y-4">
+      </select>
 
-<input
-className="w-full p-3 rounded bg-slate-800"
-placeholder="Title"
-value={title}
-onChange={(e)=>setTitle(e.target.value)}
-required
-/>
+      <input
+      placeholder="Price"
+      type="number"
+      className="border p-2 w-full mb-4"
+      value={price}
+      onChange={(e)=>setPrice(e.target.value)}
+      required
+      />
 
-<select
-className="w-full p-3 rounded bg-slate-800"
-value={category}
-onChange={(e)=>setCategory(e.target.value)}
->
-<option>Cars</option>
-<option>Properties</option>
-<option>Mobiles</option>
-<option>Fashion</option>
-<option>Bikes</option>
-<option>Electronics</option>
-<option>Commercial Vehicles</option>
-<option>Furniture</option>
-<option>Rent a Friend</option>
-</select>
+      <input
+      placeholder="Location"
+      className="border p-2 w-full mb-4"
+      value={location}
+      onChange={(e)=>setLocation(e.target.value)}
+      required
+      />
 
-<input
-className="w-full p-3 rounded bg-slate-800"
-placeholder="Price per day"
-value={price}
-onChange={(e)=>setPrice(e.target.value)}
-required
-/>
+      <textarea
+      placeholder="Description"
+      className="border p-2 w-full mb-4"
+      value={description}
+      onChange={(e)=>setDescription(e.target.value)}
+      required
+      />
 
-<input
-className="w-full p-3 rounded bg-slate-800"
-placeholder="Location"
-value={location}
-onChange={(e)=>setLocation(e.target.value)}
-required
-/>
+      <button
+      className="bg-blue-600 text-white w-full p-3 rounded"
+      disabled={loading}
+      >
+      {loading ? "Posting..." : "Post Ad"}
+      </button>
 
-<textarea
-className="w-full p-3 rounded bg-slate-800"
-placeholder="Description"
-value={description}
-onChange={(e)=>setDescription(e.target.value)}
-/>
+      </form>
 
-<button
-className="w-full bg-blue-600 p-3 rounded font-semibold"
-type="submit"
-disabled={loading}
->
-{loading ? "Posting..." : "POST RENTAL"}
-</button>
+    </div>
+  )
 
-</form>
-
-</div>
-
-)
 }
