@@ -26,8 +26,6 @@ export default function HomePage() {
 
       const res = await api.get("/ads");
 
-      console.log("ADS RESPONSE:",res.data);
-
       const adsData =
         res.data.ads ||
         res.data.data ||
@@ -71,8 +69,6 @@ export default function HomePage() {
         Latest Rentals
       </h1>
 
-      {/* CATEGORY BAR */}
-
       <div className="flex flex-wrap gap-3 mb-6">
 
         {categories.map((cat)=>(
@@ -96,8 +92,6 @@ export default function HomePage() {
           No ads posted yet
         </p>
       )}
-
-      {/* ADS GRID */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -134,11 +128,11 @@ export default function HomePage() {
 
       </div>
 
-      {/* FLOAT BUTTON */}
+      {/* FLOAT POST BUTTON */}
 
       <a
       href="/post-ad"
-      className="fixed bottom-6 right-6 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg"
+      className="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg"
       >
         + Post Ad
       </a>
