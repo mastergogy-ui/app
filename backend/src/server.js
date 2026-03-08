@@ -1,6 +1,7 @@
-const express = require("express");
-const http = require("http");
-const cors = require("cors");
+import express from "express";
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
 
 const app = express();
 
@@ -9,77 +10,67 @@ app.use(express.json());
 
 const server = http.createServer(app);
 
-const { Server } = require("socket.io");
-
 const io = new Server(server,{
-cors:{
-origin:"*"
-}
+  cors:{
+    origin:"*"
+  }
 });
 
 let chats = {};
 
 io.on("connection",(socket)=>{
 
-console.log("User connected");
+  console.log("User connected");
 
-socket.on("joinRoom",(adId)=>{
+  socket.on("joinRoom",(adId)=>{
 
-```
-socket.join(adId);
-```
+    socket.join(adId);
 
-});
+  });
 
-socket.on("sendMessage",({adId,message})=>{
+  socket.on("sendMessage",({adId,message})=>{
 
-```
-if(!chats[adId]){
+    if(!chats[adId]){
+      chats[adId] = [];
+    }
 
-  chats[adId] = [];
+    const msg = {
+      message,
+      time:Date.now()
+    };
 
-}
+    chats[adId].push(msg);
 
-const msg = {
-  message,
-  time:Date.now()
-};
+    io.to(adId).emit("receiveMessage",msg);
 
-chats[adId].push(msg);
+  });
 
-io.to(adId).emit("receiveMessage",msg);
-```
+  socket.on("typing",(adId)=>{
 
-});
+    socket.to(adId).emit("typing");
 
-socket.on("typing",(adId)=>{
+  });
 
-```
-socket.to(adId).emit("typing");
-```
+  socket.on("messageSeen",(adId)=>{
 
-});
+    socket.to(adId).emit("seen");
 
-socket.on("messageSeen",(adId)=>{
-
-```
-socket.to(adId).emit("seen");
-```
-
-});
+  });
 
 });
 
 app.get("/chat/:adId",(req,res)=>{
 
-const { adId } = req.params;
+  const { adId } = req.params;
 
-res.json(chats[adId] || []);
+  res.json(chats[adId] || []);
 
 });
 
-server.listen(5000,()=>{
+const PORT = process.env.PORT || 5000;
 
-console.log("Server running on 5000");
+server.listen(PORT,()=>{
+
+  console.log(`Server running on ${PORT}`);
 
 });
