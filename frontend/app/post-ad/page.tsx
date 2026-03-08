@@ -25,7 +25,7 @@ try{
 
 setLoading(true)
 
-const res = await fetch(`${API}/api/ads`,{
+const res = await fetch(`${API}/ads`,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
