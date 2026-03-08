@@ -1,62 +1,50 @@
 "use client";
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "../../lib/api";
 import { getToken } from "../../lib/auth";
-import { useRouter } from "next/navigation";
 
-export default function PostAdPage(){
+export default function PostAdPage() {
 
   const router = useRouter();
 
   const [title,setTitle] = useState("");
   const [description,setDescription] = useState("");
-  const [price,setPrice] = useState("");
-  const [category,setCategory] = useState("");
-  const [image,setImage] = useState<any>(null);
-  const [preview,setPreview] = useState("");
 
   useEffect(()=>{
 
-    const token = getToken();
+    const token = getToken("userToken");
 
     if(!token){
-
       router.push("/login");
-
     }
 
-  },[]);
+  },[router]);
 
-  const handleSubmit = async(e:any)=>{
-
+  const submitAd = async(e:any)=>{
     e.preventDefault();
 
     try{
 
-      const formData = new FormData();
+      const token = getToken("userToken");
 
-      formData.append("title",title);
-      formData.append("description",description);
-      formData.append("price",price);
-      formData.append("category",category);
+      await api.post(
+        "/ads",
+        { title, description },
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      );
 
-      if(image){
-
-        formData.append("image",image);
-
-      }
-
-      await api.post("/ads",formData);
-
-      router.push("/");
+      router.push("/dashboard");
 
     }catch(err){
-
       console.log(err);
-
+      alert("Failed to create ad");
     }
-
   };
 
   return(
@@ -64,71 +52,32 @@ export default function PostAdPage(){
     <div className="max-w-xl mx-auto p-6">
 
       <h1 className="text-2xl font-bold mb-6">
-
         Post New Ad
-
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
+      <form onSubmit={submitAd} className="space-y-4">
 
         <input
+          type="text"
           placeholder="Title"
           value={title}
           onChange={(e)=>setTitle(e.target.value)}
-          className="w-full border p-2"
+          className="w-full border p-3 rounded"
+          required
         />
 
         <textarea
           placeholder="Description"
           value={description}
           onChange={(e)=>setDescription(e.target.value)}
-          className="w-full border p-2"
+          className="w-full border p-3 rounded"
+          rows={4}
+          required
         />
-
-        <input
-          placeholder="Price"
-          value={price}
-          onChange={(e)=>setPrice(e.target.value)}
-          className="w-full border p-2"
-        />
-
-        <input
-          placeholder="Category"
-          value={category}
-          onChange={(e)=>setCategory(e.target.value)}
-          className="w-full border p-2"
-        />
-
-        <input
-          type="file"
-          onChange={(e)=>{
-
-            const file = e.target.files?.[0];
-
-            if(file){
-
-              setImage(file);
-              setPreview(URL.createObjectURL(file));
-
-            }
-
-          }}
-        />
-
-        {preview && (
-
-          <img
-            src={preview}
-            className="w-40"
-          />
-
-        )}
 
         <button
-          className="bg-blue-600 text-white px-6 py-2 rounded"
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           Post Ad
         </button>
@@ -136,7 +85,5 @@ export default function PostAdPage(){
       </form>
 
     </div>
-
   );
-
 }
