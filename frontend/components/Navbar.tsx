@@ -6,9 +6,7 @@ export default function Navbar() {
 
   return (
 
-    <div className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center">
-
-      {/* LOGO */}
+    <div className="w-full bg-white border-b px-6 py-4 flex justify-between items-center">
 
       <Link href="/">
         <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">
@@ -16,9 +14,7 @@ export default function Navbar() {
         </h1>
       </Link>
 
-      {/* NAV LINKS */}
-
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 text-gray-700">
 
         <Link href="/" className="hover:text-blue-600">
           Home
@@ -30,9 +26,9 @@ export default function Navbar() {
 
         <Link
           href="/post-ad"
-          className="bg-red-600 text-white px-4 py-2 rounded-lg"
+          className="bg-red-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-red-700"
         >
-          Post Ad
+          + Post Ad
         </Link>
 
         <Link href="/leaderboard" className="hover:text-blue-600">
