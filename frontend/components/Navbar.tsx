@@ -7,26 +7,18 @@ export default function Navbar() {
     <div className="w-full bg-white border-b px-6 py-4 flex justify-between items-center">
 
       <Link href="/" className="text-xl font-bold">
-        Mahalakshmi
+        RentWala
       </Link>
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
 
-        <Link href="/dashboard" className="text-gray-700 hover:text-black">
-          Dashboard
-        </Link>
+        <Link href="/dashboard">Dashboard</Link>
 
-        <Link href="/create-ad" className="text-gray-700 hover:text-black">
-          Post Ad
-        </Link>
+        <Link href="/create-ad">Post Ad</Link>
 
-        <Link href="/inbox" className="text-gray-700 hover:text-black">
-          Inbox
-        </Link>
+        <Link href="/inbox">Inbox</Link>
 
-        <Link href="/profile" className="text-gray-700 hover:text-black">
-          Profile
-        </Link>
+        <Link href="/profile">Profile</Link>
 
       </div>
 
