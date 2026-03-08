@@ -6,33 +6,35 @@ import { api } from "../../../lib/api";
 
 export default function AdDetailsPage(){
 
-const { id } = useParams();
+const params = useParams();
 const router = useRouter();
 
+const id = params.id as string;
+
 const [ad,setAd] = useState<any>(null);
-
-const fetchAd = async()=>{
-
-```
-try{
-
-  const res = await api.get(`/ads/${id}`);
-
-  setAd(res.data);
-
-}catch(err){
-
-  console.log("Error loading ad",err);
-
-}
-```
-
-};
 
 useEffect(()=>{
 
 ```
-if(id) fetchAd();
+const loadAd = async()=>{
+
+  try{
+
+    const res = await api.get(`/ads/${id}`);
+
+    setAd(res.data);
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+};
+
+if(id){
+  loadAd();
+}
 ```
 
 },[id]);
@@ -40,11 +42,7 @@ if(id) fetchAd();
 if(!ad){
 
 ```
-return(
-  <div className="p-10">
-    Loading ad...
-  </div>
-);
+return <div className="p-10">Loading...</div>;
 ```
 
 }
@@ -80,9 +78,7 @@ return(
 
   )}
 
-  <h1 className="text-3xl font-bold mt-6">
-    {ad.title}
-  </h1>
+  <h1 className="text-3xl font-bold mt-6">{ad.title}</h1>
 
   <p className="text-green-600 text-2xl font-bold mt-2">
     ₹ {ad.price}
