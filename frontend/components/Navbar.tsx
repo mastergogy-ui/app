@@ -2,56 +2,34 @@
 
 import Link from "next/link";
 
-export default function Navbar(){
+export default function Navbar() {
+  return (
+    <div className="w-full bg-white border-b px-6 py-4 flex justify-between items-center">
 
-const unread = 3;
+      <Link href="/" className="text-xl font-bold">
+        Mahalakshmi
+      </Link>
 
-return(
+      <div className="flex gap-4">
 
-```
-<div className="w-full bg-white border-b px-6 py-4 flex justify-between items-center">
+        <Link href="/dashboard" className="text-gray-700 hover:text-black">
+          Dashboard
+        </Link>
 
-  <Link href="/">
+        <Link href="/create-ad" className="text-gray-700 hover:text-black">
+          Post Ad
+        </Link>
 
-    <h1 className="text-2xl font-bold text-blue-600">
-      RentWala
-    </h1>
+        <Link href="/inbox" className="text-gray-700 hover:text-black">
+          Inbox
+        </Link>
 
-  </Link>
+        <Link href="/profile" className="text-gray-700 hover:text-black">
+          Profile
+        </Link>
 
-  <div className="flex items-center gap-6">
+      </div>
 
-    <Link href="/">
-      Home
-    </Link>
-
-    <Link href="/post-ad"
-    className="bg-red-600 text-white px-5 py-2 rounded-full"
-    >
-      + Post Ad
-    </Link>
-
-    <Link href="/inbox" className="relative">
-
-      Inbox
-
-      {unread > 0 && (
-
-        <span
-        className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
-        >
-          {unread}
-        </span>
-
-      )}
-
-    </Link>
-
-  </div>
-
-</div>
-```
-
-);
-
+    </div>
+  );
 }
