@@ -98,32 +98,13 @@ export default function HomePage() {
 
         {filteredAds.map((ad,index)=>(
 
-          <div
-          key={index}
-          className="bg-white p-5 rounded-lg shadow"
-          >
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <h2 className="text-xl font-bold">
-              {ad.title}
-            </h2>
+  {filteredAds.map((ad,index)=>(
+    <ListingCard key={index} ad={ad} />
+  ))}
 
-            <p className="text-gray-500">
-              {ad.category}
-            </p>
-
-            <p className="text-green-600 font-semibold">
-              ₹ {ad.price}
-            </p>
-
-            <p>
-              {ad.location}
-            </p>
-
-            <p className="text-sm text-gray-500 mt-2">
-              {ad.description}
-            </p>
-
-          </div>
+</div>
 
         ))}
 
