@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { api } from "../lib/api"
 
 const categories = [
 { name: "Cars", icon: "🚗" },
@@ -18,6 +19,7 @@ const categories = [
 export default function HomePage(){
 
 const [ads,setAds] = useState<any[]>([])
+const [loading,setLoading] = useState(true)
 
 useEffect(()=>{
 
@@ -25,18 +27,20 @@ const fetchAds = async () => {
 
 try{
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
-const data = await res.json()
+const res = await api.get("/ads")
 
-if(Array.isArray(data)){
-setAds(data)
+if(Array.isArray(res.data)){
+setAds(res.data)
 }else{
 setAds([])
 }
 
 }catch(err){
 console.log("API error",err)
+setAds([])
 }
+
+setLoading(false)
 
 }
 
@@ -59,10 +63,14 @@ return (
 
 <h2 className="text-xl font-semibold">Fresh Rentals</h2>
 
+{loading && (
+<p className="text-gray-400">Loading ads...</p>
+)}
+
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
 {ads.map((ad)=>(
-<div key={ad.id} className="bg-slate-800 p-3 rounded">
+<div key={ad._id || ad.id} className="bg-slate-800 p-3 rounded">
 
 <h3 className="font-semibold">{ad.title}</h3>
 
