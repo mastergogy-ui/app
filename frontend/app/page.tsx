@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ListingCard from "../components/ListingCard";
 import { api } from "../lib/api";
 
 const categories = [
