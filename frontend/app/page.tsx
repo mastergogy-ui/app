@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import ListingCard from "../components/ListingCard";
+import { useEffect,useState } from "react";
 import { api } from "../lib/api";
+import ListingCard from "../components/ListingCard";
+import { useSearchParams } from "next/navigation";
 
-const categories = [
-  "All",
-  "Bike",
-  "Car",
-  "House",
-  "Mobile",
-  "Electronics",
-  "Furniture",
-  "Camera"
-];
-
-export default function HomePage() {
+export default function HomePage(){
 
   const [ads,setAds] = useState<any[]>([]);
   const [filteredAds,setFilteredAds] = useState<any[]>([]);
-  const [selectedCategory,setSelectedCategory] = useState("All");
 
-  const fetchAds = async () => {
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get("search");
+
+  const fetchAds = async()=>{
 
     try{
 
@@ -37,30 +30,40 @@ export default function HomePage() {
       setFilteredAds(adsData);
 
     }catch(err){
+
       console.log("Fetch error",err);
+
     }
 
   };
 
   useEffect(()=>{
+
     fetchAds();
+
   },[]);
 
-  const filterCategory = (cat:string)=>{
+  useEffect(()=>{
 
-    setSelectedCategory(cat);
+    if(!search){
 
-    if(cat === "All"){
       setFilteredAds(ads);
+
       return;
+
     }
 
-    const filtered = ads.filter(
-      (ad)=>ad.category === cat
+    const filtered = ads.filter((ad)=>
+
+      ad.title
+        .toLowerCase()
+        .includes(search.toLowerCase())
+
     );
 
     setFilteredAds(filtered);
-  };
+
+  },[search,ads]);
 
   return(
 
@@ -70,54 +73,35 @@ export default function HomePage() {
         Latest Rentals
       </h1>
 
-     <div className="flex flex-wrap gap-3 mb-8">
-
-  {categories.map((cat)=>(
-    <button
-    key={cat}
-    onClick={()=>filterCategory(cat)}
-    className={`px-5 py-2 rounded-full border text-sm font-medium transition ${
-      selectedCategory === cat
-        ? "bg-blue-600 text-white border-blue-600"
-        : "bg-white hover:bg-gray-100"
-    }`}
-    >
-      {cat}
-    </button>
-  ))}
-
-</div>
-
       {filteredAds.length === 0 && (
+
         <p className="text-gray-500">
-          No ads posted yet
+          No ads found
         </p>
+
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
         {filteredAds.map((ad,index)=>(
 
-         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-  {filteredAds.map((ad,index)=>(
-    <ListingCard key={index} ad={ad} />
-  ))}
-
-</div>
+          <ListingCard
+            key={index}
+            ad={ad}
+          />
 
         ))}
 
       </div>
 
-      {/* FLOAT POST BUTTON */}
+      {/* FLOAT BUTTON */}
 
-     <a
-href="/post-ad"
-className="fixed bottom-6 right-6 bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg hover:bg-red-700"
->
-+
-</a>
+      <a
+        href="/post-ad"
+        className="fixed bottom-6 right-6 bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg"
+      >
+        +
+      </a>
 
     </div>
 
