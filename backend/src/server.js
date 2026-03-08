@@ -1,29 +1,37 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import adRoutes from "./routes/adRoutes.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-/* CONNECT ROUTES */
-app.use("/api/ads", adRoutes);
-
-/* TEST ROUTE */
+/* TEST ROOT */
 app.get("/", (req, res) => {
-  res.send("API running");
+  res.send("Backend running");
 });
 
-/* DATABASE */
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.log(err));
+/* ADS ROUTES */
+app.get("/api/ads", (req, res) => {
+  res.json([]);
+});
 
-/* SERVER */
+app.post("/api/ads", (req, res) => {
+  console.log("AD RECEIVED:", req.body);
+  res.json({ success: true });
+});
+
+/* DATABASE (optional but safe) */
+mongoose.connect(process.env.MONGO_URI || "", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(()=>console.log("MongoDB connected"))
+.catch(()=>console.log("MongoDB skipped"));
+
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
