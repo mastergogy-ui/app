@@ -1,74 +1,140 @@
 "use client";
 
 import { useEffect,useState } from "react";
-import { api } from "../../lib/api";
-import Link from "next/link";
+import { socket } from "../../../lib/socket";
+import { api } from "../../../lib/api";
+import { useParams } from "next/navigation";
 
-export default function InboxPage(){
+export default function ChatPage(){
 
-const [conversations,setConversations] = useState<any[]>([]);
+  const params = useParams();
+  const adId = params.adId as string;
 
-const loadInbox = async()=>{
+  const [messages,setMessages] = useState<any[]>([]);
+  const [text,setText] = useState("");
+  const [typing,setTyping] = useState(false);
 
-```
-try{
+  const loadMessages = async()=>{
 
-  const res = await api.get("/chat");
+    try{
 
-  setConversations(res.data || []);
+      const res = await api.get(`/chat/${adId}`);
 
-}catch(err){
+      setMessages(res.data || []);
 
-  console.log(err);
+    }catch(err){
 
-}
-```
+      console.log(err);
 
-};
+    }
 
-useEffect(()=>{
+  };
 
-```
-loadInbox();
-```
+  useEffect(()=>{
 
-},[]);
+    if(!adId) return;
 
-return(
+    loadMessages();
 
-```
-<div className="max-w-2xl mx-auto p-6">
+    socket.emit("joinRoom",adId);
 
-  <h1 className="text-2xl font-bold mb-6">
-    Chats
-  </h1>
+    socket.on("receiveMessage",(msg:any)=>{
 
-  {conversations.map((chat,index)=>(
+      setMessages(prev=>[...prev,msg]);
 
-    <Link
-    key={index}
-    href={`/chat/${chat.adId}`}
-    >
+    });
 
-      <div className="border p-4 rounded mb-3 hover:bg-gray-50">
+    socket.on("typing",()=>{
 
-        <p className="font-semibold">
-          {chat.title}
-        </p>
+      setTyping(true);
 
-        <p className="text-gray-500 text-sm">
-          Last message: {chat.lastMessage}
-        </p>
+      setTimeout(()=>{
+
+        setTyping(false);
+
+      },1500);
+
+    });
+
+  },[adId]);
+
+  const sendMessage = ()=>{
+
+    if(!text) return;
+
+    socket.emit("sendMessage",{
+
+      adId,
+      message:text
+
+    });
+
+    setText("");
+
+  };
+
+  const handleTyping = (e:any)=>{
+
+    setText(e.target.value);
+
+    socket.emit("typing",adId);
+
+  };
+
+  return(
+
+    <div className="max-w-2xl mx-auto p-6">
+
+      <h1 className="text-2xl font-bold mb-6">
+        Live Chat
+      </h1>
+
+      <div className="border p-4 h-96 overflow-y-auto mb-4 bg-gray-50">
+
+        {messages.map((msg,index)=>(
+
+          <div key={index} className="mb-2">
+
+            <span className="bg-white px-3 py-2 rounded shadow">
+
+              {msg.message}
+
+            </span>
+
+          </div>
+
+        ))}
+
+        {typing && (
+
+          <p className="text-gray-400 text-sm mt-2">
+            User typing...
+          </p>
+
+        )}
 
       </div>
 
-    </Link>
+      <div className="flex gap-2">
 
-  ))}
+        <input
+          value={text}
+          onChange={handleTyping}
+          className="flex-1 border px-3 py-2 rounded"
+          placeholder="Type message..."
+        />
 
-</div>
-```
+        <button
+          onClick={sendMessage}
+          className="bg-blue-600 text-white px-4 rounded"
+        >
+          Send
+        </button>
 
-);
+      </div>
+
+    </div>
+
+  );
 
 }
