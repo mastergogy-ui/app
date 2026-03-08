@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { api } from '@/lib/api'
+import { api } from "../../../lib/api";
 
 export default function AdPage(){
 
