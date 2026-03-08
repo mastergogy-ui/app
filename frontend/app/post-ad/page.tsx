@@ -1,118 +1,125 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 
 export default function PostAdPage() {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("Rent a Bike");
+  const [price, setPrice] = useState("");
+  const [city, setCity] = useState("");
+  const [area, setArea] = useState("");
+  const [country, setCountry] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
-const [title,setTitle] = useState("");
-const [category,setCategory] = useState("Bike");
-const [price,setPrice] = useState("");
-const [location,setLocation] = useState("");
-const [description,setDescription] = useState("");
-const [image,setImage] = useState<File | null>(null);
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
 
-const submitAd = async (e:any)=>{
-e.preventDefault();
+    try {
+      const formData = new FormData();
 
-const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("category", category);
+      formData.append("price", price);
+      formData.append("city", city);
+      formData.append("area", area);
+      formData.append("country", country);
 
-formData.append("title",title);
-formData.append("category",category);
-formData.append("price",price);
-formData.append("location",location);
-formData.append("description",description);
+      if (image) {
+        formData.append("image", image);
+      }
 
-if(image){
-formData.append("image",image);
-}
+      const res = await axios.post(
+        "https://mahalakshmi.onrender.com/api/ads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-await fetch(
-process.env.NEXT_PUBLIC_API_URL + "/api/ads",
-{
-method:"POST",
-body:formData
-}
-);
+      alert("Ad posted successfully");
+      console.log(res.data);
+    } catch (err) {
+      console.error("POST ERROR", err);
+      alert("Failed to post ad");
+    }
+  };
 
-alert("Ad Posted");
+  return (
+    <div className="max-w-xl mx-auto mt-10 bg-white p-6 shadow rounded">
+      <h2 className="text-2xl font-bold mb-4">Create Listing</h2>
 
-};
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-return(
+        <input
+          className="w-full border p-2"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-<div className="min-h-screen flex justify-center items-center bg-gray-100">
+        <textarea
+          className="w-full border p-2"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-<form
-onSubmit={submitAd}
-className="bg-white p-8 rounded-lg shadow w-[420px]"
->
+        <select
+          className="w-full border p-2"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option>Rent a Bike</option>
+          <option>Rent a Car</option>
+          <option>Property</option>
+        </select>
 
-<h1 className="text-2xl font-bold mb-6">
-Post Your Rental Ad
-</h1>
+        <input
+          className="w-full border p-2"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
 
-<input
-placeholder="Title"
-className="border p-2 w-full mb-4"
-onChange={(e)=>setTitle(e.target.value)}
-required
-/>
+        <div className="flex gap-2">
+          <input
+            className="border p-2 flex-1"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
 
-<select
-className="border p-2 w-full mb-4"
-onChange={(e)=>setCategory(e.target.value)}
->
+          <input
+            className="border p-2 flex-1"
+            placeholder="Area"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+          />
 
-<option>Bike</option>
-<option>Car</option>
-<option>House</option>
-<option>Mobile</option>
-<option>Electronics</option>
-<option>Furniture</option>
-<option>Camera</option>
+          <input
+            className="border p-2 flex-1"
+            placeholder="Country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          />
+        </div>
 
-</select>
+        <input
+          type="file"
+          onChange={(e) =>
+            setImage(e.target.files ? e.target.files[0] : null)
+          }
+        />
 
-<input
-placeholder="Price"
-type="number"
-className="border p-2 w-full mb-4"
-onChange={(e)=>setPrice(e.target.value)}
-required
-/>
-
-<input
-placeholder="Location"
-className="border p-2 w-full mb-4"
-onChange={(e)=>setLocation(e.target.value)}
-required
-/>
-
-<textarea
-placeholder="Description"
-className="border p-2 w-full mb-4"
-onChange={(e)=>setDescription(e.target.value)}
-required
-/>
-
-<input
-type="file"
-className="border p-2 w-full mb-4"
-onChange={(e)=>setImage(e.target.files?.[0] || null)}
-/>
-
-<button
-className="bg-blue-600 text-white w-full p-3 rounded"
->
-
-Post Ad
-
-</button>
-
-</form>
-
-</div>
-
-);
-
+        <button className="w-full bg-black text-white py-2 rounded">
+          Post Ad
+        </button>
+      </form>
+    </div>
+  );
 }
