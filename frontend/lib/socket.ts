@@ -1,6 +1,10 @@
 import { io } from "socket.io-client";
 
-export const socket = io("https://mahalakshmi.onrender.com", {
+const URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "https://mahalakshmi.onrender.com";
+
+export const socket = io(URL, {
   transports: ["websocket"],
-  autoConnect: true
+  autoConnect: true,
 });
