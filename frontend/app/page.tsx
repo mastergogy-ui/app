@@ -1,96 +1,59 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { api } from "../lib/api"
+import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 
-const categories = [
-{ name: "Cars", icon: "🚗" },
-{ name: "Properties", icon: "🏠" },
-{ name: "Mobiles", icon: "📱" },
-{ name: "Fashion", icon: "👕" },
-{ name: "Bikes", icon: "🏍️" },
-{ name: "Electronics", icon: "💻" },
-{ name: "Commercial Vehicles", icon: "🚚" },
-{ name: "Furniture", icon: "🛋️" },
-{ name: "Rent a Friend", icon: "🤝" },
-]
+export default function HomePage() {
+  const [ads, setAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function HomePage(){
+  const fetchAds = async () => {
+    try {
+      const res = await api.get("/ads");
+      setAds(res.data);
+    } catch (err) {
+      console.error("Failed to fetch ads", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const [ads,setAds] = useState<any[]>([])
-const [loading,setLoading] = useState(true)
+  useEffect(() => {
+    fetchAds();
+  }, []);
 
-useEffect(()=>{
+  return (
+    <div className="min-h-screen bg-gray-100 p-10">
+      <h1 className="text-3xl font-bold mb-6">Latest Rentals</h1>
 
-const fetchAds = async () => {
+      {loading && <p>Loading ads...</p>}
 
-try{
+      {!loading && ads.length === 0 && (
+        <p>No ads posted yet</p>
+      )}
 
-const res = await api.get("/ads")
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {ads.map((ad) => (
+          <div
+            key={ad._id}
+            className="bg-white p-5 rounded-lg shadow"
+          >
+            <h2 className="text-xl font-bold">{ad.title}</h2>
 
-if(Array.isArray(res.data)){
-setAds(res.data)
-}else{
-setAds([])
-}
+            <p className="text-gray-600">{ad.category}</p>
 
-}catch(err){
-console.log("API error",err)
-setAds([])
-}
+            <p className="text-green-600 font-semibold">
+              ₹ {ad.price}
+            </p>
 
-setLoading(false)
+            <p>{ad.location}</p>
 
-}
-
-fetchAds()
-
-},[])
-
-return (
-
-<div className="space-y-6">
-
-<div className="flex gap-4 overflow-x-auto pb-2">
-{categories.map((cat)=>(
-<div key={cat.name} className="min-w-[90px] flex flex-col items-center bg-slate-800 p-4 rounded-lg">
-<span className="text-3xl">{cat.icon}</span>
-<p className="text-sm mt-2">{cat.name}</p>
-</div>
-))}
-</div>
-
-<h2 className="text-xl font-semibold">Fresh Rentals</h2>
-
-{loading && (
-<p className="text-gray-400">Loading ads...</p>
-)}
-
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-{ads.map((ad)=>(
-<div key={ad._id || ad.id} className="bg-slate-800 p-3 rounded">
-
-<h3 className="font-semibold">{ad.title}</h3>
-
-<p className="text-green-400">₹ {ad.price}</p>
-
-<p className="text-sm text-slate-400">{ad.location}</p>
-
-</div>
-))}
-
-</div>
-
-<Link href="/post-ad">
-<button className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-600 px-6 py-3 rounded-full text-white shadow-lg">
-+ RENT
-</button>
-</Link>
-
-</div>
-
-)
-
+            <p className="text-sm text-gray-500 mt-2">
+              {ad.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
