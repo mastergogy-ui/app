@@ -1,7 +1,6 @@
-// socket disabled to avoid build dependency issues
+import { io } from "socket.io-client";
 
-export const socket = {
-  emit: () => {},
-  on: () => {},
-  off: () => {}
-};
+export const socket = io("https://mahalakshmi.onrender.com", {
+  transports: ["websocket"],
+  autoConnect: true
+});
