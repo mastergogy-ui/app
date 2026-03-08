@@ -4,143 +4,115 @@ import { useState } from "react";
 
 export default function PostAdPage() {
 
-  const [title,setTitle] = useState("");
-  const [category,setCategory] = useState("Bike");
-  const [price,setPrice] = useState("");
-  const [location,setLocation] = useState("");
-  const [description,setDescription] = useState("");
-  const [image,setImage] = useState<File | null>(null);
-  const [loading,setLoading] = useState(false);
+const [title,setTitle] = useState("");
+const [category,setCategory] = useState("Bike");
+const [price,setPrice] = useState("");
+const [location,setLocation] = useState("");
+const [description,setDescription] = useState("");
+const [image,setImage] = useState<File | null>(null);
 
-  const submitAd = async (e:any)=>{
-    e.preventDefault();
+const submitAd = async (e:any)=>{
+e.preventDefault();
 
-    try{
+const formData = new FormData();
 
-      setLoading(true);
+formData.append("title",title);
+formData.append("category",category);
+formData.append("price",price);
+formData.append("location",location);
+formData.append("description",description);
 
-      const formData = new FormData();
+if(image){
+formData.append("image",image);
+}
 
-      formData.append("title",title);
-      formData.append("category",category);
-      formData.append("price",price);
-      formData.append("location",location);
-      formData.append("description",description);
+await fetch(
+process.env.NEXT_PUBLIC_API_URL + "/api/ads",
+{
+method:"POST",
+body:formData
+}
+);
 
-      if(image){
-        formData.append("image",image);
-      }
+alert("Ad Posted");
 
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/api/ads",
-        {
-          method:"POST",
-          body:formData
-        }
-      );
+};
 
-      if(!res.ok){
-        throw new Error("Failed");
-      }
+return(
 
-      alert("Ad posted successfully");
+<div className="min-h-screen flex justify-center items-center bg-gray-100">
 
-      setTitle("");
-      setPrice("");
-      setLocation("");
-      setDescription("");
-      setImage(null);
+<form
+onSubmit={submitAd}
+className="bg-white p-8 rounded-lg shadow w-[420px]"
+>
 
-    }catch(err){
+<h1 className="text-2xl font-bold mb-6">
+Post Your Rental Ad
+</h1>
 
-      console.log(err);
-      alert("Error posting ad");
+<input
+placeholder="Title"
+className="border p-2 w-full mb-4"
+onChange={(e)=>setTitle(e.target.value)}
+required
+/>
 
-    }
+<select
+className="border p-2 w-full mb-4"
+onChange={(e)=>setCategory(e.target.value)}
+>
 
-    setLoading(false);
+<option>Bike</option>
+<option>Car</option>
+<option>House</option>
+<option>Mobile</option>
+<option>Electronics</option>
+<option>Furniture</option>
+<option>Camera</option>
 
-  };
+</select>
 
-  return(
+<input
+placeholder="Price"
+type="number"
+className="border p-2 w-full mb-4"
+onChange={(e)=>setPrice(e.target.value)}
+required
+/>
 
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+<input
+placeholder="Location"
+className="border p-2 w-full mb-4"
+onChange={(e)=>setLocation(e.target.value)}
+required
+/>
 
-      <form
-        onSubmit={submitAd}
-        className="bg-white p-8 rounded-lg shadow w-[420px]"
-      >
+<textarea
+placeholder="Description"
+className="border p-2 w-full mb-4"
+onChange={(e)=>setDescription(e.target.value)}
+required
+/>
 
-        <h1 className="text-2xl font-bold mb-6">
-          Post Your Rental Ad
-        </h1>
+<input
+type="file"
+className="border p-2 w-full mb-4"
+onChange={(e)=>setImage(e.target.files?.[0] || null)}
+/>
 
-        <input
-          placeholder="Title"
-          className="border p-2 w-full mb-4"
-          value={title}
-          onChange={(e)=>setTitle(e.target.value)}
-          required
-        />
+<button
+className="bg-blue-600 text-white w-full p-3 rounded"
+>
 
-        <select
-          className="border p-2 w-full mb-4"
-          value={category}
-          onChange={(e)=>setCategory(e.target.value)}
-        >
+Post Ad
 
-          <option>Bike</option>
-          <option>Car</option>
-          <option>House</option>
-          <option>Mobile</option>
-          <option>Electronics</option>
-          <option>Furniture</option>
-          <option>Camera</option>
+</button>
 
-        </select>
+</form>
 
-        <input
-          placeholder="Price"
-          type="number"
-          className="border p-2 w-full mb-4"
-          value={price}
-          onChange={(e)=>setPrice(e.target.value)}
-          required
-        />
+</div>
 
-        <input
-          placeholder="Location"
-          className="border p-2 w-full mb-4"
-          value={location}
-          onChange={(e)=>setLocation(e.target.value)}
-          required
-        />
-
-        <textarea
-          placeholder="Description"
-          className="border p-2 w-full mb-4"
-          value={description}
-          onChange={(e)=>setDescription(e.target.value)}
-          required
-        />
-
-        <input
-          type="file"
-          className="border p-2 w-full mb-4"
-          onChange={(e)=>setImage(e.target.files?.[0] || null)}
-        />
-
-        <button
-          className="bg-blue-600 text-white w-full p-3 rounded"
-          disabled={loading}
-        >
-          {loading ? "Posting..." : "Post Ad"}
-        </button>
-
-      </form>
-
-    </div>
-
-  );
+);
 
 }
