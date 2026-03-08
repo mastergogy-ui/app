@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import mongoose from "mongoose";
+
 const router = express.Router();
-const mongoose = require("mongoose");
 
 const AdSchema = new mongoose.Schema(
 {
@@ -16,8 +17,7 @@ description: String
 const Ad = mongoose.models.Ad || mongoose.model("Ad", AdSchema);
 
 
-
-/* ------------------ GET ALL ADS ------------------ */
+/* GET ALL ADS */
 
 router.get("/", async (req, res) => {
 try {
@@ -27,14 +27,15 @@ const ads = await Ad.find().sort({ createdAt: -1 });
 res.json(ads);
 
 } catch (err) {
+
 console.error(err);
 res.status(500).json({ error: "Failed to fetch ads" });
+
 }
 });
 
 
-
-/* ------------------ CREATE AD ------------------ */
+/* CREATE AD */
 
 router.post("/", async (req, res) => {
 
@@ -68,4 +69,4 @@ error: "Failed to save ad"
 
 });
 
-module.exports = router;
+export default router;
