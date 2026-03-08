@@ -112,12 +112,12 @@ export default function HomePage() {
 
       {/* FLOAT POST BUTTON */}
 
-      <a
-      href="/post-ad"
-      className="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg"
-      >
-        + Post Ad
-      </a>
+     <a
+href="/post-ad"
+className="fixed bottom-6 right-6 bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg hover:bg-red-700"
+>
++
+</a>
 
     </div>
 
