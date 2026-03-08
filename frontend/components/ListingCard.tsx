@@ -1,19 +1,55 @@
-export default function ListingCard() {
+"use client";
+
+export default function ListingCard({ ad }: any) {
+
   return (
-    <div className="border rounded-lg overflow-hidden bg-white text-black">
 
-      <img
-        src="https://via.placeholder.com/300"
-        alt="item"
-        className="w-full h-40 object-cover"
-      />
+    <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
 
-      <div className="p-3">
-        <p className="font-bold text-lg">₹500 / day</p>
-        <p className="text-sm">Honda City for Rent</p>
-        <p className="text-xs text-gray-500">Pune</p>
+      {/* IMAGE */}
+
+      <div className="h-48 bg-gray-200 flex items-center justify-center">
+
+        {ad.image ? (
+          <img
+            src={ad.image}
+            alt={ad.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span className="text-gray-400">No Image</span>
+        )}
+
+      </div>
+
+      {/* CONTENT */}
+
+      <div className="p-4">
+
+        <h2 className="text-lg font-semibold line-clamp-1">
+          {ad.title}
+        </h2>
+
+        <p className="text-gray-500 text-sm">
+          {ad.category}
+        </p>
+
+        <p className="text-green-600 font-bold text-lg mt-1">
+          ₹ {ad.price}
+        </p>
+
+        <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+          {ad.description}
+        </p>
+
+        <p className="text-gray-400 text-xs mt-2">
+          📍 {ad.location}
+        </p>
+
       </div>
 
     </div>
+
   );
+
 }
