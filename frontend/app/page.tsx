@@ -70,23 +70,23 @@ export default function HomePage() {
         Latest Rentals
       </h1>
 
-      <div className="flex flex-wrap gap-3 mb-6">
+     <div className="flex flex-wrap gap-3 mb-8">
 
-        {categories.map((cat)=>(
-          <button
-          key={cat}
-          onClick={()=>filterCategory(cat)}
-          className={`px-4 py-2 rounded-full border ${
-            selectedCategory === cat
-              ? "bg-blue-600 text-white"
-              : "bg-white"
-          }`}
-          >
-            {cat}
-          </button>
-        ))}
+  {categories.map((cat)=>(
+    <button
+    key={cat}
+    onClick={()=>filterCategory(cat)}
+    className={`px-5 py-2 rounded-full border text-sm font-medium transition ${
+      selectedCategory === cat
+        ? "bg-blue-600 text-white border-blue-600"
+        : "bg-white hover:bg-gray-100"
+    }`}
+    >
+      {cat}
+    </button>
+  ))}
 
-      </div>
+</div>
 
       {filteredAds.length === 0 && (
         <p className="text-gray-500">
