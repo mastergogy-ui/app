@@ -20,15 +20,19 @@ export default function HomePage() {
   const [filteredAds, setFilteredAds] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const fetchAds = async () => {
-    try {
-      const res = await api.get("/ads");
-      setAds(res.data);
-      setFilteredAds(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+ const fetchAds = async () => {
+  try {
+    const res = await api.get("/ads");
+
+    const data = res.data.ads || res.data;
+
+    setAds(data);
+    setFilteredAds(data);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   useEffect(() => {
     fetchAds();
