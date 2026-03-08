@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { api } from "../../lib/api";
+import { getToken } from "../../lib/auth";
 import { useRouter } from "next/navigation";
 
 export default function PostAdPage(){
@@ -12,9 +13,20 @@ export default function PostAdPage(){
   const [description,setDescription] = useState("");
   const [price,setPrice] = useState("");
   const [category,setCategory] = useState("");
-
   const [image,setImage] = useState<any>(null);
-  const [imagePreview,setImagePreview] = useState("");
+  const [preview,setPreview] = useState("");
+
+  useEffect(()=>{
+
+    const token = getToken();
+
+    if(!token){
+
+      router.push("/login");
+
+    }
+
+  },[]);
 
   const handleSubmit = async(e:any)=>{
 
@@ -41,7 +53,7 @@ export default function PostAdPage(){
 
     }catch(err){
 
-      console.log("Post error",err);
+      console.log(err);
 
     }
 
@@ -90,8 +102,6 @@ export default function PostAdPage(){
           className="w-full border p-2"
         />
 
-        {/* IMAGE */}
-
         <input
           type="file"
           onChange={(e)=>{
@@ -101,23 +111,18 @@ export default function PostAdPage(){
             if(file){
 
               setImage(file);
-
-              setImagePreview(
-                URL.createObjectURL(file)
-              );
+              setPreview(URL.createObjectURL(file));
 
             }
 
           }}
         />
 
-        {/* PREVIEW */}
-
-        {imagePreview && (
+        {preview && (
 
           <img
-            src={imagePreview}
-            className="w-40 rounded-lg"
+            src={preview}
+            className="w-40"
           />
 
         )}
