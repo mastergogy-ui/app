@@ -1,87 +1,55 @@
-import express from "express";
-import mongoose from "mongoose";
-import multer from "multer";
-import cloudinary from "../cloudinary.js";
-
+const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
 
-/* Schema */
+const upload = multer({
+  storage: storage
+});
 
-const AdSchema = new mongoose.Schema(
-{
-title: String,
-price: String,
-category: String,
-location: String,
-description: String,
-image: String
-},
-{ timestamps: true }
-);
+router.post("/ads", upload.single("image"), async (req, res) => {
 
-const Ad = mongoose.models.Ad || mongoose.model("Ad", AdSchema);
+  try {
 
+    const {
+      title,
+      description,
+      category,
+      price,
+      city,
+      area,
+      country
+    } = req.body;
 
-/* GET ADS */
+    const image = req.file;
 
-router.get("/", async (req, res) => {
+    const newAd = {
+      title,
+      description,
+      category,
+      price,
+      location: `${area}, ${city}, ${country}`,
+      image: image ? image.originalname : ""
+    };
 
-try {
+    console.log("NEW AD:", newAd);
 
-const ads = await Ad.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      ad: newAd
+    });
 
-res.json(ads);
+  } catch (err) {
 
-} catch (err) {
+    console.log("POST AD ERROR", err);
 
-res.status(500).json({ error: "Failed to fetch ads" });
+    res.status(500).json({
+      error: "Server error"
+    });
 
-}
+  }
 
 });
 
-
-/* CREATE AD */
-
-router.post("/", upload.single("image"), async (req, res) => {
-
-try {
-
-let imageUrl = "";
-
-if (req.file) {
-
-const result = await cloudinary.uploader.upload(req.file.path);
-
-imageUrl = result.secure_url;
-
-}
-
-const ad = new Ad({
-title: req.body.title,
-price: req.body.price,
-category: req.body.category,
-location: req.body.location,
-description: req.body.description,
-image: imageUrl
-});
-
-await ad.save();
-
-res.json({ success: true, ad });
-
-} catch (err) {
-
-console.log(err);
-
-res.status(500).json({
-error: "Failed to create ad"
-});
-
-}
-
-});
-
-export default router;
+module.exports = router;
