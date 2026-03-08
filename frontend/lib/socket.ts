@@ -1,3 +1,7 @@
-import { io } from "socket.io-client";
+// socket disabled to avoid build dependency issues
 
-export const socket = io("https://mahalakshmi.onrender.com");
+export const socket = {
+  emit: () => {},
+  on: () => {},
+  off: () => {}
+};
