@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import adRoutes from "./routes/adRoutes.js";
 
 const app = express();
 
@@ -12,23 +13,13 @@ app.get("/", (req, res) => {
   res.send("Backend running");
 });
 
-/* ADS ROUTES */
-app.get("/api/ads", (req, res) => {
-  res.json([]);
-});
-
-app.post("/api/ads", (req, res) => {
-  console.log("AD RECEIVED:", req.body);
-  res.json({ success: true });
-});
-
-/* DATABASE (optional but safe) */
-mongoose.connect(process.env.MONGO_URI || "", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+/* DATABASE */
+mongoose.connect(process.env.MONGO_URI || "")
 .then(()=>console.log("MongoDB connected"))
-.catch(()=>console.log("MongoDB skipped"));
+.catch((err)=>console.log("MongoDB error:", err));
+
+/* ADS ROUTES */
+app.use("/api/ads", adRoutes);
 
 const PORT = process.env.PORT || 10000;
 
