@@ -1,110 +1,74 @@
 "use client";
 
 import { useEffect,useState } from "react";
-import { socket } from "../../../lib/socket";
-import { api } from "../../../lib/api";
-import { useParams } from "next/navigation";
+import { api } from "../../lib/api";
+import Link from "next/link";
 
-export default function ChatPage(){
+export default function InboxPage(){
 
-  const { adId } = useParams();
+const [conversations,setConversations] = useState<any[]>([]);
 
-  const [messages,setMessages] = useState<any[]>([]);
-  const [text,setText] = useState("");
+const loadInbox = async()=>{
 
-  /* LOAD OLD MESSAGES */
+```
+try{
 
-  const loadMessages = async()=>{
+  const res = await api.get("/chat");
 
-    const res = await api.get(`/chat/${adId}`);
+  setConversations(res.data || []);
 
-    setMessages(res.data);
+}catch(err){
 
-  };
+  console.log(err);
 
-  useEffect(()=>{
+}
+```
 
-    loadMessages();
+};
 
-    socket.emit("joinRoom",adId);
+useEffect(()=>{
 
-    socket.on("receiveMessage",(msg)=>{
+```
+loadInbox();
+```
 
-      setMessages(prev=>[...prev,msg]);
+},[]);
 
-    });
+return(
 
-  },[]);
+```
+<div className="max-w-2xl mx-auto p-6">
 
-  /* SEND MESSAGE */
+  <h1 className="text-2xl font-bold mb-6">
+    Chats
+  </h1>
 
-  const sendMessage = ()=>{
+  {conversations.map((chat,index)=>(
 
-    if(!text) return;
+    <Link
+    key={index}
+    href={`/chat/${chat.adId}`}
+    >
 
-    socket.emit("sendMessage",{
+      <div className="border p-4 rounded mb-3 hover:bg-gray-50">
 
-      adId,
-      message:text
+        <p className="font-semibold">
+          {chat.title}
+        </p>
 
-    });
-
-    setText("");
-
-  };
-
-  return(
-
-    <div className="max-w-2xl mx-auto p-6">
-
-      <h1 className="text-2xl font-bold mb-6">
-
-        Live Chat
-
-      </h1>
-
-      {/* MESSAGES */}
-
-      <div className="border p-4 h-96 overflow-y-auto mb-4">
-
-        {messages.map((msg,index)=>(
-
-          <div key={index} className="mb-2">
-
-            <span className="bg-gray-200 px-3 py-1 rounded">
-
-              {msg.message}
-
-            </span>
-
-          </div>
-
-        ))}
+        <p className="text-gray-500 text-sm">
+          Last message: {chat.lastMessage}
+        </p>
 
       </div>
 
-      {/* INPUT */}
+    </Link>
 
-      <div className="flex gap-2">
+  ))}
 
-        <input
-        value={text}
-        onChange={(e)=>setText(e.target.value)}
-        className="flex-1 border px-3 py-2"
-        placeholder="Type message"
-        />
+</div>
+```
 
-        <button
-        onClick={sendMessage}
-        className="bg-blue-600 text-white px-4"
-        >
-          Send
-        </button>
-
-      </div>
-
-    </div>
-
-  );
+);
 
 }
