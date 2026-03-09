@@ -124,7 +124,11 @@ return (
               fontSize: "40px"
             }}
           >
-            📦
+            <img
+src={ad.image}
+style={{width:"100%",height:"160px",objectFit:"cover"}}
+/>
+
           </div>
 
           <div style={{ padding: "15px" }}>
