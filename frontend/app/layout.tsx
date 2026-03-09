@@ -1,23 +1,15 @@
-import "./globals.css";
-import Navbar from "../components/Navbar";
-import FloatingPostAd from "../components/FloatingPostAd";
+import "./globals.css"
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
       <body>
-
-        <Navbar />
-
         {children}
-
-        <FloatingPostAd />
-
       </body>
     </html>
-  );
+  )
 }
