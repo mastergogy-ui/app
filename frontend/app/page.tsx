@@ -8,6 +8,7 @@ _id: string;
 title: string;
 description: string;
 price: number;
+image?: string;
 };
 
 export default function HomePage() {
@@ -26,10 +27,10 @@ const categories = [
 
 useEffect(() => {
 fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
-.then(res=>res.json())
-.then(data=>setAds(data))
-.catch(err=>console.log(err));
-},[]);
+.then((res) => res.json())
+.then((data) => setAds(data))
+.catch((err) => console.log(err));
+}, []);
 
 return (
 <div style={{ fontFamily: "Arial" }}>
@@ -44,17 +45,21 @@ return (
     }}
   >
     <h2>RentWala</h2>
-    <button
-      style={{
-        background: "#002f34",
-        color: "white",
-        padding: "10px 18px",
-        borderRadius: "6px",
-        border: "none"
-      }}
-    >
-      + SELL
-    </button>
+
+    <Link href="/create-ad">
+      <button
+        style={{
+          background: "#002f34",
+          color: "white",
+          padding: "10px 18px",
+          borderRadius: "6px",
+          border: "none",
+          cursor: "pointer"
+        }}
+      >
+        + SELL
+      </button>
+    </Link>
   </div>
 
   <div style={{ padding: "20px" }}>
@@ -120,15 +125,21 @@ return (
               background: "#f3f3f3",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              fontSize: "40px"
+              justifyContent: "center"
             }}
           >
-            <img
-src={ad.image}
-style={{width:"100%",height:"160px",objectFit:"cover"}}
-/>
-
+            {ad.image ? (
+              <img
+                src={ad.image}
+                style={{
+                  width: "100%",
+                  height: "160px",
+                  objectFit: "cover"
+                }}
+              />
+            ) : (
+              <span style={{ fontSize: "40px" }}>📦</span>
+            )}
           </div>
 
           <div style={{ padding: "15px" }}>
@@ -143,7 +154,8 @@ style={{width:"100%",height:"160px",objectFit:"cover"}}
     ))}
   </div>
 </div>
-
+```
 
 );
 }
+
