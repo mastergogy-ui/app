@@ -15,7 +15,7 @@ export default function HomePage() {
 
   useEffect(() => {
 
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/ads")
+   fetch(process.env.NEXT_PUBLIC_API_URL + "/ads")
       .then(res => res.json())
       .then(data => setAds(data))
       .catch(() => console.log("API error"));
