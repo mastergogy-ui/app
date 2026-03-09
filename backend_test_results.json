@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-02-11T10:50:26.408639",
+  "total_tests": 13,
+  "passed_tests": 3,
+  "success_rate": 23.076923076923077,
+  "test_details": [
+    {
+      "test": "User Registration",
+      "success": false,
+      "details": "Status: 520, Response: Internal Server Error"
+    },
+    {
+      "test": "Pre-Login Registration",
+      "success": false,
+      "details": "Status: 520, Response: Internal Server Error"
+    },
+    {
+      "test": "Get Current User (/auth/me)",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Create Ad",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Get All Ads",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get Ads by Category",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get User Ads",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Get Saved Ads",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Get Conversations",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Update Profile",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Admin Get Ads",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Admin Get Users",
+      "success": false,
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "User Logout",
+      "success": true,
+      "details": "Status: 200"
+    }
+  ]
+}

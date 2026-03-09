@@ -1,0 +1,190 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "RENT WALA",
+      "archetype": "Swiss & High-Contrast (Functional) + Vibrant Play (Accents)",
+      "core_philosophy": "Trust through Clarity. Energy through Color.",
+      "emotional_tone": "Reliable, Dynamic, Accessible, Community-Driven"
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Manrope, sans-serif",
+        "body": "Inter, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-4xl md:text-5xl font-bold tracking-tight",
+        "h2": "text-3xl md:text-4xl font-bold tracking-tight",
+        "h3": "text-2xl md:text-3xl font-semibold",
+        "h4": "text-xl md:text-2xl font-semibold",
+        "body_lg": "text-lg leading-relaxed",
+        "body_base": "text-base leading-relaxed",
+        "body_sm": "text-sm leading-normal",
+        "caption": "text-xs font-medium uppercase tracking-wider text-muted-foreground"
+      },
+      "weights": {
+        "regular": "400",
+        "medium": "500",
+        "semibold": "600",
+        "bold": "700",
+        "black": "900"
+      }
+    },
+    "colors": {
+      "primary": {
+        "name": "Electric Indigo",
+        "hex": "#2563EB",
+        "tailwind": "bg-blue-600",
+        "usage": "Primary Buttons, Active States, Links, Brand Identity"
+      },
+      "secondary": {
+        "name": "Signal Crimson",
+        "hex": "#EF4444",
+        "tailwind": "bg-red-500",
+        "usage": "Urgent Tags, Error States, 'Hot Deal' Badges, Delete Actions"
+      },
+      "accent": {
+        "name": "Emerald Growth",
+        "hex": "#10B981",
+        "tailwind": "bg-emerald-500",
+        "usage": "Success States, Price Tags, 'Available' Indicators, Earnings"
+      },
+      "neutral": {
+        "background": "#FAFAFA",
+        "surface": "#FFFFFF",
+        "border": "#E5E7EB",
+        "text_primary": "#111827",
+        "text_secondary": "#6B7280"
+      },
+      "gradients": {
+        "premium": "bg-gradient-to-r from-blue-600 to-indigo-600",
+        "hot": "bg-gradient-to-r from-orange-500 to-red-500"
+      }
+    },
+    "layout": {
+      "spacing_scale": "Generous (2x standard)",
+      "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+      "grid_system": {
+        "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+        "listings": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+        "categories": "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
+      },
+      "radius": {
+        "default": "rounded-xl",
+        "button": "rounded-full",
+        "card": "rounded-2xl"
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 font-semibold transition-all shadow-lg hover:shadow-blue-500/30 active:scale-95",
+        "secondary": "bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 rounded-full px-6 py-2 font-medium transition-all",
+        "ghost": "text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-4 py-2 transition-colors"
+      },
+      "cards": {
+        "listing": "bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group",
+        "category": "bg-gray-50 hover:bg-white border border-transparent hover:border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer group",
+        "dashboard": "bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+      },
+      "inputs": {
+        "default": "h-12 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50/50 focus:bg-white"
+      }
+    },
+    "motion": {
+      "micro_interactions": {
+        "hover_lift": "hover:-translate-y-1 transition-transform duration-300",
+        "button_press": "active:scale-95 transition-transform duration-100",
+        "fade_in": "animate-in fade-in duration-500"
+      },
+      "transitions": "transition-all duration-300 ease-out"
+    },
+    "accessibility": {
+      "contrast": "Ensure 4.5:1 ratio for text",
+      "focus_states": "Visible ring-2 ring-offset-2 ring-blue-500",
+      "aria": "Use aria-labels for icon-only buttons"
+    }
+  },
+  "assets": {
+    "images": {
+      "categories": {
+        "real_estate": {
+          "url": "https://images.unsplash.com/photo-1663756915301-2ba688e078cf?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Modern Apartment Interior"
+        },
+        "cars": {
+          "url": "https://images.unsplash.com/photo-1760713164476-7eb5063b3d07?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Luxury SUV"
+        },
+        "bikes": {
+          "url": "https://images.unsplash.com/photo-1661834172037-55a4d2ac026d?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Modern Motorcycle"
+        },
+        "scooters": {
+          "url": "https://images.unsplash.com/photo-1761049134836-eb778de442e5?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Electric Scooter"
+        },
+        "clothing": {
+          "url": "https://images.unsplash.com/photo-1766934587163-186d20bf3d40?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Fashion Boutique"
+        },
+        "appliances": {
+          "url": "https://images.unsplash.com/photo-1758279745240-b75977c88fa8?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Modern Appliances"
+        },
+        "rent_a_friend": {
+          "url": "https://images.unsplash.com/photo-1753351056838-143bc3e4cf03?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "alt": "Group of Friends Laughing"
+        }
+      },
+      "hero": {
+        "url": "https://images.unsplash.com/photo-1520106392146-ef585c111254?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Cozy Living Space"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "Stroke width 1.5px, rounded caps"
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Use 'Manrope' for all headings and 'Inter' for body text.",
+      "Implement a 'Mobile-First' approach. Ensure touch targets are at least 44px.",
+      "Use the 'Bento' grid layout for the Categories section on the homepage.",
+      "For the 'Ad Details' page, use a sticky sidebar for the 'Contact Owner' card on desktop.",
+      "Ensure all forms (Upload Ad, Login) use Shadcn Form components with Zod validation.",
+      "Use 'Sonner' for all toast notifications (Success, Error).",
+      "Do NOT use generic gradients. Use the specific 'premium' and 'hot' gradients defined in colors.",
+      "Add 'data-testid' to all interactive elements."
+    ],
+    "theme": {
+      "mode": "light",
+      "strategy": "Use a clean white background (#FFFFFF) for cards and a slightly off-white (#FAFAFA) for the page background to create depth."
+    },
+    "components": {
+      "navigation": "Create a bottom tab bar for mobile and a top navbar for desktop.",
+      "cards": "Listing cards must have an image slider (use Swiper or similar) if multiple images exist.",
+      "chat": "The chat interface should look like WhatsApp/Messenger - clean bubbles, distinct colors for sender/receiver."
+    }
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Examine existing components to understand the project's component patterns before creating new ones",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use sonner for toasts. Sonner component are located in /app/src/components/ui/sonner.tsx"
+  ]
+}
