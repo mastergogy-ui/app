@@ -57,7 +57,7 @@ fontSize: "60px"
     Chat with Seller
   </button>
 </div>
-```
+
 
 );
 }
