@@ -1,56 +1,74 @@
 "use client";
 
-import { useEffect,useState } from "react";
-import { api } from "../../lib/api";
-import { useParams } from "next/navigation";
+import {useState} from "react";
 
-export default function AdPage(){
+export default function CreateAd(){
 
-  const { id } = useParams();
+const [title,setTitle]=useState("");
+const [description,setDescription]=useState("");
+const [price,setPrice]=useState("");
+const [image,setImage]=useState(null);
 
-  const [ad,setAd] = useState<any>(null);
+const submitAd=async(e)=>{
+e.preventDefault();
 
-  const fetchAd = async ()=>{
+const formData=new FormData();
 
-    const res = await api.get(`/ads/${id}`);
+formData.append("title",title);
+formData.append("description",description);
+formData.append("price",price);
+formData.append("image",image);
 
-    setAd(res.data);
+await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`,{
+method:"POST",
+body:formData
+});
 
-  };
+alert("Ad posted!");
+};
 
-  useEffect(()=>{
-    fetchAd();
-  },[]);
+return(
 
-  if(!ad) return <p className="p-6">Loading...</p>;
+<div className="p-10">
 
-  return(
+<h2 className="text-2xl mb-6">Post New Ad</h2>
 
-    <div className="max-w-4xl mx-auto p-6">
+<form onSubmit={submitAd} className="space-y-4">
 
-      <img
-      src={ad.image}
-      className="w-full h-96 object-cover rounded-lg"
-      />
+<input
+className="border p-2 w-full"
+placeholder="Title"
+onChange={(e)=>setTitle(e.target.value)}
+/>
 
-      <h1 className="text-3xl font-bold mt-4">
-        {ad.title}
-      </h1>
+<textarea
+className="border p-2 w-full"
+placeholder="Description"
+onChange={(e)=>setDescription(e.target.value)}
+/>
 
-      <p className="text-green-600 text-2xl mt-2">
-        ₹ {ad.price}
-      </p>
+<input
+className="border p-2 w-full"
+placeholder="Price"
+onChange={(e)=>setPrice(e.target.value)}
+/>
 
-      <p className="mt-4">
-        {ad.description}
-      </p>
+<input
+type="file"
+onChange={(e)=>setImage(e.target.files[0])}
+/>
 
-      <p className="mt-2 text-gray-500">
-        📍 {ad.location}
-      </p>
+<button
+className="bg-black text-white px-6 py-2"
+type="submit"
+>
+Post Ad
+</button>
 
-    </div>
+</form>
 
-  );
+</div>
 
+);
 }
+
