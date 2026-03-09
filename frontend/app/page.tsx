@@ -1,19 +1,67 @@
-export default function HomePage(){
+"use client";
 
-  return(
+import { useEffect, useState } from "react";
 
-    <div className="p-10">
+interface Ad {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+}
 
-      <h1 className="text-3xl font-bold mb-6">
-        RentWala Marketplace
-      </h1>
+export default function HomePage() {
 
-      <p className="text-gray-600">
-        Your marketplace frontend is working.
-      </p>
+  const [ads, setAds] = useState<Ad[]>([]);
+
+  useEffect(() => {
+
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/ads")
+      .then(res => res.json())
+      .then(data => setAds(data))
+      .catch(() => console.log("API error"));
+
+  }, []);
+
+  return (
+
+    <div style={{ padding: "40px" }}>
+
+      <h1>RentWala Marketplace</h1>
+
+      <div style={{ marginTop: "30px" }}>
+
+        {ads.length === 0 ? (
+
+          <p>No ads available</p>
+
+        ) : (
+
+          ads.map(ad => (
+
+            <div
+              key={ad._id}
+              style={{
+                border: "1px solid #ddd",
+                padding: "15px",
+                marginBottom: "10px",
+                borderRadius: "8px"
+              }}
+            >
+
+              <h3>{ad.title}</h3>
+              <p>{ad.description}</p>
+              <b>₹{ad.price}</b>
+
+            </div>
+
+          ))
+
+        )}
+
+      </div>
 
     </div>
 
-  )
+  );
 
 }
