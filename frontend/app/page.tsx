@@ -15,10 +15,10 @@ export default function HomePage() {
 
   useEffect(() => {
 
-   fetch(process.env.NEXT_PUBLIC_API_URL + "/ads")
-      .then(res => res.json())
-      .then(data => setAds(data))
-      .catch(() => console.log("API error"));
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
+      .then((res) => res.json())
+      .then((data) => setAds(data))
+      .catch((err) => console.log("API error", err));
 
   }, []);
 
@@ -36,7 +36,7 @@ export default function HomePage() {
 
         ) : (
 
-          ads.map(ad => (
+          ads.map((ad) => (
 
             <div
               key={ad._id}
@@ -49,7 +49,9 @@ export default function HomePage() {
             >
 
               <h3>{ad.title}</h3>
+
               <p>{ad.description}</p>
+
               <b>₹{ad.price}</b>
 
             </div>
