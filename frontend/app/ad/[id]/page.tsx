@@ -1,33 +1,72 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { api } from "../../../lib/api";
+import { useEffect, useState } from "react";
 
-export default function AdPage(){
+interface Ad {
+_id: string;
+title: string;
+description: string;
+price: number;
+}
 
-  const { id } = useParams()
-  const [ad,setAd] = useState<any>(null)
+export default function AdDetail({ params }: any) {
 
-  useEffect(()=>{
-    const loadAd = async()=>{
-      try{
-        const res = await api.get(`/ads/${id}`)
-        setAd(res.data)
-      }catch(e){
-        console.log(e)
-      }
-    }
+const [ad, setAd] = useState<Ad | null>(null);
 
-    loadAd()
-  },[id])
+useEffect(() => {
 
-  if(!ad) return <div>Loading...</div>
+```
+fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
+  .then(res => res.json())
+  .then(data => {
 
-  return(
-    <div>
-      <h1>{ad.title}</h1>
-      <p>{ad.description}</p>
-    </div>
-  )
+    const found = data.find((a:any)=>a._id === params.id);
+    setAd(found);
+
+  });
+```
+
+}, []);
+
+if(!ad) return <p style={{padding:"40px"}}>Loading...</p>;
+
+return (
+
+```
+<div style={{padding:"40px",fontFamily:"Arial"}}>
+
+  <div style={{
+    height:"300px",
+    background:"#eee",
+    borderRadius:"10px",
+    marginBottom:"20px",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    fontSize:"60px"
+  }}>
+    📦
+  </div>
+
+  <h1>{ad.title}</h1>
+
+  <h2>₹{ad.price}</h2>
+
+  <p>{ad.description}</p>
+
+  <button style={{
+    marginTop:"20px",
+    padding:"12px 20px",
+    background:"#002f34",
+    color:"white",
+    border:"none",
+    borderRadius:"6px"
+  }}>
+    Chat with Seller
+  </button>
+
+</div>
+```
+
+);
 }
