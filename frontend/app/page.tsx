@@ -26,10 +26,10 @@ const categories = [
 
 useEffect(() => {
 fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
-.then((res) => res.json())
-.then((data) => setAds(data))
-.catch((err) => console.error(err));
-}, []);
+.then(res=>res.json())
+.then(data=>setAds(data))
+.catch(err=>console.log(err));
+},[]);
 
 return (
 <div style={{ fontFamily: "Arial" }}>
