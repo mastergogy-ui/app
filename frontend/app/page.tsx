@@ -14,56 +14,97 @@ export default function HomePage() {
   const [ads, setAds] = useState<Ad[]>([]);
 
   useEffect(() => {
-
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`)
-      .then((res) => res.json())
-      .then((data) => setAds(data))
-      .catch((err) => console.log("API error", err));
-
+      .then(res => res.json())
+      .then(data => setAds(data))
+      .catch(err => console.log(err));
   }, []);
 
   return (
 
-    <div style={{ padding: "40px" }}>
+    <div style={{fontFamily:"Arial"}}>
 
-      <h1>RentWala Marketplace</h1>
+      {/* HEADER */}
+      <div style={{
+        display:"flex",
+        justifyContent:"space-between",
+        alignItems:"center",
+        padding:"15px 30px",
+        borderBottom:"1px solid #eee"
+      }}>
+        <h2>RentWala</h2>
 
-      <div style={{ marginTop: "30px" }}>
+        <button style={{
+          background:"#002f34",
+          color:"white",
+          padding:"10px 18px",
+          borderRadius:"6px",
+          border:"none",
+          cursor:"pointer"
+        }}>
+          + SELL
+        </button>
 
-        {ads.length === 0 ? (
+      </div>
 
-          <p>No ads available</p>
+      {/* SEARCH */}
+      <div style={{padding:"20px 30px"}}>
+        <input
+          placeholder="Search items..."
+          style={{
+            width:"100%",
+            padding:"12px",
+            borderRadius:"8px",
+            border:"1px solid #ddd"
+          }}
+        />
+      </div>
 
-        ) : (
+      {/* ADS GRID */}
+      <div style={{
+        display:"grid",
+        gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",
+        gap:"20px",
+        padding:"20px 30px"
+      }}>
 
-          ads.map((ad) => (
+        {ads.map(ad => (
 
-            <div
-              key={ad._id}
-              style={{
-                border: "1px solid #ddd",
-                padding: "15px",
-                marginBottom: "10px",
-                borderRadius: "8px"
-              }}
-            >
+          <div key={ad._id} style={{
+            border:"1px solid #eee",
+            borderRadius:"10px",
+            overflow:"hidden",
+            background:"white"
+          }}>
 
-              <h3>{ad.title}</h3>
+            <div style={{
+              height:"160px",
+              background:"#f5f5f5"
+            }}></div>
 
-              <p>{ad.description}</p>
+            <div style={{padding:"15px"}}>
 
-              <b>₹{ad.price}</b>
+              <h3 style={{marginBottom:"8px"}}>
+                ₹{ad.price}
+              </h3>
+
+              <p style={{fontWeight:"bold"}}>
+                {ad.title}
+              </p>
+
+              <p style={{color:"#666",fontSize:"14px"}}>
+                {ad.description}
+              </p>
 
             </div>
 
-          ))
+          </div>
 
-        )}
+        ))}
 
       </div>
 
     </div>
 
   );
-
 }
