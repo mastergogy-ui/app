@@ -22,28 +22,33 @@ export const getAds = async (req, res) => {
 /* CREATE AD */
 export const createAd = async (req, res) => {
   try {
-    const { title, description, price } = req.body;
+    const { title, description, price, location } = req.body;
 
     let imageUrl = "";
 
+    /* Upload to Cloudinary if image exists */
     if (req.file) {
-      const upload = await cloudinary.uploader.upload(req.file.path, {
+      const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "rentwala_ads"
       });
 
-      imageUrl = upload.secure_url;
+      imageUrl = result.secure_url;
     }
 
-    const ad = await Ad.create({
+    const newAd = new Ad({
       title,
       description,
       price,
+      location,
       image: imageUrl
     });
 
-    res.json(ad);
+    await newAd.save();
+
+    res.json(newAd);
+
   } catch (error) {
     console.log("CREATE AD ERROR:", error);
-    res.status(500).json({ error: "Failed to create ad" });
+    res.status(500).json({ error: "Ad creation failed" });
   }
 };
