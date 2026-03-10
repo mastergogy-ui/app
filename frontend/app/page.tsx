@@ -28,7 +28,7 @@ const categories = [
 ];
 
 useEffect(() => {
-async function loadAds() {
+const loadAds = async () => {
 try {
 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`);
 const data = await res.json();
@@ -43,7 +43,7 @@ const data = await res.json();
     console.log(err);
     setAds([]);
   }
-}
+};
 
 loadAds();
 ```
@@ -52,19 +52,16 @@ loadAds();
 
 return (
 <div style={{ fontFamily: "Arial" }}>
+<div
+style={{
+display: "flex",
+justifyContent: "space-between",
+padding: "20px",
+borderBottom: "1px solid #eee"
+}}
+> <h2>RentWala</h2>
 
 ```
-  {/* HEADER */}
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "20px",
-      borderBottom: "1px solid #eee"
-    }}
-  >
-    <h2>RentWala</h2>
-
     <Link href="/post-ad">
       <button
         style={{
@@ -81,12 +78,10 @@ return (
     </Link>
   </div>
 
-  {/* GOOGLE LOGIN BUTTON */}
   <div style={{ padding: "20px" }}>
     <GoogleLoginButton />
   </div>
 
-  {/* SEARCH */}
   <div style={{ padding: "20px" }}>
     <input
       placeholder="Search items..."
@@ -99,7 +94,6 @@ return (
     />
   </div>
 
-  {/* CATEGORIES */}
   <div
     style={{
       display: "grid",
@@ -124,7 +118,6 @@ return (
     ))}
   </div>
 
-  {/* ADS GRID */}
   <div
     style={{
       display: "grid",
@@ -134,7 +127,6 @@ return (
     }}
   >
     {ads.map((ad) => {
-
       let imageUrl =
         ad.image ||
         (ad.images && ad.images.length > 0 ? ad.images[0] : null);
@@ -192,9 +184,7 @@ return (
       );
     })}
   </div>
-
 </div>
-
 
 );
 }
