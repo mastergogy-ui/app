@@ -4,12 +4,16 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import adRoutes from "./routes/adRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
 const app = express();
 
-/* CORS FIX */
+
+
+/* CORS */
+
 app.use(
   cors({
     origin: "*",
@@ -18,18 +22,30 @@ app.use(
   })
 );
 
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
 /* ROUTES */
+
 app.use("/api/ads", adRoutes);
+app.use("/api/auth", authRoutes);
+
+
 
 /* TEST ROUTE */
+
 app.get("/", (req, res) => {
   res.send("API running");
 });
 
-/* DB CONNECT */
+
+
+/* DATABASE */
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -39,7 +55,10 @@ mongoose
     console.log("Mongo error:", err);
   });
 
+
+
 /* START SERVER */
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
