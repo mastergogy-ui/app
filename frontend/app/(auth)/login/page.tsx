@@ -21,7 +21,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -29,14 +30,24 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        login(data.user, data.token);
-        toast.success("Login successful!");
-        router.push("/");
+        const data = await res.json();
+        if (data.token && data.user) {
+          login(data.user, data.token);
+          toast.success("Login successful!");
+          router.push("/");
+        } else {
+          toast.error("Invalid response from server");
+        }
       } else {
-        toast.error(data.message || "Login failed");
+        let errorMessage = "Login failed";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = res.statusText || errorMessage;
+        }
+        toast.error(errorMessage);
       }
     } catch (err) {
       console.log("Login error:", err);
