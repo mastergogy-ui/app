@@ -1,50 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "../../lib/api";
-import { getToken } from "../../lib/auth";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PostAdPage() {
 
   const router = useRouter();
+  const { user, token, loading } = useAuth();
 
   const [title,setTitle] = useState("");
   const [description,setDescription] = useState("");
 
   useEffect(()=>{
 
-    const token = getToken("userToken");
-
-    if(!token){
-      router.push("/login");
+    if(!loading && !user){
+      router.push("/");
     }
 
-  },[router]);
+  },[user,loading,router]);
 
   const submitAd = async(e:any)=>{
+
     e.preventDefault();
 
     try{
 
-      const token = getToken("userToken");
-
-      await api.post(
-        "/ads",
-        { title, description },
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/ads`,
         {
+          method:"POST",
           headers:{
+            "Content-Type":"application/json",
             Authorization:`Bearer ${token}`
-          }
+          },
+          body:JSON.stringify({
+            title,
+            description
+          })
         }
       );
 
-      router.push("/dashboard");
+      if(res.ok){
+        router.push("/dashboard");
+      }else{
+        alert("Failed to create ad");
+      }
 
     }catch(err){
       console.log(err);
       alert("Failed to create ad");
     }
+
   };
 
   return(
