@@ -1,5 +1,6 @@
 import Ad from "../models/Ad.js";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 /* CLOUDINARY CONFIG */
 cloudinary.config({
@@ -22,17 +23,21 @@ export const getAds = async (req, res) => {
 /* CREATE AD */
 export const createAd = async (req, res) => {
   try {
+
     const { title, description, price, location } = req.body;
 
     let imageUrl = "";
 
-    /* Upload to Cloudinary if image exists */
     if (req.file) {
+
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "rentwala_ads"
       });
 
       imageUrl = result.secure_url;
+
+      /* delete temp file */
+      fs.unlinkSync(req.file.path);
     }
 
     const newAd = new Ad({
@@ -48,7 +53,9 @@ export const createAd = async (req, res) => {
     res.json(newAd);
 
   } catch (error) {
+
     console.log("CREATE AD ERROR:", error);
     res.status(500).json({ error: "Ad creation failed" });
+
   }
 };
