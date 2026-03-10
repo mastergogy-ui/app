@@ -44,10 +44,9 @@ export default function RegisterPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log("API URL:", apiUrl); // Debug log
-      
       const url = `${apiUrl}/api/auth/register`;
-      console.log("Full URL:", url); // Debug log
+      
+      console.log("Registering at:", url); // Debug log
 
       const res = await fetch(url, {
         method: "POST",
@@ -65,25 +64,33 @@ export default function RegisterPage() {
 
       console.log("Response status:", res.status); // Debug log
 
-      // Check if response is JSON
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("Received non-JSON response:", text.substring(0, 200));
-        throw new Error(`Server returned ${res.status}: Not JSON`);
-      }
-
-      const data = await res.json();
-
+      // Check if response is OK (status 200-299)
       if (res.ok) {
-        login(data.user, data.token);
-        toast.success("Account created successfully!");
-        router.push("/");
+        const data = await res.json();
+        console.log("Registration success:", data); // Debug log
+        
+        // Check if we have token and user
+        if (data.token && data.user) {
+          login(data.user, data.token);
+          toast.success("Account created successfully!");
+          router.push("/");
+        } else {
+          toast.error("Invalid response from server");
+        }
       } else {
-        toast.error(data.message || "Registration failed");
+        // Handle error responses
+        let errorMessage = "Registration failed";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If not JSON, use status text
+          errorMessage = res.statusText || errorMessage;
+        }
+        toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.log("Registration error:", err);
+      console.error("Registration error:", err);
       toast.error(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
@@ -149,7 +156,7 @@ export default function RegisterPage() {
             {/* Phone Field */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
+                Phone Number (Optional)
               </label>
               <div className="relative">
                 <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -167,7 +174,7 @@ export default function RegisterPage() {
             {/* City Field */}
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                City
+                City (Optional)
               </label>
               <div className="relative">
                 <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -199,7 +206,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="input-field pl-10"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min. 6 characters)"
                 />
               </div>
             </div>
