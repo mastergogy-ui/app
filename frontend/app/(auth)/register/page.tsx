@@ -43,7 +43,13 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      console.log("API URL:", apiUrl); // Debug log
+      
+      const url = `${apiUrl}/api/auth/register`;
+      console.log("Full URL:", url); // Debug log
+
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -57,6 +63,16 @@ export default function RegisterPage() {
         })
       });
 
+      console.log("Response status:", res.status); // Debug log
+
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Received non-JSON response:", text.substring(0, 200));
+        throw new Error(`Server returned ${res.status}: Not JSON`);
+      }
+
       const data = await res.json();
 
       if (res.ok) {
@@ -66,9 +82,9 @@ export default function RegisterPage() {
       } else {
         toast.error(data.message || "Registration failed");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log("Registration error:", err);
-      toast.error("Registration failed. Please try again.");
+      toast.error(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
