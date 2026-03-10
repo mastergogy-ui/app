@@ -2,7 +2,7 @@
 
 import "./globals.css"
 import { GoogleOAuthProvider } from "@react-oauth/google"
-import React from "react"
+import { AuthProvider } from "../context/AuthContext"
 
 export default function RootLayout({
   children,
@@ -13,7 +13,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </GoogleOAuthProvider>
       </body>
     </html>
