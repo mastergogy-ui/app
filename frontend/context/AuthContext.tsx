@@ -1,12 +1,17 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 type User = {
-  _id: string
+  id: string
   name: string
   email: string
   avatar?: string
+  phone?: string
+  city?: string
+  memberSince: string
 }
 
 type AuthContextType = {
@@ -20,37 +25,70 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("token")
-    const savedUser = localStorage.getItem("user")
+    // Load user from localStorage on mount
+    const storedToken = localStorage.getItem("token")
+    const storedUser = localStorage.getItem("user")
 
-    if (savedToken && savedUser) {
-      setToken(savedToken)
-      setUser(JSON.parse(savedUser))
+    if (storedToken && storedUser) {
+      setToken(storedToken)
+      setUser(JSON.parse(storedUser))
+      
+      // Verify token with backend
+      verifyToken(storedToken)
+    } else {
+      setLoading(false)
     }
-
-    setLoading(false)
   }, [])
 
-  const login = (user: User, token: string) => {
-    setUser(user)
-    setToken(token)
+  const verifyToken = async (tokenToVerify: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${tokenToVerify}`
+        }
+      })
 
-    localStorage.setItem("token", token)
-    localStorage.setItem("user", JSON.stringify(user))
+      if (res.ok) {
+        const userData = await res.json()
+        setUser(userData)
+        localStorage.setItem("user", JSON.stringify(userData))
+      } else {
+        // Token invalid
+        logout()
+      }
+    } catch (err) {
+      console.log("Token verification failed", err)
+      logout()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const login = (userData: User, newToken: string) => {
+    setUser(userData)
+    setToken(newToken)
+    
+    localStorage.setItem("token", newToken)
+    localStorage.setItem("user", JSON.stringify(userData))
+    
+    toast.success(`Welcome back, ${userData.name}!`)
   }
 
   const logout = () => {
     setUser(null)
     setToken(null)
-
+    
     localStorage.removeItem("token")
     localStorage.removeItem("user")
+    
+    toast.success("Logged out successfully")
+    router.push("/")
   }
 
   return (
@@ -62,10 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-
   if (!context) {
     throw new Error("useAuth must be used inside AuthProvider")
   }
-
   return context
 }
