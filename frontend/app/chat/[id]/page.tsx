@@ -11,7 +11,7 @@ import {
   FiUser, 
   FiMoreVertical,
   FiCheck,
-  FiCheckCheck
+  FiCheckCircle
 } from "react-icons/fi";
 import { io, Socket } from "socket.io-client";
 import toast from "react-hot-toast";
@@ -69,7 +69,9 @@ export default function ChatPage() {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      newSocket.emit("join-user", user?.id);
+      if (user?.id) {
+        newSocket.emit("join-user", user.id);
+      }
     });
 
     newSocket.on("new-message", (data) => {
@@ -82,7 +84,7 @@ export default function ChatPage() {
     return () => {
       newSocket.disconnect();
     };
-  }, [id, token]);
+  }, [id, token, user?.id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -284,9 +286,9 @@ export default function ChatPage() {
                       {isOwn && (
                         <span>
                           {msg.readBy.length > 1 ? (
-                            <FiCheckCheck className="text-secondary" />
+                            <FiCheckCircle className="text-secondary w-4 h-4" />
                           ) : (
-                            <FiCheck />
+                            <FiCheck className="w-4 h-4" />
                           )}
                         </span>
                       )}
@@ -314,9 +316,9 @@ export default function ChatPage() {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-6"
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3"
           >
-            <FiSend />
+            <FiSend className="w-5 h-5" />
           </button>
         </div>
       </form>
