@@ -33,7 +33,7 @@ try {
 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`);
 const data = await res.json();
 
-```
+
     if (Array.isArray(data)) {
       setAds(data);
     } else {
@@ -46,7 +46,7 @@ const data = await res.json();
 };
 
 loadAds();
-```
+
 
 }, []);
 
@@ -61,7 +61,7 @@ borderBottom: "1px solid #eee"
 }}
 > <h2>RentWala</h2>
 
-```
+
     <Link href="/post-ad">
       <button
         style={{
