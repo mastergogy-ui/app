@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import GoogleLoginButton from "../components/GoogleLoginButton"
 
 type Ad = {
   _id: string;
@@ -147,6 +148,7 @@ export default function HomePage() {
                 </div>
 
                 <div style={{padding:"15px"}}>
+                  <GoogleLoginButton />
                   <h3>₹{ad.price}</h3>
                   <p style={{fontWeight:"bold"}}>{ad.title}</p>
                   <p style={{color:"#666",fontSize:"14px"}}>
