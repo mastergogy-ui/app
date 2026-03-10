@@ -1,19 +1,18 @@
-<<<<<<< HEAD
-{"name":"backend","version":"1.0.0","description":"Marketplace backend","type":"module","main":"server.js","scripts":{"start":"node server.js"},"dependencies":{"cors":"^2.8.5","express":"^4.18.2","multer":"^2.1.1","socket.io":"^4.7.5"}}
-=======
 {
-"name": "backend",
-"version": "1.0.0",
-"description": "Marketplace backend",
-"type": "module",
-"main": "server.js",
-"scripts": {
-"start": "node server.js"
-},
-"dependencies": {
-"cors": "^2.8.5",
-"express": "^4.18.2",
-"socket.io": "^4.7.5"
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Marketplace backend",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "cloudinary": "^2.9.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^8.3.0",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0"
+  }
 }
-}
->>>>>>> 865cc86b5666b9033936def06f9e3ba2060dd77c
