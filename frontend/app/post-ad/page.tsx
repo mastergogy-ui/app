@@ -45,7 +45,7 @@ export default function PostAdPage() {
       }
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/ads`,
+       ${process.env.NEXT_PUBLIC_API_URL}/ads`,
         {
           method:"POST",
           body:formData
