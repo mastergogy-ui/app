@@ -2,10 +2,12 @@
 
 import { GoogleLogin } from "@react-oauth/google"
 import { useAuth } from "../context/AuthContext"
+import { useRouter } from "next/navigation"
 
 export default function GoogleLoginButton() {
 
   const { login } = useAuth()
+  const router = useRouter()
 
   const handleSuccess = async (credentialResponse: any) => {
 
@@ -29,6 +31,9 @@ export default function GoogleLoginButton() {
       if (data.token) {
 
         login(data.user, data.token)
+
+        /* refresh UI so Navbar updates */
+        router.refresh()
 
       }
 
