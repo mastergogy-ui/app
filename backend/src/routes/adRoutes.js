@@ -9,13 +9,6 @@ const upload = multer({ dest: "uploads/" });
 
 router.get("/", getAds);
 
-router.post("/", upload.single("image"), async (req, res) => {
-  try {
-    await createAd(req, res);
-  } catch (error) {
-    console.log("CREATE AD ERROR:", error);
-    res.status(500).json({ error: "Failed to create ad" });
-  }
-});
+router.post("/", upload.single("image"), createAd);
 
 export default router;
