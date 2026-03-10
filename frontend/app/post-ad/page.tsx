@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function PostAdPage() {
 
   const router = useRouter();
-  const { user, token, loading } = useAuth();
+  const { token, loading } = useAuth();
 
   const [title,setTitle] = useState("");
   const [description,setDescription] = useState("");
@@ -17,11 +17,13 @@ export default function PostAdPage() {
 
   useEffect(()=>{
 
-    if(!loading && !user){
+    /* check login using token instead of user */
+
+    if(!loading && !token){
       router.push("/");
     }
 
-  },[user,loading,router]);
+  },[token,loading,router]);
 
 
 
