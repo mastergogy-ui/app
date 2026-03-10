@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
-import GoogleLoginButton from "../../components/GoogleLoginButton";
+import GoogleLoginButton from "../../../components/GoogleLoginButton";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -33,6 +33,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         login(data.user, data.token);
+        toast.success("Login successful!");
         router.push("/");
       } else {
         toast.error(data.message || "Login failed");
@@ -63,7 +64,6 @@ export default function LoginPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -82,7 +82,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -102,36 +101,14 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="#" className="font-medium text-secondary hover:text-primary">
-                Forgot password?
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary flex items-center justify-center space-x-2"
-            >
-              <span>{loading ? "Signing in..." : "Sign in"}</span>
-              <FiArrowRight />
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full btn-primary flex items-center justify-center space-x-2"
+          >
+            <span>{loading ? "Signing in..." : "Sign in"}</span>
+            <FiArrowRight />
+          </button>
         </form>
 
         <div className="relative">
