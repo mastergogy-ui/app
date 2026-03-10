@@ -50,7 +50,7 @@ type Ad = {
 export default function AdDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [ad, setAd] = useState<Ad | null>(null);
   const [similarAds, setSimilarAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,10 +71,10 @@ export default function AdDetailPage() {
       setSimilarAds(data.similarAds || []);
       
       // Check if saved
-      if (user) {
+      if (user && token) {
         const savedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/saved/me`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${token}`
           }
         });
         const saved = await savedRes.json();
@@ -89,7 +89,7 @@ export default function AdDetailPage() {
   };
 
   const handleSave = async () => {
-    if (!user) {
+    if (!user || !token) {
       toast.error("Please login to save ads");
       router.push("/login");
       return;
@@ -99,7 +99,7 @@ export default function AdDetailPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/${id}/save`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          Authorization: `Bearer ${token}`
         }
       });
       
@@ -114,7 +114,7 @@ export default function AdDetailPage() {
   };
 
   const handleContact = async () => {
-    if (!user) {
+    if (!user || !token) {
       toast.error("Please login to contact seller");
       router.push("/login");
       return;
@@ -130,7 +130,7 @@ export default function AdDetailPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           adId: id,
@@ -319,7 +319,8 @@ export default function AdDetailPage() {
                 </div>
               </Link>
 
-             {user && user.id !== ad.user._id ? (
+              {/* Fixed: Changed user._id to user.id */}
+              {user && user.id !== ad.user._id ? (
                 <div className="space-y-3">
                   <textarea
                     value={message}
@@ -335,7 +336,7 @@ export default function AdDetailPage() {
                     <span>Send Message</span>
                   </button>
                 </div>
-              ) : user && user._id === ad.user._id ? (
+              ) : user && user.id === ad.user._id ? (
                 <div className="space-y-3">
                   <Link href={`/edit-ad/${ad._id}`}>
                     <button className="w-full btn-secondary">
