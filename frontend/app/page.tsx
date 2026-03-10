@@ -30,7 +30,7 @@ export default function HomePage() {
   useEffect(() => {
     async function loadAds() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`);
         const data = await res.json();
 
         if (Array.isArray(data)) {
