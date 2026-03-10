@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiUser, FiMail, FiLock, FiPhone, FiMapPin, FiArrowRight } from "react-icons/fi";
-import GoogleLoginButton from "../../components/GoogleLoginButton";
+import GoogleLoginButton from "../../../components/GoogleLoginButton";
 import toast from "react-hot-toast";
 
 const cities = [
