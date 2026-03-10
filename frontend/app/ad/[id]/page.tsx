@@ -319,7 +319,7 @@ export default function AdDetailPage() {
                 </div>
               </Link>
 
-              {user && user._id !== ad.user._id ? (
+             {user && user.id !== ad.user._id ? (
                 <div className="space-y-3">
                   <textarea
                     value={message}
