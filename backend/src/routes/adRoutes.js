@@ -1,14 +1,15 @@
 
 import express from "express";
-import multer from "multer";
-import { getAds, createAd } from "../controllers/adController.js";
+import { register, login, adminLogin } from "../controllers/authController.js";
+import { googleLogin } from "../controllers/googleAuthController.js";
 
 const router = express.Router();
 
-const upload = multer({ dest: "uploads/" });
+router.post("/register", register);
+router.post("/login", login);
+router.post("/admin-login", adminLogin);
 
-router.get("/", getAds);
+/* GOOGLE LOGIN */
+router.post("/google", googleLogin);
 
-router.post("/", upload.single("image"), createAd);
-
-export default router;
+export default router;;
