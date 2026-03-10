@@ -1,8 +1,11 @@
 "use client"
 
 import { GoogleLogin } from "@react-oauth/google"
+import { useAuth } from "../context/AuthContext"
 
 export default function GoogleLoginButton() {
+
+  const { login } = useAuth()
 
   const handleSuccess = async (credentialResponse: any) => {
 
@@ -25,10 +28,7 @@ export default function GoogleLoginButton() {
 
       if (data.token) {
 
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-
-        window.location.reload()
+        login(data.user, data.token)
 
       }
 
