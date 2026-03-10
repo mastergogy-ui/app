@@ -11,6 +11,9 @@ export default function PostAdPage() {
 
   const [title,setTitle] = useState("");
   const [description,setDescription] = useState("");
+  const [price,setPrice] = useState("");
+  const [location,setLocation] = useState("");
+  const [image,setImage] = useState<File | null>(null);
 
   useEffect(()=>{
 
@@ -20,39 +23,53 @@ export default function PostAdPage() {
 
   },[user,loading,router]);
 
+
+
+
+
   const submitAd = async(e:any)=>{
 
     e.preventDefault();
 
     try{
 
+      const formData = new FormData();
+
+      formData.append("title",title);
+      formData.append("description",description);
+      formData.append("price",price);
+      formData.append("location",location);
+
+      if(image){
+        formData.append("image",image);
+      }
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/ads`,
         {
           method:"POST",
-          headers:{
-            "Content-Type":"application/json",
-            Authorization:`Bearer ${token}`
-          },
-          body:JSON.stringify({
-            title,
-            description
-          })
+          body:formData
         }
       );
 
       if(res.ok){
-        router.push("/dashboard");
+        router.push("/");
       }else{
         alert("Failed to create ad");
       }
 
     }catch(err){
+
       console.log(err);
       alert("Failed to create ad");
+
     }
 
   };
+
+
+
+
 
   return(
 
@@ -80,6 +97,28 @@ export default function PostAdPage() {
           className="w-full border p-3 rounded"
           rows={4}
           required
+        />
+
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e)=>setPrice(e.target.value)}
+          className="w-full border p-3 rounded"
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e)=>setLocation(e.target.value)}
+          className="w-full border p-3 rounded"
+        />
+
+        <input
+          type="file"
+          onChange={(e)=>setImage(e.target.files?.[0] || null)}
         />
 
         <button
