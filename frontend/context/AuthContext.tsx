@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 
-type User = {
+export type User = {
   id: string
   name: string
   email: string
@@ -20,6 +20,7 @@ type AuthContextType = {
   login: (user: User, token: string) => void
   logout: () => void
   loading: boolean
+  isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -36,11 +37,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem("user")
 
     if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
-      
-      // Verify token with backend
-      verifyToken(storedToken)
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        setToken(storedToken)
+        setUser(parsedUser)
+        
+        // Verify token with backend (optional)
+        verifyToken(storedToken)
+      } catch (error) {
+        console.error("Failed to parse stored user:", error)
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+        setLoading(false)
+      }
     } else {
       setLoading(false)
     }
@@ -56,28 +65,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (res.ok) {
         const userData = await res.json()
-        setUser(userData)
-        localStorage.setItem("user", JSON.stringify(userData))
+        // Ensure userData has id property (backend might return _id)
+        const formattedUser = {
+          ...userData,
+          id: userData.id || userData._id
+        }
+        setUser(formattedUser)
+        localStorage.setItem("user", JSON.stringify(formattedUser))
       } else {
         // Token invalid
         logout()
       }
     } catch (err) {
       console.log("Token verification failed", err)
-      logout()
+      // Don't logout on network errors, just keep the user
     } finally {
       setLoading(false)
     }
   }
 
-  const login = (userData: User, newToken: string) => {
-    setUser(userData)
+  const login = (userData: any, newToken: string) => {
+    // Ensure user has id property (backend might return _id)
+    const formattedUser = {
+      ...userData,
+      id: userData.id || userData._id
+    }
+    
+    setUser(formattedUser)
     setToken(newToken)
     
     localStorage.setItem("token", newToken)
-    localStorage.setItem("user", JSON.stringify(userData))
+    localStorage.setItem("user", JSON.stringify(formattedUser))
     
-    toast.success(`Welcome back, ${userData.name}!`)
+    toast.success(`Welcome, ${formattedUser.name}!`)
   }
 
   const logout = () => {
@@ -92,7 +112,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      login, 
+      logout, 
+      loading,
+      isAuthenticated: !!user && !!token
+    }}>
       {children}
     </AuthContext.Provider>
   )
