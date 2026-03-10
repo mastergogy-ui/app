@@ -25,8 +25,6 @@ export default function PostAdPage() {
 
 
 
-
-
   const submitAd = async(e:any)=>{
 
     e.preventDefault();
@@ -45,7 +43,7 @@ export default function PostAdPage() {
       }
 
       const res = await fetch(
-       ${process.env.NEXT_PUBLIC_API_URL}/ads`,
+        `${process.env.NEXT_PUBLIC_API_URL}/ads`,
         {
           method:"POST",
           body:formData
@@ -66,8 +64,6 @@ export default function PostAdPage() {
     }
 
   };
-
-
 
 
 
