@@ -4,9 +4,10 @@
   "description": "Marketplace backend",
   "type": "module",
   "main": "src/server.js",
-  "scripts": {
-    "start": "node src/server.js"
-  },
+ "scripts": {
+  "start": "node src/server.js",
+  "postinstall": "npm install --legacy-peer-deps"
+}
   "dependencies": {
     "cloudinary": "^2.9.0",
     "cors": "^2.8.5",
