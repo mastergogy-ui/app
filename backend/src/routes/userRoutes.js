@@ -1,20 +1,19 @@
 import express from 'express';
 import {
-  createPrediction,
   getDashboard,
-  getLeaderboard,
-  getMatchHistory,
-  getProfile
+  getProfile,
+  updateProfile,
+  getPublicProfile
 } from '../controllers/userController.js';
 import { protectUser } from '../middlewares/auth.js';
 
 const router = express.Router();
 
+router.get('/profile/:userId', getPublicProfile);
+
 router.use(protectUser);
 router.get('/dashboard', getDashboard);
-router.post('/predict', createPrediction);
-router.get('/history', getMatchHistory);
-router.get('/leaderboard', getLeaderboard);
 router.get('/profile', getProfile);
+router.put('/profile', updateProfile);
 
 export default router;
