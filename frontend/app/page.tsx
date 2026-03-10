@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import GoogleLoginButton from "../components/GoogleLoginButton";
+import { useAuth } from "../context/AuthContext";
 
 type Ad = {
   _id: string;
@@ -14,16 +15,26 @@ type Ad = {
 
 export default function HomePage() {
 
+  const { user, logout } = useAuth();
   const [ads, setAds] = useState<Ad[]>([]);
 
   useEffect(() => {
 
     const loadAds = async () => {
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads`);
-      const data = await res.json();
+      try {
 
-      setAds(data || []);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads`);
+        const data = await res.json();
+
+        setAds(data || []);
+
+      } catch (err) {
+
+        console.log("Failed to load ads", err);
+        setAds([]);
+
+      }
 
     };
 
@@ -38,29 +49,54 @@ export default function HomePage() {
       <div style={{
         display:"flex",
         justifyContent:"space-between",
+        alignItems:"center",
         padding:"20px",
         borderBottom:"1px solid #eee"
       }}>
 
         <h2>RentWala</h2>
 
-        <Link href="/post-ad">
-          <button style={{
-            background:"#002f34",
-            color:"white",
-            padding:"10px 18px",
-            borderRadius:"6px",
-            border:"none",
-            cursor:"pointer"
-          }}>
-            + SELL
-          </button>
-        </Link>
+        <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
 
-      </div>
+          {user ? (
+            <>
+              <span>Hi, {user.name}</span>
 
-      <div style={{padding:"20px"}}>
-        <GoogleLoginButton/>
+              <button
+                onClick={logout}
+                style={{
+                  background:"#ff4d4d",
+                  color:"white",
+                  padding:"8px 14px",
+                  borderRadius:"6px",
+                  border:"none",
+                  cursor:"pointer"
+                }}
+              >
+                Logout
+              </button>
+
+              <Link href="/post-ad">
+                <button
+                  style={{
+                    background:"#002f34",
+                    color:"white",
+                    padding:"10px 18px",
+                    borderRadius:"6px",
+                    border:"none",
+                    cursor:"pointer"
+                  }}
+                >
+                  + SELL
+                </button>
+              </Link>
+            </>
+          ) : (
+            <GoogleLoginButton/>
+          )}
+
+        </div>
+
       </div>
 
       <div style={{
@@ -71,6 +107,7 @@ export default function HomePage() {
       }}>
 
         {ads.map((ad)=>(
+
           <Link
             key={ad._id}
             href={`/listings/${ad._id}`}
@@ -119,10 +156,12 @@ export default function HomePage() {
             </div>
 
           </Link>
+
         ))}
 
       </div>
 
     </div>
+
   );
 }
