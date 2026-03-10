@@ -10,10 +10,7 @@ dotenv.config();
 
 const app = express();
 
-
-
 /* CORS */
-
 app.use(
   cors({
     origin: "*",
@@ -22,30 +19,22 @@ app.use(
   })
 );
 
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+/* SERVE UPLOADED IMAGES */
+app.use("/uploads", express.static("uploads"));
 
 /* ROUTES */
-
 app.use("/api/ads", adRoutes);
 app.use("/api/auth", authRoutes);
 
-
-
 /* TEST ROUTE */
-
 app.get("/", (req, res) => {
   res.send("API running");
 });
 
-
-
 /* DATABASE */
-
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -55,10 +44,7 @@ mongoose
     console.log("Mongo error:", err);
   });
 
-
-
 /* START SERVER */
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
