@@ -59,8 +59,9 @@ export default function HomePage() {
         <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
 
           {user ? (
+
             <>
-              <span>Hi, {user.name}</span>
+              <span>Hi {user.name}</span>
 
               <button
                 onClick={logout}
@@ -91,8 +92,11 @@ export default function HomePage() {
                 </button>
               </Link>
             </>
+
           ) : (
+
             <GoogleLoginButton/>
+
           )}
 
         </div>
@@ -162,6 +166,5 @@ export default function HomePage() {
       </div>
 
     </div>
-
   );
 }
