@@ -2,6 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
-  background:#f5f5f5;
+@layer base {
+  :root {
+    --primary: #002f34;
+    --secondary: #23e5db;
+    --accent: #ffce32;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-gray-50 to-gray-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#002f34] text-white px-6 py-3 rounded-lg font-semibold 
+           hover:bg-[#004d55] transition-all duration-300 
+           transform hover:scale-105 hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-[#23e5db] text-[#002f34] px-6 py-3 rounded-lg font-semibold 
+           hover:bg-[#1fc9c0] transition-all duration-300 
+           transform hover:scale-105 hover:shadow-lg;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl 
+           transition-all duration-300 border border-gray-100;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg 
+           focus:ring-2 focus:ring-[#23e5db] focus:border-transparent 
+           outline-none transition-all duration-300;
+  }
+  
+  .category-card {
+    @apply bg-gradient-to-br from-[#002f34] to-[#004d55] text-white 
+           p-6 rounded-xl shadow-lg hover:shadow-2xl 
+           transform hover:scale-105 transition-all duration-300 
+           cursor-pointer flex flex-col items-center;
+  }
+  
+  .ad-card {
+    @apply bg-white rounded-xl overflow-hidden shadow-md 
+           hover:shadow-xl transition-all duration-300 
+           transform hover:-translate-y-1;
+  }
+  
+  .badge {
+    @apply px-3 py-1 rounded-full text-sm font-semibold;
+  }
+  
+  .badge-new {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-featured {
+    @apply bg-[#ffce32] text-[#002f34];
+  }
 }
