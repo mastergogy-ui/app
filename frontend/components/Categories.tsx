@@ -2,25 +2,25 @@
 
 import { motion } from "framer-motion";
 import { 
-  FiCar, 
-  FiHome, 
-  FiSmartphone, 
-  FiBriefcase, 
-  FiShoppingBag, 
-  FiTruck, 
-  FiMonitor, 
-  FiCoffee,
-  FiHeart
+  FiTruck,      // For Cars
+  FiHome,       // For Properties
+  FiSmartphone, // For Mobiles
+  FiBriefcase,  // For Jobs
+  FiShoppingBag, // For Fashion
+  FiMonitor,    // For Bikes (using Monitor as alternative)
+  FiCpu,        // For Electronics
+  FiCoffee,     // For Furniture
+  FiHeart       // For Pets
 } from "react-icons/fi";
 
 const categories = [
-  { name: "Cars", icon: FiCar, color: "from-blue-500 to-blue-600" },
+  { name: "Cars", icon: FiTruck, color: "from-blue-500 to-blue-600" },
   { name: "Properties", icon: FiHome, color: "from-green-500 to-green-600" },
   { name: "Mobiles", icon: FiSmartphone, color: "from-purple-500 to-purple-600" },
   { name: "Jobs", icon: FiBriefcase, color: "from-orange-500 to-orange-600" },
   { name: "Fashion", icon: FiShoppingBag, color: "from-pink-500 to-pink-600" },
-  { name: "Bikes", icon: FiTruck, color: "from-red-500 to-red-600" },
-  { name: "Electronics", icon: FiMonitor, color: "from-indigo-500 to-indigo-600" },
+  { name: "Bikes", icon: FiMonitor, color: "from-red-500 to-red-600" },
+  { name: "Electronics", icon: FiCpu, color: "from-indigo-500 to-indigo-600" },
   { name: "Furniture", icon: FiCoffee, color: "from-yellow-500 to-yellow-600" },
   { name: "Pets", icon: FiHeart, color: "from-teal-500 to-teal-600" },
 ];
