@@ -2,4 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Remove all custom CSS temporarily to isolate the issue */
+:root {
+  --primary: #002f34;
+  --secondary: #23e5db;
+  --accent: #ffce32;
+}
+
+body {
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+}
