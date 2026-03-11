@@ -2,9 +2,48 @@ services:
   - type: web
     name: rentwala-frontend
     runtime: node
+    repo: https://github.com/mastergogy-ui/app
+    branch: main
+    rootDir: frontend
     buildCommand: npm install && npm run build
     startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
     routes:
+      - type: rewrite
+        source: /dashboard
+        destination: /dashboard.html
+      - type: rewrite
+        source: /categories
+        destination: /categories.html
+      - type: rewrite
+        source: /login
+        destination: /login.html
+      - type: rewrite
+        source: /register
+        destination: /register.html
+      - type: rewrite
+        source: /profile
+        destination: /profile.html
+      - type: rewrite
+        source: /post-ad
+        destination: /post-ad.html
+      - type: rewrite
+        source: /ad/:id
+        destination: /ad/[id].html
+      - type: rewrite
+        source: /chat/:id
+        destination: /chat/[id].html
+      - type: rewrite
+        source: /inbox
+        destination: /inbox.html
+      - type: rewrite
+        source: /health
+        destination: /health.html
       - type: rewrite
         source: /*
         destination: /index.html
