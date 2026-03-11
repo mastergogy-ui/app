@@ -11,18 +11,17 @@ export default function GoogleLoginButton() {
 
   const handleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            credential: credentialResponse.credential
-          })
-        }
-      )
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+      
+      const res = await fetch(`${API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          credential: credentialResponse.credential
+        })
+      })
 
       const data = await res.json()
 
@@ -31,9 +30,11 @@ export default function GoogleLoginButton() {
         toast.success("Google login successful!")
         router.push("/")
         router.refresh()
+      } else {
+        toast.error("Google login failed")
       }
     } catch (error) {
-      console.log("Google Login Error:", error)
+      console.error("Google Login Error:", error)
       toast.error("Google login failed")
     }
   }
@@ -43,9 +44,12 @@ export default function GoogleLoginButton() {
       <GoogleLogin
         onSuccess={handleSuccess}
         onError={() => {
-          console.log("Google Login Failed")
+          console.error("Google Login Failed")
           toast.error("Google login failed")
         }}
+        theme="filled_black"
+        shape="circle"
+        text="continue_with"
       />
     </div>
   )
