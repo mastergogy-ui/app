@@ -2,34 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --primary: #002f34;
-    --secondary: #23e5db;
-    --accent: #ffce32;
-  }
-  
-  body {
-    @apply bg-gradient-to-br from-gray-50 to-gray-100;
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply bg-[#002f34] text-white px-6 py-3 rounded-lg font-semibold 
-           hover:bg-[#004d55] transition-all duration-300 
-           transform hover:scale-105 hover:shadow-lg;
-  }
-  
-  .btn-secondary {
-    @apply bg-[#23e5db] text-[#002f34] px-6 py-3 rounded-lg font-semibold 
-           hover:bg-[#1fc9c0] transition-all duration-300 
-           transform hover:scale-105 hover:shadow-lg;
-  }
-  
-  .input-field {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-lg 
-           focus:ring-2 focus:ring-[#23e5db] focus:border-transparent 
-           outline-none transition-all duration-300;
-  }
-}
+/* Remove all custom CSS temporarily to isolate the issue */
