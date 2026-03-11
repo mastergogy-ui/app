@@ -188,7 +188,7 @@ export default function HomePage() {
             Rent Anything, Anywhere
           </motion.h1>
           <p className="text-xl mb-8 text-[#23e5db]">
-            From bikes to cameras, find what you need from people nearby
+            From BIKES TO CAMERAS, find what you need from people nearby
           </p>
           
           {/* Search Bar */}
