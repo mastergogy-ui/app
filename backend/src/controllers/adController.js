@@ -271,13 +271,36 @@ export const deleteAd = async (req, res) => {
   }
 };
 
-/* GET USER ADS */
+/* ===== FIXED: GET USER ADS - Handles "me" parameter correctly ===== */
 export const getUserAds = async (req, res) => {
   try {
-    const userId = req.params.userId || req.user._id;
     console.log("🔍 ===== GET USER ADS CALLED =====");
-    console.log("🔍 Fetching ads for user:", userId);
+    console.log("🔍 req.params.userId:", req.params.userId);
+    console.log("🔍 req.user:", req.user ? req.user._id : 'No authenticated user');
     
+    let userId;
+    
+    // Check if the parameter is "me" and use the authenticated user's ID
+    if (req.params.userId === 'me') {
+      if (!req.user) {
+        console.log("❌ No authenticated user found for 'me' request");
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      userId = req.user._id;
+      console.log("🔍 Using authenticated user ID for 'me':", userId);
+    } else {
+      userId = req.params.userId;
+      console.log("🔍 Using provided user ID:", userId);
+    }
+    
+    // Validate that userId exists
+    if (!userId) {
+      console.log("❌ No user ID provided");
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    // Find all ads by this user
+    console.log("🔍 Searching for ads with user ID:", userId);
     const ads = await Ad.find({ 
       user: userId,
       isActive: true 
@@ -290,6 +313,7 @@ export const getUserAds = async (req, res) => {
     
   } catch (error) {
     console.error("❌ GET USER ADS ERROR:", error);
+    console.error("❌ Error stack:", error.stack);
     res.status(500).json({ error: "Failed to fetch user ads" });
   }
 };
@@ -299,7 +323,11 @@ export const getMyAds = async (req, res) => {
   try {
     console.log("🔍 ===== GET MY ADS CALLED =====");
     console.log("🔍 User ID from token:", req.user._id);
-    console.log("🔍 User object:", req.user);
+    
+    if (!req.user || !req.user._id) {
+      console.log("❌ No authenticated user");
+      return res.status(401).json({ error: "Authentication required" });
+    }
     
     // First check if user exists in database
     const userExists = await User.findById(req.user._id);
