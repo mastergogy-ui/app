@@ -31,8 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  // Load user from localStorage on mount
   useEffect(() => {
-    // Load user from localStorage on mount
     const storedToken = localStorage.getItem("token")
     const storedUser = localStorage.getItem("user")
 
@@ -41,46 +41,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const parsedUser = JSON.parse(storedUser)
         setToken(storedToken)
         setUser(parsedUser)
-        
-        // Verify token with backend (optional)
-        verifyToken(storedToken)
+        console.log("Auth loaded from localStorage:", parsedUser.name)
       } catch (error) {
         console.error("Failed to parse stored user:", error)
         localStorage.removeItem("token")
         localStorage.removeItem("user")
-        setLoading(false)
       }
-    } else {
-      setLoading(false)
     }
+    setLoading(false)
   }, [])
+
+  // Optional: Verify token with backend (don't logout on failure)
+  useEffect(() => {
+    if (token && user) {
+      verifyToken(token)
+    }
+  }, [token])
 
   const verifyToken = async (tokenToVerify: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com"
+      const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${tokenToVerify}`
         }
       })
 
-      if (res.ok) {
-        const userData = await res.json()
-        // Ensure userData has id property (backend might return _id)
-        const formattedUser = {
-          ...userData,
-          id: userData.id || userData._id
-        }
-        setUser(formattedUser)
-        localStorage.setItem("user", JSON.stringify(formattedUser))
-      } else {
-        // Token invalid
-        logout()
+      if (!res.ok) {
+        // Token invalid but don't logout automatically
+        console.warn("Token verification failed, but keeping user logged in")
       }
     } catch (err) {
-      console.log("Token verification failed", err)
-      // Don't logout on network errors, just keep the user
-    } finally {
-      setLoading(false)
+      console.error("Token verification error:", err)
+      // Don't logout on network errors
     }
   }
 
