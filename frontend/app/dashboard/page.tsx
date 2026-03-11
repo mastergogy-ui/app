@@ -58,7 +58,7 @@ export default function DashboardPage() {
 
   const loadDashboard = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/dashboard`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -84,7 +84,7 @@ export default function DashboardPage() {
     if (!confirm("Are you sure you want to delete this ad?")) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/${adId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${adId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
