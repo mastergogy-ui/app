@@ -92,7 +92,7 @@ export default function ChatPage() {
 
   const loadConversation = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/conversations/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -117,7 +117,7 @@ export default function ChatPage() {
 
   const markAsRead = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/conversations/${id}/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/${id}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`
@@ -138,7 +138,7 @@ export default function ChatPage() {
     setNewMessage("");
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/messages`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
