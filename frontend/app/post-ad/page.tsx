@@ -102,7 +102,7 @@ export default function PostAdPage() {
         formDataToSend.append("images", image);
       });
 
-      console.log("Sending ad data..."); // Debug log
+      console.log("📤 Sending ad data to:", `${API_URL}/api/ads`);
 
       const res = await fetch(`${API_URL}/api/ads`, {
         method: "POST",
@@ -113,18 +113,22 @@ export default function PostAdPage() {
       });
 
       const data = await res.json();
-      console.log("Response:", data); // Debug log
+      console.log("📥 Response:", data);
 
       if (res.ok) {
         toast.success("Ad posted successfully!");
-        // Force a refresh of the dashboard data
-        router.push(`/ad/${data._id}`);
-        router.refresh(); // This will refresh the page data
+        console.log("✅ Ad created with ID:", data._id);
+        
+        // Small delay to ensure database consistency
+        setTimeout(() => {
+          router.push(`/ad/${data._id}`);
+          router.refresh();
+        }, 500);
       } else {
         toast.error(data.error || "Failed to post ad");
       }
     } catch (error) {
-      console.error("Post ad error:", error);
+      console.error("❌ Post ad error:", error);
       toast.error("Failed to post ad. Please try again.");
     } finally {
       setLoading(false);
