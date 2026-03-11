@@ -65,14 +65,14 @@ export default function AdDetailPage() {
 
   const loadAd = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${id}`);
       const data = await res.json();
       setAd(data.ad);
       setSimilarAds(data.similarAds || []);
       
       // Check if saved
       if (user && token) {
-        const savedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/saved/me`, {
+        const savedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/saved/me`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -96,7 +96,7 @@ export default function AdDetailPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads/${id}/save`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${id}/save`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
@@ -126,7 +126,7 @@ export default function AdDetailPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/conversations`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/conversations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
