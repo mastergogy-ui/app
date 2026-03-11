@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
-    // REMOVE the postinstall line completely
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
