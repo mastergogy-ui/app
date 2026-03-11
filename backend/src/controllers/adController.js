@@ -271,7 +271,7 @@ export const deleteAd = async (req, res) => {
   }
 };
 
-/* GET USER ADS - For public profile pages */
+/* GET USER ADS - For public profile pages (expects valid ObjectId) */
 export const getUserAds = async (req, res) => {
   try {
     console.log("🔍 ===== GET USER ADS CALLED =====");
@@ -304,7 +304,7 @@ export const getUserAds = async (req, res) => {
   }
 };
 
-/* ===== FIXED: GET USER'S OWN ADS - Uses authenticated user ===== */
+/* ===== FIXED: GET USER'S OWN ADS - Uses authenticated user from token ===== */
 export const getMyAds = async (req, res) => {
   try {
     console.log("🔍 ===== GET MY ADS CALLED =====");
