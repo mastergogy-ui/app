@@ -24,24 +24,11 @@ export default function RegisterPage() {
     city: ""
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    // Validation
-    if (!formData.name.trim()) {
-      toast.error("Name is required");
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      toast.error("Email is required");
-      return;
-    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -56,16 +43,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
       
-      if (!apiUrl) {
-        throw new Error("API URL is not configured");
-      }
-
-      const url = `${apiUrl}/auth/register`;
-      console.log("📡 Registering at:", url);
-
-      const res = await fetch(url, {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -74,79 +54,66 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone || undefined,
-          city: formData.city || undefined
+          phone: formData.phone,
+          city: formData.city
         })
       });
 
-      console.log("📡 Response status:", res.status);
-
-      // Check if response is JSON
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("❌ Non-JSON response:", text.substring(0, 200));
-        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
-      }
-
       const data = await res.json();
-      console.log("📡 Response data:", data);
 
       if (res.ok) {
-        if (data.token && data.user) {
-          login(data.user, data.token);
-          toast.success("Account created successfully! 🎉");
-          router.push("/");
-        } else {
-          throw new Error("Invalid response format from server");
-        }
+        login(data.user, data.token);
+        toast.success("Account created successfully!");
+        router.push("/");
       } else {
-        setError(data.message || "Registration failed");
         toast.error(data.message || "Registration failed");
       }
-    } catch (err: any) {
-      console.error("❌ Registration error:", err);
-      const errorMessage = err.message || "Registration failed. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg"
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-lg p-8 rounded-2xl shadow-2xl"
       >
-        <div>
-          <h2 className="text-3xl font-bold text-primary text-center">
+        <div className="text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="w-20 h-20 bg-gradient-to-r from-[#002f34] to-[#004d55] rounded-2xl mx-auto mb-4 flex items-center justify-center"
+          >
+            <span className="text-white font-bold text-3xl">R</span>
+          </motion.div>
+          <h2 className="text-3xl font-extrabold text-gray-900">
             Create Account
           </h2>
-          <p className="mt-2 text-center text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             Join RentWala to start renting
           </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Name Field */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="name"
                   type="text"
                   required
                   value={formData.name}
@@ -155,17 +122,19 @@ export default function RegisterPage() {
                   placeholder="Enter your full name"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="email"
                   type="email"
                   required
                   value={formData.email}
@@ -174,75 +143,83 @@ export default function RegisterPage() {
                   placeholder="Enter your email"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            {/* Phone Field */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number
               </label>
               <div className="relative">
                 <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="input-field pl-10"
-                  placeholder="Enter your phone number (optional)"
+                  placeholder="Enter your phone number"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            {/* City Field */}
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 City
               </label>
               <div className="relative">
                 <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <select
-                  id="city"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className="input-field pl-10"
                 >
-                  <option value="">Select your city (optional)</option>
+                  <option value="">Select your city</option>
                   {cities.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
                 </select>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="password"
                   type="password"
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="input-field pl-10"
-                  placeholder="Create a password (min. 6 characters)"
+                  placeholder="Create a password"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            {/* Confirm Password Field */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="confirmPassword"
                   type="password"
                   required
                   value={formData.confirmPassword}
@@ -251,19 +228,25 @@ export default function RegisterPage() {
                   placeholder="Confirm your password"
                 />
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <div>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[#002f34] to-[#004d55] hover:from-[#004d55] hover:to-[#006b77] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23e5db] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>{loading ? "Creating account..." : "Create Account"}</span>
-              <FiArrowRight />
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <FiArrowRight className="h-5 w-5 text-[#23e5db] group-hover:text-white transition-colors" />
+              </span>
+              {loading ? "Creating account..." : "Create Account"}
             </button>
-          </div>
+          </motion.div>
         </form>
 
         <div className="relative">
@@ -275,16 +258,25 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className="mt-6">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1.0 }}
+        >
           <GoogleLoginButton />
-        </div>
+        </motion.div>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="text-center text-sm text-gray-600"
+        >
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-secondary hover:text-primary">
+          <Link href="/login" className="font-medium text-[#23e5db] hover:text-[#1fc9c0] transition-colors">
             Sign in
           </Link>
-        </p>
+        </motion.p>
       </motion.div>
     </div>
   );
