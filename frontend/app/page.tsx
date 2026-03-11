@@ -60,7 +60,7 @@ export default function HomePage() {
         sort: sortBy
       });
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ads?${params}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads?${params}`);
       const data = await res.json();
 
       if (page === 1) {
