@@ -24,11 +24,24 @@ export default function RegisterPage() {
     city: ""
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -44,9 +57,13 @@ export default function RegisterPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const url = `${apiUrl}/api/auth/register`;
       
-      console.log("Registering at:", url); // Debug log
+      if (!apiUrl) {
+        throw new Error("API URL is not configured");
+      }
+
+      const url = `${apiUrl}/api/auth/register`;
+      console.log("📡 Registering at:", url);
 
       const res = await fetch(url, {
         method: "POST",
@@ -57,41 +74,41 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone,
-          city: formData.city
+          phone: formData.phone || undefined,
+          city: formData.city || undefined
         })
       });
 
-      console.log("Response status:", res.status); // Debug log
+      console.log("📡 Response status:", res.status);
 
-      // Check if response is OK (status 200-299)
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("❌ Non-JSON response:", text.substring(0, 200));
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      console.log("📡 Response data:", data);
+
       if (res.ok) {
-        const data = await res.json();
-        console.log("Registration success:", data); // Debug log
-        
-        // Check if we have token and user
         if (data.token && data.user) {
           login(data.user, data.token);
-          toast.success("Account created successfully!");
+          toast.success("Account created successfully! 🎉");
           router.push("/");
         } else {
-          toast.error("Invalid response from server");
+          throw new Error("Invalid response format from server");
         }
       } else {
-        // Handle error responses
-        let errorMessage = "Registration failed";
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          // If not JSON, use status text
-          errorMessage = res.statusText || errorMessage;
-        }
-        toast.error(errorMessage);
+        setError(data.message || "Registration failed");
+        toast.error(data.message || "Registration failed");
       }
     } catch (err: any) {
-      console.error("Registration error:", err);
-      toast.error(err.message || "Registration failed. Please try again.");
+      console.error("❌ Registration error:", err);
+      const errorMessage = err.message || "Registration failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -113,12 +130,18 @@ export default function RegisterPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
+                Full Name <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -137,7 +160,7 @@ export default function RegisterPage() {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                Email Address <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -156,7 +179,7 @@ export default function RegisterPage() {
             {/* Phone Field */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number (Optional)
+                Phone Number
               </label>
               <div className="relative">
                 <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -166,7 +189,7 @@ export default function RegisterPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="input-field pl-10"
-                  placeholder="Enter your phone number"
+                  placeholder="Enter your phone number (optional)"
                 />
               </div>
             </div>
@@ -174,7 +197,7 @@ export default function RegisterPage() {
             {/* City Field */}
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                City (Optional)
+                City
               </label>
               <div className="relative">
                 <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -184,7 +207,7 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className="input-field pl-10"
                 >
-                  <option value="">Select your city</option>
+                  <option value="">Select your city (optional)</option>
                   {cities.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
@@ -195,7 +218,7 @@ export default function RegisterPage() {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -214,7 +237,7 @@ export default function RegisterPage() {
             {/* Confirm Password Field */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
+                Confirm Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -235,7 +258,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary flex items-center justify-center space-x-2"
+              className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>{loading ? "Creating account..." : "Create Account"}</span>
               <FiArrowRight />
