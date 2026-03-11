@@ -2,10 +2,12 @@
   "name": "rentwala-frontend",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "next dev",
-  "build": "rm -rf .next && next build",
+  "scripts": {
   
-    "
+    "dev": "next dev",
+  "build": "rm -rf .next && next build",
+  "start": "next start"
+       "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
