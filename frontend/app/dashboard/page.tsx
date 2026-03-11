@@ -78,15 +78,19 @@ export default function DashboardPage() {
       console.log("🔍 ===== DASHBOARD DATA LOAD STARTED =====");
       console.log("🔍 API URL:", API_URL);
       console.log("🔍 Token present:", !!token);
+      console.log("🔍 Token value:", token ? `${token.substring(0, 15)}...` : 'No token');
       console.log("🔍 User:", user);
       
-      // Load user's ads
+      // Load user's ads - with proper token in headers
       const adsUrl = `${API_URL}/api/ads/user/me`;
       console.log("🔍 Fetching user ads from:", adsUrl);
+      console.log("🔍 Auth header:", `Bearer ${token}`);
       
       const adsRes = await fetch(adsUrl, {
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
@@ -133,7 +137,8 @@ export default function DashboardPage() {
       try {
         const chatRes = await fetch(`${API_URL}/api/chat/conversations`, {
           headers: {
-            Authorization: `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         
@@ -153,7 +158,8 @@ export default function DashboardPage() {
       try {
         const savedRes = await fetch(`${API_URL}/api/ads/saved/me`, {
           headers: {
-            Authorization: `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         
@@ -184,7 +190,8 @@ export default function DashboardPage() {
       const res = await fetch(`${API_URL}/api/ads/${adId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
