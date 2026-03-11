@@ -271,27 +271,13 @@ export const deleteAd = async (req, res) => {
   }
 };
 
-/* ===== FIXED: GET USER ADS - Handles "me" parameter correctly ===== */
+/* GET USER ADS - For public profile pages */
 export const getUserAds = async (req, res) => {
   try {
     console.log("🔍 ===== GET USER ADS CALLED =====");
     console.log("🔍 req.params.userId:", req.params.userId);
-    console.log("🔍 req.user:", req.user ? req.user._id : 'No authenticated user');
     
-    let userId;
-    
-    // Check if the parameter is "me" and use the authenticated user's ID
-    if (req.params.userId === 'me') {
-      if (!req.user) {
-        console.log("❌ No authenticated user found for 'me' request");
-        return res.status(401).json({ error: "Authentication required" });
-      }
-      userId = req.user._id;
-      console.log("🔍 Using authenticated user ID for 'me':", userId);
-    } else {
-      userId = req.params.userId;
-      console.log("🔍 Using provided user ID:", userId);
-    }
+    const userId = req.params.userId;
     
     // Validate that userId exists
     if (!userId) {
@@ -318,42 +304,30 @@ export const getUserAds = async (req, res) => {
   }
 };
 
-/* GET USER'S OWN ADS - ENHANCED WITH DEBUG */
+/* ===== FIXED: GET USER'S OWN ADS - Uses authenticated user ===== */
 export const getMyAds = async (req, res) => {
   try {
     console.log("🔍 ===== GET MY ADS CALLED =====");
-    console.log("🔍 User ID from token:", req.user._id);
+    console.log("🔍 User from auth middleware:", req.user ? req.user._id : 'No user');
     
+    // CRITICAL CHECK: Make sure user is authenticated
     if (!req.user || !req.user._id) {
-      console.log("❌ No authenticated user");
+      console.log("❌ No authenticated user in request");
       return res.status(401).json({ error: "Authentication required" });
     }
     
-    // First check if user exists in database
-    const userExists = await User.findById(req.user._id);
-    if (!userExists) {
-      console.log("❌ User not found in database:", req.user._id);
-      return res.status(404).json({ error: "User not found" });
-    }
-    console.log("✅ User found:", userExists.email);
+    const userId = req.user._id;
+    console.log("🔍 Fetching ads for authenticated user:", userId);
     
     // Find all ads by this user
-    console.log("🔍 Searching for ads with user ID:", req.user._id);
     const ads = await Ad.find({ 
-      user: req.user._id,
+      user: userId,
       isActive: true 
     })
     .populate('user', 'name email avatar')
     .sort({ createdAt: -1 });
 
-    console.log(`✅ Found ${ads.length} ads for user ${req.user._id}`);
-    if (ads.length > 0) {
-      console.log("📊 First ad:", { 
-        id: ads[0]._id.toString(), 
-        title: ads[0].title,
-        created: ads[0].createdAt 
-      });
-    }
+    console.log(`✅ Found ${ads.length} ads for user ${userId}`);
     
     // Always return array, even if empty
     res.status(200).json(ads);
