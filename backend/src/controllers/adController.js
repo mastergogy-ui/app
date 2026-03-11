@@ -74,19 +74,46 @@ export const getAds = async (req, res) => {
   }
 };
 
-/* GET SINGLE AD */
+/* GET SINGLE AD - ENHANCED WITH DEBUG */
 export const getAdById = async (req, res) => {
   try {
-    const ad = await Ad.findById(req.params.id)
-      .populate('user', 'name email phone avatar city');
+    const adId = req.params.id;
+    console.log("🔍 ===== GET AD BY ID CALLED =====");
+    console.log("🔍 Looking for ad with ID:", adId);
+    console.log("🔍 ID type:", typeof adId);
+    console.log("🔍 ID length:", adId.length);
+    
+    // Validate ID format
+    if (!adId || adId.length < 10) {
+      console.log("❌ Invalid ID format:", adId);
+      return res.status(400).json({ error: "Invalid ad ID format" });
+    }
+    
+    // Try to find the ad
+    const ad = await Ad.findById(adId)
+      .populate('user', 'name email phone avatar city memberSince');
     
     if (!ad) {
+      console.log("❌ Ad not found with ID:", adId);
+      
+      // Try to find all ads to debug (limit to 5)
+      const allAds = await Ad.find({}).limit(5).select('_id title');
+      console.log("📊 Sample of recent ads in DB:", allAds.map(a => ({ 
+        id: a._id.toString(), 
+        title: a.title 
+      })));
+      
       return res.status(404).json({ error: "Ad not found" });
     }
+
+    console.log("✅ Ad found:", ad._id.toString(), ad.title);
+    console.log("✅ Ad user:", ad.user?._id?.toString());
+    console.log("✅ Ad images:", ad.images?.length || 0);
 
     // Increment view count
     ad.views = (ad.views || 0) + 1;
     await ad.save();
+    console.log("✅ View count incremented to:", ad.views);
 
     // Get similar ads
     const similarAds = await Ad.find({
@@ -98,10 +125,13 @@ export const getAdById = async (req, res) => {
     .limit(5)
     .sort({ createdAt: -1 });
 
+    console.log(`✅ Found ${similarAds.length} similar ads`);
+
     res.json({ ad, similarAds });
     
   } catch (err) {
-    console.error("GET AD ERROR:", err);
+    console.error("❌ GET AD ERROR:", err);
+    console.error("❌ Error stack:", err.stack);
     res.status(500).json({ error: "Failed to fetch ad" });
   }
 };
@@ -112,13 +142,15 @@ export const createAd = async (req, res) => {
     const { title, description, price, category, condition, location, city } = req.body;
     const userId = req.user._id;
 
-    console.log("Creating ad for user:", userId);
-    console.log("Ad data:", { title, description, price, category, location });
+    console.log("🔍 ===== CREATE AD CALLED =====");
+    console.log("🔍 Creating ad for user:", userId);
+    console.log("🔍 Ad data:", { title, description, price, category, location });
 
     let imageUrls = [];
 
     // Handle multiple image uploads
     if (req.files && req.files.length > 0) {
+      console.log(`🔍 Uploading ${req.files.length} images...`);
       for (const file of req.files) {
         try {
           const result = await cloudinary.uploader.upload(file.path, {
@@ -126,17 +158,20 @@ export const createAd = async (req, res) => {
           });
           imageUrls.push(result.secure_url);
           fs.unlinkSync(file.path);
+          console.log("✅ Image uploaded:", result.secure_url);
         } catch (uploadError) {
-          console.error("Cloudinary upload error:", uploadError);
+          console.error("❌ Cloudinary upload error:", uploadError);
         }
       }
     } else if (req.file) {
       // Single file upload
+      console.log("🔍 Uploading single image...");
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "rentwala_ads",
       });
       imageUrls.push(result.secure_url);
       fs.unlinkSync(req.file.path);
+      console.log("✅ Image uploaded:", result.secure_url);
     }
 
     const newAd = new Ad({
@@ -154,7 +189,7 @@ export const createAd = async (req, res) => {
     });
 
     await newAd.save();
-    console.log("Ad created successfully with ID:", newAd._id);
+    console.log("✅ Ad created successfully with ID:", newAd._id.toString());
     
     // Populate user data before sending response
     await newAd.populate('user', 'name email avatar');
@@ -162,7 +197,8 @@ export const createAd = async (req, res) => {
     res.status(201).json(newAd);
     
   } catch (error) {
-    console.error("CREATE AD ERROR:", error);
+    console.error("❌ CREATE AD ERROR:", error);
+    console.error("❌ Error stack:", error.stack);
     res.status(500).json({ error: "Failed to create ad" });
   }
 };
@@ -170,27 +206,34 @@ export const createAd = async (req, res) => {
 /* UPDATE AD */
 export const updateAd = async (req, res) => {
   try {
-    const ad = await Ad.findById(req.params.id);
+    const adId = req.params.id;
+    console.log("🔍 ===== UPDATE AD CALLED =====");
+    console.log("🔍 Updating ad:", adId);
+    
+    const ad = await Ad.findById(adId);
     
     if (!ad) {
+      console.log("❌ Ad not found for update:", adId);
       return res.status(404).json({ error: "Ad not found" });
     }
 
     // Check ownership
     if (ad.user.toString() !== req.user._id.toString()) {
+      console.log("❌ Unauthorized update attempt by user:", req.user._id);
       return res.status(403).json({ error: "Not authorized" });
     }
 
     const updatedAd = await Ad.findByIdAndUpdate(
-      req.params.id,
+      adId,
       { $set: req.body },
       { new: true }
     ).populate('user', 'name avatar');
 
+    console.log("✅ Ad updated successfully:", adId);
     res.json(updatedAd);
     
   } catch (error) {
-    console.error("UPDATE AD ERROR:", error);
+    console.error("❌ UPDATE AD ERROR:", error);
     res.status(500).json({ error: "Update failed" });
   }
 };
@@ -198,14 +241,20 @@ export const updateAd = async (req, res) => {
 /* DELETE AD */
 export const deleteAd = async (req, res) => {
   try {
-    const ad = await Ad.findById(req.params.id);
+    const adId = req.params.id;
+    console.log("🔍 ===== DELETE AD CALLED =====");
+    console.log("🔍 Deleting ad:", adId);
+    
+    const ad = await Ad.findById(adId);
     
     if (!ad) {
+      console.log("❌ Ad not found for delete:", adId);
       return res.status(404).json({ error: "Ad not found" });
     }
 
     // Check ownership
     if (ad.user.toString() !== req.user._id.toString()) {
+      console.log("❌ Unauthorized delete attempt by user:", req.user._id);
       return res.status(403).json({ error: "Not authorized" });
     }
 
@@ -213,10 +262,11 @@ export const deleteAd = async (req, res) => {
     ad.isActive = false;
     await ad.save();
 
+    console.log("✅ Ad soft deleted successfully:", adId);
     res.json({ message: "Ad deleted successfully" });
     
   } catch (error) {
-    console.error("DELETE AD ERROR:", error);
+    console.error("❌ DELETE AD ERROR:", error);
     res.status(500).json({ error: "Delete failed" });
   }
 };
@@ -225,6 +275,8 @@ export const deleteAd = async (req, res) => {
 export const getUserAds = async (req, res) => {
   try {
     const userId = req.params.userId || req.user._id;
+    console.log("🔍 ===== GET USER ADS CALLED =====");
+    console.log("🔍 Fetching ads for user:", userId);
     
     const ads = await Ad.find({ 
       user: userId,
@@ -233,10 +285,11 @@ export const getUserAds = async (req, res) => {
     .populate('user', 'name avatar')
     .sort({ createdAt: -1 });
 
+    console.log(`✅ Found ${ads.length} ads for user ${userId}`);
     res.json(ads);
     
   } catch (error) {
-    console.error("GET USER ADS ERROR:", error);
+    console.error("❌ GET USER ADS ERROR:", error);
     res.status(500).json({ error: "Failed to fetch user ads" });
   }
 };
@@ -266,7 +319,13 @@ export const getMyAds = async (req, res) => {
     .sort({ createdAt: -1 });
 
     console.log(`✅ Found ${ads.length} ads for user ${req.user._id}`);
-    console.log("📊 Ads data:", JSON.stringify(ads, null, 2));
+    if (ads.length > 0) {
+      console.log("📊 First ad:", { 
+        id: ads[0]._id.toString(), 
+        title: ads[0].title,
+        created: ads[0].createdAt 
+      });
+    }
     
     // Always return array, even if empty
     res.status(200).json(ads);
@@ -283,19 +342,24 @@ export const toggleSaveAd = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
+    
+    console.log("🔍 ===== TOGGLE SAVE AD CALLED =====");
+    console.log("🔍 User:", userId, "Ad:", id);
 
     const saved = await SavedAd.findOne({ user: userId, ad: id });
 
     if (saved) {
       await saved.deleteOne();
+      console.log("✅ Ad unsaved:", id);
       res.json({ saved: false });
     } else {
       await SavedAd.create({ user: userId, ad: id });
+      console.log("✅ Ad saved:", id);
       res.json({ saved: true });
     }
     
   } catch (error) {
-    console.error("TOGGLE SAVE ERROR:", error);
+    console.error("❌ TOGGLE SAVE ERROR:", error);
     res.status(500).json({ error: "Failed to save ad" });
   }
 };
@@ -303,6 +367,9 @@ export const toggleSaveAd = async (req, res) => {
 /* GET SAVED ADS */
 export const getSavedAds = async (req, res) => {
   try {
+    console.log("🔍 ===== GET SAVED ADS CALLED =====");
+    console.log("🔍 User:", req.user._id);
+    
     const saved = await SavedAd.find({ user: req.user._id })
       .populate({
         path: 'ad',
@@ -311,10 +378,12 @@ export const getSavedAds = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const ads = saved.filter(s => s.ad && s.ad.isActive).map(s => s.ad);
+    console.log(`✅ Found ${ads.length} saved ads for user ${req.user._id}`);
+    
     res.json(ads);
     
   } catch (error) {
-    console.error("GET SAVED ADS ERROR:", error);
+    console.error("❌ GET SAVED ADS ERROR:", error);
     res.status(500).json({ error: "Failed to fetch saved ads" });
   }
 };
@@ -322,16 +391,19 @@ export const getSavedAds = async (req, res) => {
 /* GET CATEGORIES WITH COUNTS */
 export const getCategories = async (req, res) => {
   try {
+    console.log("🔍 ===== GET CATEGORIES CALLED =====");
+    
     const categories = await Ad.aggregate([
       { $match: { isActive: true } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]);
 
+    console.log(`✅ Found ${categories.length} categories`);
     res.json(categories);
     
   } catch (error) {
-    console.error("GET CATEGORIES ERROR:", error);
+    console.error("❌ GET CATEGORIES ERROR:", error);
     res.status(500).json({ error: "Failed to fetch categories" });
   }
 };
@@ -339,14 +411,20 @@ export const getCategories = async (req, res) => {
 /* INCREMENT VIEW COUNT */
 export const incrementViews = async (req, res) => {
   try {
-    const ad = await Ad.findById(req.params.id);
+    const adId = req.params.id;
+    console.log("🔍 ===== INCREMENT VIEWS CALLED =====");
+    console.log("🔍 Ad:", adId);
+    
+    const ad = await Ad.findById(adId);
     if (ad) {
       ad.views = (ad.views || 0) + 1;
       await ad.save();
+      console.log("✅ Views incremented to:", ad.views);
     }
     res.json({ success: true });
+    
   } catch (error) {
-    console.error("INCREMENT VIEWS ERROR:", error);
+    console.error("❌ INCREMENT VIEWS ERROR:", error);
     res.status(500).json({ error: "Failed to increment views" });
   }
 };
