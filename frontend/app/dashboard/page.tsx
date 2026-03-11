@@ -73,7 +73,7 @@ export default function DashboardPage() {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
       
-      // Load user's ads
+      // Load user's ads - FIXED: Using the correct endpoint
       const adsRes = await fetch(`${API_URL}/api/ads/user/me`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -82,12 +82,15 @@ export default function DashboardPage() {
       
       if (adsRes.ok) {
         const adsData = await adsRes.json();
+        console.log("Loaded user ads:", adsData); // Debug log
         setMyAds(adsData);
         setStats(prev => ({
           ...prev,
           totalAds: adsData.length,
           totalViews: adsData.reduce((sum: number, ad: Ad) => sum + (ad.views || 0), 0)
         }));
+      } else {
+        console.error("Failed to load ads:", await adsRes.text());
       }
 
       // Load conversations
@@ -142,6 +145,11 @@ export default function DashboardPage() {
       if (res.ok) {
         toast.success("Ad deleted successfully");
         setMyAds(myAds.filter(ad => ad._id !== adId));
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalAds: prev.totalAds - 1
+        }));
       } else {
         toast.error("Failed to delete ad");
       }
