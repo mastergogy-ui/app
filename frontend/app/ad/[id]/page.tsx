@@ -65,24 +65,55 @@ export default function AdDetailPage() {
 
   const loadAd = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${id}`);
+      setLoading(true);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+      
+      // FIX: Added /api/ to the URL
+      const url = `${API_URL}/api/ads/${id}`;
+      console.log("🔍 Fetching ad from:", url);
+      
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        console.error("❌ Failed to load ad, status:", res.status);
+        setAd(null);
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
+      console.log("✅ Ad data loaded:", data);
+      
       setAd(data.ad);
       setSimilarAds(data.similarAds || []);
       
-      // Check if saved
+      // Check if saved - FIX: Added /api/ and array check
       if (user && token) {
-        const savedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/saved/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        try {
+          const savedRes = await fetch(`${API_URL}/api/ads/saved/me`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (savedRes.ok) {
+            const saved = await savedRes.json();
+            // FIX: Check if saved is array before using .some
+            if (Array.isArray(saved)) {
+              setIsSaved(saved.some((s: any) => s._id === id));
+            } else {
+              console.error("Saved ads is not an array:", saved);
+              setIsSaved(false);
+            }
           }
-        });
-        const saved = await savedRes.json();
-        setIsSaved(saved.some((s: any) => s._id === id));
+        } catch (saveErr) {
+          console.error("Failed to check saved status:", saveErr);
+        }
       }
     } catch (err) {
-      console.log("Failed to load ad", err);
+      console.error("❌ Failed to load ad", err);
       toast.error("Failed to load ad");
+      setAd(null);
     } finally {
       setLoading(false);
     }
@@ -96,7 +127,10 @@ export default function AdDetailPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ads/${id}/save`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+      
+      // FIX: Added /api/ to the URL
+      const res = await fetch(`${API_URL}/api/ads/${id}/save`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
@@ -126,7 +160,10 @@ export default function AdDetailPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/conversations`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+      
+      // FIX: Added /api/ to the URL
+      const res = await fetch(`${API_URL}/api/chat/conversations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +356,6 @@ export default function AdDetailPage() {
                 </div>
               </Link>
 
-              {/* Fixed: Changed user._id to user.id */}
               {user && user.id !== ad.user._id ? (
                 <div className="space-y-3">
                   <textarea
