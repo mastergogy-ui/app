@@ -112,6 +112,9 @@ export const createAd = async (req, res) => {
     const { title, description, price, category, condition, location, city } = req.body;
     const userId = req.user._id;
 
+    console.log("Creating ad for user:", userId);
+    console.log("Ad data:", { title, description, price, category, location });
+
     let imageUrls = [];
 
     // Handle multiple image uploads
@@ -151,6 +154,7 @@ export const createAd = async (req, res) => {
     });
 
     await newAd.save();
+    console.log("Ad created successfully with ID:", newAd._id);
     
     // Populate user data before sending response
     await newAd.populate('user', 'name email avatar');
@@ -237,20 +241,39 @@ export const getUserAds = async (req, res) => {
   }
 };
 
-/* GET USER'S OWN ADS */
+/* GET USER'S OWN ADS - ENHANCED WITH DEBUG */
 export const getMyAds = async (req, res) => {
   try {
+    console.log("🔍 ===== GET MY ADS CALLED =====");
+    console.log("🔍 User ID from token:", req.user._id);
+    console.log("🔍 User object:", req.user);
+    
+    // First check if user exists in database
+    const userExists = await User.findById(req.user._id);
+    if (!userExists) {
+      console.log("❌ User not found in database:", req.user._id);
+      return res.status(404).json({ error: "User not found" });
+    }
+    console.log("✅ User found:", userExists.email);
+    
+    // Find all ads by this user
+    console.log("🔍 Searching for ads with user ID:", req.user._id);
     const ads = await Ad.find({ 
       user: req.user._id,
       isActive: true 
     })
-    .populate('user', 'name avatar')
+    .populate('user', 'name email avatar')
     .sort({ createdAt: -1 });
 
-    res.json(ads);
+    console.log(`✅ Found ${ads.length} ads for user ${req.user._id}`);
+    console.log("📊 Ads data:", JSON.stringify(ads, null, 2));
+    
+    // Always return array, even if empty
+    res.status(200).json(ads);
     
   } catch (error) {
-    console.error("GET MY ADS ERROR:", error);
+    console.error("❌ GET MY ADS ERROR:", error);
+    console.error("❌ Error stack:", error.stack);
     res.status(500).json({ error: "Failed to fetch your ads" });
   }
 };
