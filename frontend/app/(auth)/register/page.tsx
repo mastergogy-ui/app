@@ -62,7 +62,7 @@ export default function RegisterPage() {
         throw new Error("API URL is not configured");
       }
 
-      const url = `${apiUrl}/api/auth/register`;
+      const url = `${apiUrl}/auth/register`;
       console.log("📡 Registering at:", url);
 
       const res = await fetch(url, {
