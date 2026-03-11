@@ -22,8 +22,11 @@ const upload = multer({ dest: "temp/" });
 router.get("/", getAds);
 router.get("/categories", getCategories);
 router.get("/:id", getAdById);
-router.get("/user/:userId", getUserAds);  // For public profile pages
 router.post("/:id/view", incrementViews);
+
+/* IMPORTANT: ORDER MATTERS - SPECIFIC ROUTES FIRST */
+router.get("/user/me", protectUser, getMyAds);        // This MUST come before /user/:userId
+router.get("/user/:userId", getUserAds);               // This is for public profiles
 
 /* PROTECTED ROUTES - Require authentication */
 router.post("/", protectUser, upload.array("images", 8), createAd);
@@ -31,6 +34,5 @@ router.put("/:id", protectUser, upload.array("images", 8), updateAd);
 router.delete("/:id", protectUser, deleteAd);
 router.post("/:id/save", protectUser, toggleSaveAd);
 router.get("/saved/me", protectUser, getSavedAds);
-router.get("/user/me", protectUser, getMyAds);  // For authenticated user's own ads
 
 export default router;
