@@ -1,5 +1,6 @@
 import Ad from "../models/Ad.js";
 import User from "../models/User.js";
+import SavedAd from "../models/SavedAd.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
@@ -9,14 +10,31 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-/* GET ALL ADS */
+/* GET ALL ADS with filters */
 export const getAds = async (req, res) => {
   try {
-    const { page = 1, limit = 20, category, city, search } = req.query;
-    
+    const { 
+      category, 
+      city, 
+      minPrice, 
+      maxPrice, 
+      search, 
+      sort = 'newest',
+      page = 1,
+      limit = 20
+    } = req.query;
+
     let query = { isActive: true };
+    
     if (category) query.category = category;
     if (city) query.city = city;
+    
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -24,22 +42,34 @@ export const getAds = async (req, res) => {
       ];
     }
 
+    let sortOption = {};
+    switch(sort) {
+      case 'newest': sortOption = { createdAt: -1 }; break;
+      case 'oldest': sortOption = { createdAt: 1 }; break;
+      case 'price_low': sortOption = { price: 1 }; break;
+      case 'price_high': sortOption = { price: -1 }; break;
+      default: sortOption = { createdAt: -1 };
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    
     const ads = await Ad.find(query)
       .populate('user', 'name email avatar')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .sort(sortOption)
+      .skip(skip)
+      .limit(Number(limit));
 
     const total = await Ad.countDocuments(query);
 
     res.json({
       ads,
       total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit)
+      page: Number(page),
+      totalPages: Math.ceil(total / Number(limit))
     });
-  } catch (error) {
-    console.error("Get ads error:", error);
+    
+  } catch (err) {
+    console.error("GET ADS ERROR:", err);
     res.status(500).json({ error: "Failed to fetch ads" });
   }
 };
@@ -49,7 +79,7 @@ export const getAdById = async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id)
       .populate('user', 'name email phone avatar city');
-
+    
     if (!ad) {
       return res.status(404).json({ error: "Ad not found" });
     }
@@ -65,11 +95,13 @@ export const getAdById = async (req, res) => {
       isActive: true
     })
     .populate('user', 'name avatar')
-    .limit(5);
+    .limit(5)
+    .sort({ createdAt: -1 });
 
     res.json({ ad, similarAds });
-  } catch (error) {
-    console.error("Get ad by id error:", error);
+    
+  } catch (err) {
+    console.error("GET AD ERROR:", err);
     res.status(500).json({ error: "Failed to fetch ad" });
   }
 };
@@ -90,7 +122,6 @@ export const createAd = async (req, res) => {
             folder: "rentwala_ads",
           });
           imageUrls.push(result.secure_url);
-          // Clean up temp file
           fs.unlinkSync(file.path);
         } catch (uploadError) {
           console.error("Cloudinary upload error:", uploadError);
@@ -125,9 +156,64 @@ export const createAd = async (req, res) => {
     await newAd.populate('user', 'name email avatar');
 
     res.status(201).json(newAd);
+    
   } catch (error) {
-    console.error("Create ad error:", error);
+    console.error("CREATE AD ERROR:", error);
     res.status(500).json({ error: "Failed to create ad" });
+  }
+};
+
+/* UPDATE AD */
+export const updateAd = async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+    
+    if (!ad) {
+      return res.status(404).json({ error: "Ad not found" });
+    }
+
+    // Check ownership
+    if (ad.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    const updatedAd = await Ad.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    ).populate('user', 'name avatar');
+
+    res.json(updatedAd);
+    
+  } catch (error) {
+    console.error("UPDATE AD ERROR:", error);
+    res.status(500).json({ error: "Update failed" });
+  }
+};
+
+/* DELETE AD */
+export const deleteAd = async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+    
+    if (!ad) {
+      return res.status(404).json({ error: "Ad not found" });
+    }
+
+    // Check ownership
+    if (ad.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    // Soft delete
+    ad.isActive = false;
+    await ad.save();
+
+    res.json({ message: "Ad deleted successfully" });
+    
+  } catch (error) {
+    console.error("DELETE AD ERROR:", error);
+    res.status(500).json({ error: "Delete failed" });
   }
 };
 
@@ -144,33 +230,100 @@ export const getUserAds = async (req, res) => {
     .sort({ createdAt: -1 });
 
     res.json(ads);
+    
   } catch (error) {
-    console.error("Get user ads error:", error);
+    console.error("GET USER ADS ERROR:", error);
     res.status(500).json({ error: "Failed to fetch user ads" });
   }
 };
 
-/* DELETE AD */
-export const deleteAd = async (req, res) => {
+/* GET USER'S OWN ADS */
+export const getMyAds = async (req, res) => {
+  try {
+    const ads = await Ad.find({ 
+      user: req.user._id,
+      isActive: true 
+    })
+    .populate('user', 'name avatar')
+    .sort({ createdAt: -1 });
+
+    res.json(ads);
+    
+  } catch (error) {
+    console.error("GET MY ADS ERROR:", error);
+    res.status(500).json({ error: "Failed to fetch your ads" });
+  }
+};
+
+/* SAVE/UNSAVE AD */
+export const toggleSaveAd = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const saved = await SavedAd.findOne({ user: userId, ad: id });
+
+    if (saved) {
+      await saved.deleteOne();
+      res.json({ saved: false });
+    } else {
+      await SavedAd.create({ user: userId, ad: id });
+      res.json({ saved: true });
+    }
+    
+  } catch (error) {
+    console.error("TOGGLE SAVE ERROR:", error);
+    res.status(500).json({ error: "Failed to save ad" });
+  }
+};
+
+/* GET SAVED ADS */
+export const getSavedAds = async (req, res) => {
+  try {
+    const saved = await SavedAd.find({ user: req.user._id })
+      .populate({
+        path: 'ad',
+        populate: { path: 'user', select: 'name avatar' }
+      })
+      .sort({ createdAt: -1 });
+
+    const ads = saved.filter(s => s.ad && s.ad.isActive).map(s => s.ad);
+    res.json(ads);
+    
+  } catch (error) {
+    console.error("GET SAVED ADS ERROR:", error);
+    res.status(500).json({ error: "Failed to fetch saved ads" });
+  }
+};
+
+/* GET CATEGORIES WITH COUNTS */
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Ad.aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json(categories);
+    
+  } catch (error) {
+    console.error("GET CATEGORIES ERROR:", error);
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
+};
+
+/* INCREMENT VIEW COUNT */
+export const incrementViews = async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id);
-    
-    if (!ad) {
-      return res.status(404).json({ error: "Ad not found" });
+    if (ad) {
+      ad.views = (ad.views || 0) + 1;
+      await ad.save();
     }
-
-    // Check if user owns the ad
-    if (ad.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ error: "Not authorized" });
-    }
-
-    // Soft delete
-    ad.isActive = false;
-    await ad.save();
-
-    res.json({ message: "Ad deleted successfully" });
+    res.json({ success: true });
   } catch (error) {
-    console.error("Delete ad error:", error);
-    res.status(500).json({ error: "Failed to delete ad" });
+    console.error("INCREMENT VIEWS ERROR:", error);
+    res.status(500).json({ error: "Failed to increment views" });
   }
 };
