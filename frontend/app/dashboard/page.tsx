@@ -60,6 +60,7 @@ export default function DashboardPage() {
     totalViews: 0,
     totalMessages: 0
   });
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
     if (!token) {
@@ -73,61 +74,104 @@ export default function DashboardPage() {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
       
-      // Load user's ads - FIXED: Changed from 'mel' to 'me'
-      const adsRes = await fetch(`${API_URL}/api/ads/user/me`, {
+      setDebugInfo(`Fetching from: ${API_URL}/api/ads/user/me`);
+      console.log("🔍 ===== DASHBOARD DATA LOAD STARTED =====");
+      console.log("🔍 API URL:", API_URL);
+      console.log("🔍 Token present:", !!token);
+      console.log("🔍 User:", user);
+      
+      // Load user's ads
+      const adsUrl = `${API_URL}/api/ads/user/me`;
+      console.log("🔍 Fetching user ads from:", adsUrl);
+      
+      const adsRes = await fetch(adsUrl, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       
+      console.log("📡 Response status:", adsRes.status);
+      console.log("📡 Response headers:", Object.fromEntries(adsRes.headers.entries()));
+      
+      // Try to get response as text first for debugging
+      const responseText = await adsRes.text();
+      console.log("📡 Raw response text:", responseText.substring(0, 200));
+      
+      let adsData;
+      try {
+        adsData = JSON.parse(responseText);
+        console.log("📡 Parsed response:", adsData);
+      } catch (e) {
+        console.error("❌ Failed to parse JSON:", e);
+        setDebugInfo(`JSON Parse Error: ${e.message}`);
+        toast.error("Failed to parse server response");
+        return;
+      }
+      
       if (adsRes.ok) {
-        const adsData = await adsRes.json();
-        console.log("Loaded user ads:", adsData);
+        console.log("✅ Loaded user ads successfully:", adsData);
+        console.log("📊 Number of ads:", adsData.length);
+        
+        if (adsData.length > 0) {
+          console.log("📊 First ad:", adsData[0]);
+        }
+        
         setMyAds(adsData);
         setStats(prev => ({
           ...prev,
           totalAds: adsData.length,
           totalViews: adsData.reduce((sum: number, ad: Ad) => sum + (ad.views || 0), 0)
         }));
+        setDebugInfo(`Success: Found ${adsData.length} ads`);
       } else {
-        const errorData = await adsRes.json();
-        console.error("Failed to load ads:", errorData);
-        toast.error("Failed to load your ads");
+        console.error("❌ Failed to load ads:", adsData);
+        setDebugInfo(`Error: ${adsData.error || 'Unknown error'}`);
+        toast.error(adsData.error || "Failed to load your ads");
       }
 
       // Load conversations
-      const chatRes = await fetch(`${API_URL}/api/chat/conversations`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      try {
+        const chatRes = await fetch(`${API_URL}/api/chat/conversations`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (chatRes.ok) {
+          const chatData = await chatRes.json();
+          setConversations(chatData);
+          setStats(prev => ({
+            ...prev,
+            totalMessages: chatData.length
+          }));
         }
-      });
-      
-      if (chatRes.ok) {
-        const chatData = await chatRes.json();
-        setConversations(chatData);
-        setStats(prev => ({
-          ...prev,
-          totalMessages: chatData.length
-        }));
+      } catch (chatError) {
+        console.error("Failed to load conversations:", chatError);
       }
 
-      // Load saved ads - FIXED: Changed from 'mel' to 'me'
-      const savedRes = await fetch(`${API_URL}/api/ads/saved/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      // Load saved ads
+      try {
+        const savedRes = await fetch(`${API_URL}/api/ads/saved/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (savedRes.ok) {
+          const savedData = await savedRes.json();
+          setSavedAds(savedData);
         }
-      });
-      
-      if (savedRes.ok) {
-        const savedData = await savedRes.json();
-        setSavedAds(savedData);
+      } catch (savedError) {
+        console.error("Failed to load saved ads:", savedError);
       }
 
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.error("❌ Failed to load dashboard data:", error);
+      setDebugInfo(`Error: ${error.message}`);
       toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
+      console.log("🔍 ===== DASHBOARD DATA LOAD COMPLETED =====");
     }
   };
 
@@ -186,6 +230,10 @@ export default function DashboardPage() {
               <p className="text-gray-600">
                 Manage your listings and messages from your dashboard
               </p>
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <p className="text-xs text-gray-400 mt-2">{debugInfo}</p>
+              )}
             </div>
             <Link href="/post-ad">
               <motion.button
