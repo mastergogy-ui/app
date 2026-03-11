@@ -21,8 +21,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${apiUrl}/auth/login`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+      
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -30,27 +31,17 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
-        if (data.token && data.user) {
-          login(data.user, data.token);
-          toast.success("Login successful!");
-          router.push("/");
-        } else {
-          toast.error("Invalid response from server");
-        }
+        login(data.user, data.token);
+        toast.success("Login successful!");
+        router.push("/");
       } else {
-        let errorMessage = "Login failed";
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = res.statusText || errorMessage;
-        }
-        toast.error(errorMessage);
+        toast.error(data.message || "Login failed");
       }
-    } catch (err) {
-      console.log("Login error:", err);
+    } catch (error) {
+      console.error("Login error:", error);
       toast.error("Login failed. Please try again.");
     } finally {
       setLoading(false);
@@ -58,31 +49,43 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg"
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-lg p-8 rounded-2xl shadow-2xl"
       >
-        <div>
-          <h2 className="text-3xl font-bold text-primary text-center">
+        <div className="text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="w-20 h-20 bg-gradient-to-r from-[#002f34] to-[#004d55] rounded-2xl mx-auto mb-4 flex items-center justify-center"
+          >
+            <span className="text-white font-bold text-3xl">R</span>
+          </motion.div>
+          <h2 className="text-3xl font-extrabold text-gray-900">
             Welcome Back
           </h2>
-          <p className="mt-2 text-center text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             Sign in to continue to RentWala
           </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="email"
                   type="email"
                   required
                   value={email}
@@ -91,16 +94,19 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  id="password"
                   type="password"
                   required
                   value={password}
@@ -109,17 +115,25 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                 />
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full btn-primary flex items-center justify-center space-x-2"
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
           >
-            <span>{loading ? "Signing in..." : "Sign in"}</span>
-            <FiArrowRight />
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[#002f34] to-[#004d55] hover:from-[#004d55] hover:to-[#006b77] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23e5db] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <FiArrowRight className="h-5 w-5 text-[#23e5db] group-hover:text-white transition-colors" />
+              </span>
+              {loading ? "Signing in..." : "Sign in"}
+            </button>
+          </motion.div>
         </form>
 
         <div className="relative">
@@ -131,16 +145,25 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="mt-6">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
           <GoogleLoginButton />
-        </div>
+        </motion.div>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="text-center text-sm text-gray-600"
+        >
           Don't have an account?{" "}
-          <Link href="/register" className="font-medium text-secondary hover:text-primary">
+          <Link href="/register" className="font-medium text-[#23e5db] hover:text-[#1fc9c0] transition-colors">
             Sign up now
           </Link>
-        </p>
+        </motion.p>
       </motion.div>
     </div>
   );
