@@ -10,7 +10,8 @@ import {
   FiHeart,
   FiEye,
   FiChevronDown,
-  FiX
+  FiX,
+  FiNavigation
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -64,6 +65,32 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [savedAds, setSavedAds] = useState<string[]>([]);
+  const [userCity, setUserCity] = useState<string | null>(null);
+
+  // Load user city from localStorage
+  useEffect(() => {
+    const city = localStorage.getItem('user-city');
+    if (city) {
+      setUserCity(city);
+      // Auto-select city in filter for better UX
+      setSelectedCity(city);
+    }
+  }, []);
+
+  // Listen for location changes from the LocationPrompt
+  useEffect(() => {
+    const handleLocationChange = (event: CustomEvent) => {
+      const { city } = event.detail;
+      setUserCity(city);
+      setSelectedCity(city);
+      setPage(1); // Reset page when location changes
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('location-changed', handleLocationChange as EventListener);
+      return () => window.removeEventListener('location-changed', handleLocationChange as EventListener);
+    }
+  }, []);
 
   useEffect(() => {
     loadAds();
@@ -88,6 +115,8 @@ export default function HomePage() {
         sort: sortBy
       });
 
+      console.log("🔍 Loading ads with params:", params.toString());
+      
       const res = await fetch(`${API_URL}/api/ads?${params}`);
       const data = await res.json();
 
@@ -166,11 +195,30 @@ export default function HomePage() {
     setPage(1);
   };
 
+  const handleUseMyLocation = () => {
+    // Trigger the location prompt
+    const prompt = document.getElementById('location-prompt-trigger');
+    if (prompt) {
+      (prompt as HTMLButtonElement).click();
+    } else {
+      // Fallback: create and click a hidden button
+      const btn = document.createElement('button');
+      btn.id = 'temp-location-trigger';
+      btn.style.display = 'none';
+      document.body.appendChild(btn);
+      btn.click();
+      setTimeout(() => btn.remove(), 1000);
+    }
+  };
+
   const featuredAds = ads.filter(ad => ad.isFeatured);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
       
+      {/* Hidden trigger for location prompt */}
+      <button id="location-prompt-trigger" style={{ display: 'none' }}></button>
+
       {/* Hero Section with Search */}
       <div className="bg-gradient-to-r from-[#002f34] via-[#004d55] to-[#006b77] text-white py-16 px-4">
         <motion.div 
@@ -191,7 +239,7 @@ export default function HomePage() {
             From bikes to cameras, find what you need from people nearby
           </p>
           
-          {/* Search Bar */}
+          {/* Search Bar with Location Button */}
           <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
@@ -204,6 +252,20 @@ export default function HomePage() {
                   className="w-full pl-12 pr-4 py-4 rounded-lg text-gray-900 focus:ring-2 focus:ring-[#23e5db] outline-none shadow-lg"
                 />
               </div>
+              
+              {/* Location Button */}
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleUseMyLocation}
+                className="bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-lg font-semibold hover:bg-white/30 transition-all duration-300 flex items-center justify-center space-x-2 border border-white/30"
+                title="Use my location"
+              >
+                <FiNavigation className="w-5 h-5" />
+                <span className="hidden md:inline">Near Me</span>
+              </motion.button>
+              
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -214,6 +276,18 @@ export default function HomePage() {
               </motion.button>
             </div>
           </form>
+          
+          {/* Location Status */}
+          {userCity && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 text-sm text-white/80 flex items-center justify-center space-x-2"
+            >
+              <FiMapPin className="text-[#23e5db]" />
+              <span>Showing items near {userCity}</span>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
