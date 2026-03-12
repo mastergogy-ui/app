@@ -80,7 +80,7 @@ export default function LocationPrompt({ onLocationSet, onClose, autoShow = true
            animate={{ opacity: 1, y: 0 }}
            exit={{ opacity: 0, y: -80 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-           className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm"
+           className="fixed top-4 left-2 z-50 w-[55%] max-w-[240px]"
           >
             <div className="bg-white rounded-2xl shadow-2xl p-5 mx-4 relative overflow-hidden">
               
