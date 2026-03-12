@@ -76,9 +76,9 @@ export default function LocationPrompt({ onLocationSet, onClose, autoShow = true
 
           {/* Modal - Centered and Smaller */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+           initial={{ opacity: 0, y: -80 }}
+           animate={{ opacity: 1, y: 0 }}
+           exit={{ opacity: 0, y: -80 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
            className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm"
           >
