@@ -277,17 +277,7 @@ export default function HomePage() {
             </div>
           </form>
           
-          {/* Location Status */}
-          {userCity && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 text-sm text-white/80 flex items-center justify-center space-x-2"
-            >
-              <FiMapPin className="text-[#23e5db]" />
-              <span>Showing items near {userCity}</span>
-            </motion.div>
-          )}
+          {/* REMOVED: Duplicate location status section */}
         </motion.div>
       </div>
 
