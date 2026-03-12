@@ -71,18 +71,30 @@ export default function ChatPage() {
 
     newSocket.on("connect", () => {
       if (user?.id) {
+        console.log("🔌 Socket connected, joining room for user:", user.id);
         newSocket.emit("join-user", user.id);
       }
     });
 
+    // ✅ FIX: Listen for new messages and add to state
     newSocket.on("new-message", (data) => {
+      console.log("📨 New message received via socket:", data);
+      // Only add to state if it's for this conversation
       if (data.conversationId === id) {
-        setMessages(prev => [...prev, data.message]);
+        setMessages(prev => {
+          // Check if message already exists to avoid duplicates
+          const exists = prev.some(m => m._id === data.message._id);
+          if (!exists) {
+            return [...prev, data.message];
+          }
+          return prev;
+        });
         markAsRead();
       }
     });
 
     return () => {
+      console.log("🔌 Disconnecting socket");
       newSocket.disconnect();
     };
   }, [id, token, user?.id]);
@@ -94,7 +106,6 @@ export default function ChatPage() {
   const loadConversation = async () => {
     try {
       setLoading(true);
-      // ✅ FIXED: Added /api/ to the URL
       const url = `${API_URL}/api/chat/conversations/${id}`;
       console.log("🔍 Fetching conversation from:", url);
       
@@ -106,9 +117,9 @@ export default function ChatPage() {
 
       if (res.ok) {
         const data = await res.json();
-        console.log("✅ Conversation loaded:", data);
+        console.log("✅ Conversation loaded with", data.messages?.length, "messages");
         setConversation(data.conversation);
-        setMessages(data.messages);
+        setMessages(data.messages || []);
         markAsRead();
       } else {
         console.error("❌ Failed to load conversation, status:", res.status);
@@ -136,17 +147,33 @@ export default function ChatPage() {
     }
   };
 
+  // ✅ FIXED: Send message function with immediate UI update
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newMessage.trim() || sending) return;
 
-    setSending(true);
     const messageText = newMessage;
-    setNewMessage("");
+    setNewMessage(""); // Clear input immediately
+    setSending(true);
+
+    // Create optimistic message for immediate display
+    const optimisticMessage: Message = {
+      _id: `temp-${Date.now()}`,
+      sender: {
+        _id: user?.id || "",
+        name: user?.name || "",
+        avatar: user?.avatar
+      },
+      text: messageText,
+      createdAt: new Date().toISOString(),
+      readBy: [user?.id || ""]
+    };
+
+    // ✅ Add to state immediately (optimistic update)
+    setMessages(prev => [...prev, optimisticMessage]);
 
     try {
-      // ✅ FIXED: Added /api/ to the URL
       const res = await fetch(`${API_URL}/api/chat/messages`, {
         method: "POST",
         headers: {
@@ -162,10 +189,23 @@ export default function ChatPage() {
       if (!res.ok) {
         throw new Error("Failed to send message");
       }
+
+      const actualMessage = await res.json();
+      console.log("✅ Message sent successfully:", actualMessage);
+
+      // ✅ Replace optimistic message with real one
+      setMessages(prev => 
+        prev.map(msg => 
+          msg._id === optimisticMessage._id ? actualMessage : msg
+        )
+      );
+
     } catch (err) {
-      console.log("Failed to send message", err);
+      console.error("❌ Failed to send message", err);
       toast.error("Failed to send message");
-      setNewMessage(messageText);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+      setNewMessage(messageText); // Restore the message text
     } finally {
       setSending(false);
     }
@@ -253,6 +293,7 @@ export default function ChatPage() {
         <AnimatePresence>
           {messages.map((msg, index) => {
             const isOwn = msg.sender._id === user?.id;
+            const isTemp = msg._id.toString().startsWith('temp-');
             
             return (
               <motion.div
@@ -294,7 +335,9 @@ export default function ChatPage() {
                       <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
                       {isOwn && (
                         <span>
-                          {msg.readBy.length > 1 ? (
+                          {isTemp ? (
+                            <span className="text-gray-400">⏳</span>
+                          ) : msg.readBy.length > 1 ? (
                             <FiCheckCircle className="text-[#23e5db] w-4 h-4" />
                           ) : (
                             <FiCheck className="w-4 h-4" />
