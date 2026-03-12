@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { FiMenu, FiX, FiBell, FiMessageCircle, FiUser, FiLogOut } from "react-icons/fi";
+import { FiMenu, FiX, FiBell, FiMessageCircle, FiUser, FiLogOut, FiMapPin } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userCity, setUserCity] = useState<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -18,7 +19,25 @@ export default function Navbar() {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Load user city from localStorage
+    const city = localStorage.getItem('user-city');
+    if (city) {
+      setUserCity(city);
+    }
+
+    // Listen for location changes
+    const handleLocationChange = (event: CustomEvent) => {
+      const { city } = event.detail;
+      setUserCity(city);
+    };
+
+    window.addEventListener('location-changed', handleLocationChange as EventListener);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('location-changed', handleLocationChange as EventListener);
+    };
   }, []);
 
   const navLinks = [
@@ -34,23 +53,43 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <motion.div
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-              className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center"
-            >
-              <span className="text-primary font-bold text-xl">R</span>
-            </motion.div>
-            <span className={`font-bold text-xl ${
-              scrolled ? "text-primary" : "text-white"
-            }`}>
-              RentWala
-            </span>
-          </Link>
+          {/* Logo and Location - Left Side (Full text on all devices) */}
+          <div className="flex items-center space-x-2 md:space-x-4 min-w-0">
+            <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <span className="text-primary font-bold text-xl">R</span>
+              </motion.div>
+              <span className={`font-bold text-xl ${
+                scrolled ? "text-primary" : "text-white"
+              }`}>
+                RentWala
+              </span>
+            </Link>
 
-          {/* Desktop Navigation */}
+            {/* Location Badge - Always visible next to logo on all devices */}
+            {userCity && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={`flex items-center space-x-1 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm ${
+                  scrolled 
+                    ? "bg-gray-100 text-gray-700" 
+                    : "bg-white/20 text-white backdrop-blur-sm"
+                }`}
+              >
+                <FiMapPin className={`w-3 h-3 md:w-4 md:h-4 flex-shrink-0 ${
+                  scrolled ? "text-[#23e5db]" : "text-[#23e5db]"
+                }`} />
+                <span className="font-medium">{userCity}</span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Desktop Navigation - Center (hidden on mobile) */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -229,6 +268,13 @@ export default function Navbar() {
                     className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg"
                   >
                     Profile
+                  </Link>
+                  <Link
+                    href="/post-ad"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-4 py-2 bg-accent text-primary text-center rounded-lg font-semibold"
+                  >
+                    + SELL
                   </Link>
                   <button
                     onClick={() => {
