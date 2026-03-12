@@ -7,7 +7,6 @@ import Navbar from "../components/Navbar"
 import LocationPrompt from "../components/LocationPrompt"
 import { Toaster } from "react-hot-toast"
 import { useState, useEffect } from "react"
-import { FiMapPin } from "react-icons/fi"
 
 export default function RootLayout({
   children,
@@ -61,19 +60,7 @@ export default function RootLayout({
             {/* Location Prompt - shows automatically for new users */}
             <LocationPrompt onLocationSet={handleLocationSet} />
             
-            {/* Location Badge - shows current city if location is set */}
-            {userLocation.city && (
-              <div className="fixed top-20 left-4 z-40 bg-white/90 backdrop-blur-sm shadow-lg rounded-full px-4 py-2 text-sm flex items-center space-x-2 border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                   onClick={() => {
-                     // You can add a click handler to change location
-                     const prompt = document.getElementById('location-prompt-trigger');
-                     if (prompt) (prompt as HTMLButtonElement).click();
-                   }}
-              >
-                <FiMapPin className="text-[#23e5db] group-hover:scale-110 transition-transform" />
-                <span className="text-gray-700 font-medium">{userLocation.city}</span>
-              </div>
-            )}
+            {/* REMOVED: Duplicate location badge from here */}
             
             <main className="min-h-screen">
               {children}
