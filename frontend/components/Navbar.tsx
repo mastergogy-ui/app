@@ -86,10 +86,10 @@ export default function Navbar() {
     }
   };
 
+  // ✅ UPDATED: Removed "Categories" from navLinks
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/categories", label: "Categories" },
   ];
 
   return (
