@@ -1,4 +1,4 @@
-  import Ad from "../models/Ad.js";
+import Ad from "../models/Ad.js";
 import User from "../models/User.js";
 import SavedAd from "../models/SavedAd.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -203,12 +203,14 @@ export const createAd = async (req, res) => {
   }
 };
 
-/* ===== UPDATED: UPDATE AD with image handling ===== */
+/* ===== FIXED: UPDATE AD with proper image handling ===== */
 export const updateAd = async (req, res) => {
   try {
     const adId = req.params.id;
     console.log("🔍 ===== UPDATE AD CALLED =====");
     console.log("🔍 Updating ad:", adId);
+    console.log("🔍 req.body:", req.body);
+    console.log("🔍 req.files:", req.files ? req.files.length : 0);
     
     const ad = await Ad.findById(adId);
     
@@ -223,49 +225,63 @@ export const updateAd = async (req, res) => {
       return res.status(403).json({ error: "Not authorized" });
     }
 
-    // Prepare update data
-    let updateData = { ...req.body };
-    
-    // Handle image updates if there are new images
+    // Prepare update data - start with existing ad data as fallback
+    const updateData = {
+      title: req.body.title || ad.title,
+      description: req.body.description || ad.description,
+      price: req.body.price ? Number(req.body.price) : ad.price,
+      category: req.body.category || ad.category,
+      condition: req.body.condition || ad.condition,
+      location: req.body.location || ad.location,
+      city: req.body.city || ad.city || ad.location
+    };
+
+    console.log("📝 Update data:", updateData);
+
+    // Handle image updates
+    let finalImages = [];
+
+    // Parse existing images from request (sent as JSON string)
+    if (req.body.existingImages) {
+      try {
+        const existingImages = JSON.parse(req.body.existingImages);
+        console.log("📸 Existing images from request:", existingImages);
+        finalImages = [...existingImages];
+      } catch (e) {
+        console.error("❌ Failed to parse existingImages:", e);
+        // If parsing fails, keep original images
+        finalImages = ad.images || [];
+      }
+    } else {
+      // If no existingImages sent, keep original images
+      finalImages = ad.images || [];
+    }
+
+    // Handle new image uploads
     if (req.files && req.files.length > 0) {
       console.log(`🔍 Uploading ${req.files.length} new images...`);
-      const newImageUrls = [];
       
       for (const file of req.files) {
         try {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "rentwala_ads",
           });
-          newImageUrls.push(result.secure_url);
-          fs.unlinkSync(file.path);
+          finalImages.push(result.secure_url);
           console.log("✅ New image uploaded:", result.secure_url);
+          
+          // Clean up temp file
+          fs.unlinkSync(file.path);
         } catch (uploadError) {
           console.error("❌ Cloudinary upload error:", uploadError);
         }
       }
-      
-      // Parse existing images from request body (sent as JSON string)
-      let existingImages = [];
-      if (req.body.existingImages) {
-        try {
-          existingImages = JSON.parse(req.body.existingImages);
-          console.log("📸 Existing images to keep:", existingImages.length);
-        } catch (e) {
-          console.error("❌ Failed to parse existingImages:", e);
-        }
-      }
-      
-      // Combine existing and new images
-      updateData.images = [...existingImages, ...newImageUrls];
-      console.log(`📸 Total images after update: ${updateData.images.length}`);
     }
 
-    // Remove fields that shouldn't be directly updated
-    delete updateData._id;
-    delete updateData.user;
-    delete updateData.createdAt;
-    delete updateData.__v;
+    // Add images to update data
+    updateData.images = finalImages;
+    console.log(`📸 Final images count: ${finalImages.length}`);
 
+    // Update the ad
     const updatedAd = await Ad.findByIdAndUpdate(
       adId,
       { $set: updateData },
@@ -278,7 +294,7 @@ export const updateAd = async (req, res) => {
   } catch (error) {
     console.error("❌ UPDATE AD ERROR:", error);
     console.error("❌ Error stack:", error.stack);
-    res.status(500).json({ error: "Update failed" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
