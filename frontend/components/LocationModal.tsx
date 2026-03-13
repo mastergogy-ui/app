@@ -148,9 +148,9 @@ export default function LocationModal({ isOpen, onClose, onLocationSelect, recen
           {/* Modal - Top Left, Half Size */}
           <motion.div
             ref={modalRef}
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+           initial={{ x: "-100%" }}
+           animate={{ x: 0 }}
+           exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed top-4 left-4 z-50 w-[calc(100%-2rem)] max-w-md md:max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden"
           >
