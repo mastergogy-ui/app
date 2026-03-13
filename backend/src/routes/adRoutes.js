@@ -30,7 +30,7 @@ router.get("/user/:userId", getUserAds);               // This is for public pro
 
 /* PROTECTED ROUTES - Require authentication */
 router.post("/", protectUser, upload.array("images", 8), createAd);
-router.put("/:id", protectUser, upload.array("images", 8), updateAd);
+router.put("/:id", protectUser, upload.array("newImages", 8), updateAd); // Changed to "newImages" to match frontend
 router.delete("/:id", protectUser, deleteAd);
 router.post("/:id/save", protectUser, toggleSaveAd);
 router.get("/saved/me", protectUser, getSavedAds);
