@@ -25,6 +25,8 @@ type Ad = {
   category: string;
   location: string;
   city: string;
+  state?: string;
+  country?: string;
   user: {
     _id: string;
     name: string;
@@ -59,6 +61,8 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
@@ -67,22 +71,27 @@ export default function HomePage() {
   const [savedAds, setSavedAds] = useState<string[]>([]);
   const [userCity, setUserCity] = useState<string | null>(null);
 
-  // Load user city from localStorage
+  // Load user location from localStorage with hierarchy
   useEffect(() => {
-    const city = localStorage.getItem('user-city');
-    if (city) {
-      setUserCity(city);
-      // Auto-select city in filter for better UX
-      setSelectedCity(city);
+    const savedLocation = localStorage.getItem('user-location');
+    if (savedLocation) {
+      const location = JSON.parse(savedLocation);
+      const displayName = location.city || location.state || location.country;
+      setUserCity(displayName);
+      setSelectedCity(location.city || "");
+      setSelectedState(location.state || "");
+      setSelectedCountry(location.country || "");
     }
   }, []);
 
-  // Listen for location changes from the LocationPrompt
+  // Listen for location changes from the LocationModal
   useEffect(() => {
     const handleLocationChange = (event: CustomEvent) => {
-      const { city } = event.detail;
-      setUserCity(city);
-      setSelectedCity(city);
+      const { city, state, country, displayName } = event.detail;
+      setUserCity(displayName);
+      setSelectedCity(city || "");
+      setSelectedState(state || "");
+      setSelectedCountry(country || "");
       setPage(1); // Reset page when location changes
     };
 
@@ -97,7 +106,7 @@ export default function HomePage() {
     if (token) {
       loadSavedAds();
     }
-  }, [selectedCategory, selectedCity, sortBy, page, searchTerm]);
+  }, [selectedCategory, selectedCity, selectedState, selectedCountry, sortBy, page, searchTerm]);
 
   const loadAds = async () => {
     try {
@@ -109,6 +118,8 @@ export default function HomePage() {
         limit: "20",
         ...(selectedCategory && { category: selectedCategory }),
         ...(selectedCity && { city: selectedCity }),
+        ...(selectedState && { state: selectedState }),
+        ...(selectedCountry && { country: selectedCountry }),
         ...(priceRange.min && { minPrice: priceRange.min }),
         ...(priceRange.max && { maxPrice: priceRange.max }),
         ...(searchTerm && { search: searchTerm }),
@@ -189,6 +200,8 @@ export default function HomePage() {
   const clearFilters = () => {
     setSelectedCategory("");
     setSelectedCity("");
+    setSelectedState("");
+    setSelectedCountry("");
     setPriceRange({ min: "", max: "" });
     setSortBy("newest");
     setSearchTerm("");
@@ -196,18 +209,10 @@ export default function HomePage() {
   };
 
   const handleUseMyLocation = () => {
-    // Trigger the location prompt
-    const prompt = document.getElementById('location-prompt-trigger');
-    if (prompt) {
-      (prompt as HTMLButtonElement).click();
-    } else {
-      // Fallback: create and click a hidden button
-      const btn = document.createElement('button');
-      btn.id = 'temp-location-trigger';
-      btn.style.display = 'none';
-      document.body.appendChild(btn);
-      btn.click();
-      setTimeout(() => btn.remove(), 1000);
+    // Trigger the location modal by clicking the badge
+    const badge = document.querySelector('[data-location-badge="true"]');
+    if (badge) {
+      (badge as HTMLElement).click();
     }
   };
 
@@ -216,9 +221,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
       
-      {/* Hidden trigger for location prompt */}
-      <button id="location-prompt-trigger" style={{ display: 'none' }}></button>
-
       {/* Hero Section with Search */}
       <div className="bg-gradient-to-r from-[#002f34] via-[#004d55] to-[#006b77] text-white py-16 px-4">
         <motion.div 
@@ -260,10 +262,10 @@ export default function HomePage() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleUseMyLocation}
                 className="bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-lg font-semibold hover:bg-white/30 transition-all duration-300 flex items-center justify-center space-x-2 border border-white/30"
-                title="Use my location"
+                title="Change location"
               >
                 <FiNavigation className="w-5 h-5" />
-                <span className="hidden md:inline">Near Me</span>
+                <span className="hidden md:inline">Change Location</span>
               </motion.button>
               
               <motion.button
@@ -276,8 +278,6 @@ export default function HomePage() {
               </motion.button>
             </div>
           </form>
-          
-          {/* REMOVED: Duplicate location status section */}
         </motion.div>
       </div>
 
@@ -342,7 +342,7 @@ export default function HomePage() {
               ))}
             </select>
 
-            {/* City Filter */}
+            {/* City Filter - only show if city is selected from location */}
             <select
               value={selectedCity}
               onChange={(e) => {
@@ -392,7 +392,7 @@ export default function HomePage() {
             </select>
 
             {/* Clear Filters */}
-            {(selectedCategory || selectedCity || priceRange.min || priceRange.max || sortBy !== "newest") && (
+            {(selectedCategory || selectedCity || selectedState || selectedCountry || priceRange.min || priceRange.max || sortBy !== "newest") && (
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -504,6 +504,9 @@ export default function HomePage() {
 function AdCard({ ad, onSave, isSaved, index }: { ad: Ad; onSave: () => void; isSaved: boolean; index: number }) {
   const { user } = useAuth();
 
+  // Determine what location to show (most specific first)
+  const displayLocation = ad.city || ad.state || ad.country || ad.location;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -546,59 +549,4 @@ function AdCard({ ad, onSave, isSaved, index }: { ad: Ad; onSave: () => void; is
             }`} />
           </button>
 
-          {/* Price Tag */}
-          <div className="absolute bottom-2 left-2 bg-[#002f34]/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold">
-            ₹{ad.price.toLocaleString()}
-          </div>
-        </div>
-      </Link>
-
-      <div className="p-4">
-        <Link href={`/ad/${ad._id}`}>
-          <h3 className="font-semibold text-lg mb-1 line-clamp-1 hover:text-[#23e5db] transition-colors">
-            {ad.title}
-          </h3>
-        </Link>
-        
-        <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-          {ad.description}
-        </p>
-        
-        <div className="flex items-center text-sm text-gray-500 mb-3">
-          <FiMapPin className="mr-1 flex-shrink-0" />
-          <span className="truncate">{ad.location || ad.city}</span>
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <Link href={`/user/${ad.user?._id}`} className="flex items-center space-x-2">
-            {ad.user?.avatar ? (
-              <img
-                src={ad.user.avatar}
-                alt={ad.user.name}
-                className="w-6 h-6 rounded-full"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#23e5db] to-[#1fc9c0] flex items-center justify-center">
-                <span className="text-xs text-white font-bold">
-                  {ad.user?.name?.charAt(0)}
-                </span>
-              </div>
-            )}
-            <span className="text-xs text-gray-600">
-              {ad.user?.name?.split(' ')[0]}
-            </span>
-          </Link>
-          
-          <div className="flex items-center space-x-3 text-xs text-gray-400">
-            <span className="flex items-center">
-              <FiEye className="mr-1" /> {ad.views || 0}
-            </span>
-            <span>
-              {new Date(ad.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+         
