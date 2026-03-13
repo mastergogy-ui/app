@@ -152,7 +152,7 @@ export default function LocationModal({ isOpen, onClose, onLocationSelect, recen
            animate={{ x: 0 }}
            exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-4 left-4 z-50 w-[calc(100%-2rem)] max-w-md md:max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden"
+            className="fixed top-0 left-0 z-50 h-full w-[420px] max-w-[90vw] bg-white shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-3 border-b bg-gradient-to-r from-[#002f34] to-[#004d55] text-white">
