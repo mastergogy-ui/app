@@ -10,12 +10,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-/* GET ALL ADS with filters */
+/* GET ALL ADS with filters - UPDATED for location hierarchy */
 export const getAds = async (req, res) => {
   try {
     const { 
       category, 
       city, 
+      state,
+      country,
       minPrice, 
       maxPrice, 
       search, 
@@ -27,7 +29,15 @@ export const getAds = async (req, res) => {
     let query = { isActive: true };
     
     if (category) query.category = category;
-    if (city) query.city = city;
+    
+    // Location filtering - handle hierarchy
+    if (city) {
+      query.city = city;
+    } else if (state) {
+      query.state = state;
+    } else if (country) {
+      query.country = country;
+    }
     
     if (minPrice || maxPrice) {
       query.price = {};
@@ -139,12 +149,12 @@ export const getAdById = async (req, res) => {
 /* CREATE AD */
 export const createAd = async (req, res) => {
   try {
-    const { title, description, price, category, condition, location, city } = req.body;
+    const { title, description, price, category, condition, location, city, state, country } = req.body;
     const userId = req.user._id;
 
     console.log("🔍 ===== CREATE AD CALLED =====");
     console.log("🔍 Creating ad for user:", userId);
-    console.log("🔍 Ad data:", { title, description, price, category, location });
+    console.log("🔍 Ad data:", { title, description, price, category, location, city, state, country });
 
     let imageUrls = [];
 
@@ -181,7 +191,9 @@ export const createAd = async (req, res) => {
       category,
       condition: condition || "Good",
       location,
-      city: city || location,
+      city: city || "",
+      state: state || "",
+      country: country || "",
       images: imageUrls,
       user: userId,
       isActive: true,
@@ -233,7 +245,9 @@ export const updateAd = async (req, res) => {
       category: req.body.category || ad.category,
       condition: req.body.condition || ad.condition,
       location: req.body.location || ad.location,
-      city: req.body.city || ad.city || ad.location
+      city: req.body.city || ad.city,
+      state: req.body.state || ad.state,
+      country: req.body.country || ad.country
     };
 
     console.log("📝 Update data:", updateData);
