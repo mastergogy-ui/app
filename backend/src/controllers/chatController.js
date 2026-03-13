@@ -1,6 +1,7 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import Ad from "../models/Ad.js";
+import User from "../models/User.js";
 
 /* GET USER CONVERSATIONS */
 export const getConversations = async (req, res) => {
@@ -18,6 +19,10 @@ export const getConversations = async (req, res) => {
     .sort({ lastMessageAt: -1 });
 
     console.log(`✅ Found ${conversations.length} conversations`);
+
+    // Reset unread count when user views inbox
+    await User.findByIdAndUpdate(req.user._id, { unreadCount: 0 });
+    
     res.json(conversations);
     
   } catch (error) {
@@ -58,8 +63,8 @@ export const getConversation = async (req, res) => {
       .populate('sender', 'name avatar')
       .sort({ createdAt: 1 });
 
-    // Mark messages as read
-    await Message.updateMany(
+    // Mark messages as read and update unread count
+    const result = await Message.updateMany(
       { 
         conversation: req.params.id, 
         sender: { $ne: req.user._id },
@@ -67,6 +72,25 @@ export const getConversation = async (req, res) => {
       },
       { $addToSet: { readBy: req.user._id } }
     );
+
+    // If there were unread messages, recalculate total unread count
+    if (result.modifiedCount > 0) {
+      // Get all conversations for this user
+      const userConversations = await Conversation.find({
+        participants: req.user._id
+      }).select('_id');
+      
+      const conversationIds = userConversations.map(c => c._id);
+      
+      // Count all unread messages across all conversations
+      const totalUnread = await Message.countDocuments({
+        conversation: { $in: conversationIds },
+        sender: { $ne: req.user._id },
+        readBy: { $ne: req.user._id }
+      });
+      
+      await User.findByIdAndUpdate(req.user._id, { unreadCount: totalUnread });
+    }
 
     console.log(`✅ Found ${messages.length} messages`);
     res.json({ conversation, messages });
@@ -158,7 +182,7 @@ export const startConversation = async (req, res) => {
   }
 };
 
-/* SEND MESSAGE */
+/* SEND MESSAGE - UPDATED with unread count */
 export const sendMessage = async (req, res) => {
   try {
     const { conversationId, text } = req.body;
@@ -198,17 +222,33 @@ export const sendMessage = async (req, res) => {
 
     await message.populate('sender', 'name avatar');
 
-    // Emit socket event
+    // 👇 UPDATE UNREAD COUNT FOR RECIPIENT
+    const recipientId = conversation.participants.find(
+      p => p.toString() !== req.user._id.toString()
+    );
+
+    // Increment recipient's unread count
+    await User.findByIdAndUpdate(recipientId, { 
+      $inc: { unreadCount: 1 } 
+    });
+
+    // Get updated unread count for recipient
+    const recipient = await User.findById(recipientId);
+    const recipientUnreadCount = recipient?.unreadCount || 0;
+
+    // Emit socket event with unread count
     const io = req.app.get('io');
-    conversation.participants.forEach(participantId => {
-      const pid = participantId.toString();
-      if (pid !== req.user._id.toString()) {
-        console.log(`📨 Emitting new message to user-${pid}`);
-        io.to(`user-${pid}`).emit('new-message', {
-          conversationId,
-          message
-        });
-      }
+    
+    // Emit to recipient with new unread count
+    io.to(`user-${recipientId}`).emit('new-message', {
+      conversationId,
+      message,
+      unreadCount: recipientUnreadCount
+    });
+
+    // Emit to sender with their unread count (usually 0 for own messages)
+    io.to(`user-${req.user._id}`).emit('unread-update', {
+      unreadCount: 0 // Sender doesn't count own messages as unread
     });
 
     console.log("✅ Message sent successfully");
@@ -237,11 +277,40 @@ export const markAsRead = async (req, res) => {
       { $addToSet: { readBy: req.user._id } }
     );
 
+    // Recalculate total unread count
+    const userConversations = await Conversation.find({
+      participants: req.user._id
+    }).select('_id');
+    
+    const conversationIds = userConversations.map(c => c._id);
+    
+    const totalUnread = await Message.countDocuments({
+      conversation: { $in: conversationIds },
+      sender: { $ne: req.user._id },
+      readBy: { $ne: req.user._id }
+    });
+    
+    await User.findByIdAndUpdate(req.user._id, { unreadCount: totalUnread });
+
     console.log(`✅ Marked ${result.modifiedCount} messages as read`);
     res.json({ success: true });
     
   } catch (error) {
     console.error("❌ MARK AS READ ERROR:", error);
     res.status(500).json({ error: "Failed to mark as read" });
+  }
+};
+
+/* 👇 NEW: Get unread count endpoint */
+export const getUnreadCount = async (req, res) => {
+  try {
+    console.log("🔍 ===== GET UNREAD COUNT CALLED =====");
+    
+    const user = await User.findById(req.user._id);
+    res.json({ unreadCount: user?.unreadCount || 0 });
+    
+  } catch (error) {
+    console.error("❌ GET UNREAD COUNT ERROR:", error);
+    res.status(500).json({ error: "Failed to get unread count" });
   }
 };
