@@ -7,15 +7,78 @@ import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiBell, FiMessageCircle, FiUser, FiLogOut, FiMapPin } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import LocationModal from "./LocationModal";
+import { io, Socket } from "socket.io-client";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userCity, setUserCity] = useState<string | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [recentLocations, setRecentLocations] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const pathname = usePathname();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mahalakshmi.onrender.com";
+
+  // Connect to socket and load initial unread count
+  useEffect(() => {
+    if (!token || !user) return;
+
+    // Fetch initial unread count
+    fetchUnreadCount();
+
+    // Connect to socket
+    const newSocket = io(API_URL);
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
+      console.log("🔌 Navbar socket connected");
+      newSocket.emit("join-user", user.id);
+    });
+
+    // Listen for new messages
+    newSocket.on("new-message", (data) => {
+      console.log("📨 New message received in navbar:", data);
+      if (data.unreadCount !== undefined) {
+        setUnreadCount(data.unreadCount);
+      }
+    });
+
+    // Listen for unread count updates
+    newSocket.on("unread-update", (data) => {
+      console.log("🔔 Unread count update:", data);
+      setUnreadCount(data.unreadCount);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [token, user]);
+
+  // Fetch unread count from API
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/chat/unread`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Failed to fetch unread count:", error);
+    }
+  };
+
+  // Reset unread count when visiting inbox or chat
+  useEffect(() => {
+    if (pathname === '/inbox' || pathname.startsWith('/chat/')) {
+      setUnreadCount(0);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,11 +113,9 @@ export default function Navbar() {
   }, []);
 
   const handleLocationSelect = (location: any) => {
-    // Determine what to show in the badge (most specific first)
     const displayName = location.city || location.state || location.country || location.displayName;
     setUserCity(displayName);
     
-    // Store in localStorage
     localStorage.setItem('user-city', displayName);
     if (location.lat && location.lon) {
       localStorage.setItem('user-coordinates', JSON.stringify({ 
@@ -63,15 +124,12 @@ export default function Navbar() {
       }));
     }
     
-    // Store full location details
     localStorage.setItem('user-location', JSON.stringify(location));
     
-    // Update recent locations
     const updatedRecent = [location, ...recentLocations.filter(l => l.displayName !== location.displayName)].slice(0, 5);
     setRecentLocations(updatedRecent);
     localStorage.setItem('recent-locations', JSON.stringify(updatedRecent));
     
-    // Trigger event for other components
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('location-changed', { 
         detail: { 
@@ -86,7 +144,6 @@ export default function Navbar() {
     }
   };
 
-  // ✅ UPDATED: Removed "Categories" from navLinks
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
@@ -100,7 +157,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             
-            {/* Logo and Location - Left Side (Full text on all devices) */}
+            {/* Logo and Location - Left Side */}
             <div className="flex items-center space-x-2 md:space-x-4 min-w-0">
               <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
                 <motion.div
@@ -117,7 +174,7 @@ export default function Navbar() {
                 </span>
               </Link>
 
-              {/* Location Badge - Clickable to open modal */}
+              {/* Location Badge */}
               {userCity && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -137,7 +194,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Desktop Navigation - Center (hidden on mobile) */}
+            {/* Desktop Navigation - Center */}
             <div className="hidden md:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link
@@ -158,22 +215,31 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Right side - User menu / Auth */}
+            {/* Right side - User menu / Auth with Notification Bell */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative"
-                  >
-                    <FiBell className={`w-5 h-5 ${
-                      scrolled ? "text-gray-600" : "text-white"
-                    }`} />
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                      3
-                    </span>
-                  </motion.button>
+                  {/* Notification Bell - Now dynamic */}
+                  <Link href="/inbox">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative"
+                    >
+                      <FiBell className={`w-5 h-5 ${
+                        scrolled ? "text-gray-600" : "text-white"
+                      }`} />
+                      {unreadCount > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full text-xs text-white flex items-center justify-center px-1"
+                        >
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </motion.span>
+                      )}
+                    </motion.button>
+                  </Link>
 
                   <Link href="/inbox">
                     <motion.div
@@ -316,6 +382,18 @@ export default function Navbar() {
                       className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg"
                     >
                       Profile
+                    </Link>
+                    <Link
+                      href="/inbox"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg relative"
+                    >
+                      Inbox
+                      {unreadCount > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
                     </Link>
                     <Link
                       href="/post-ad"
