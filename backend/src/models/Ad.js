@@ -9,6 +9,8 @@ const AdSchema = new mongoose.Schema({
   images: [{ type: String }],
   location: { type: String, required: true },
   city: { type: String },
+  state: { type: String },
+  country: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   views: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
