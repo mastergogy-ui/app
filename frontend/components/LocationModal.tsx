@@ -184,7 +184,7 @@ export default function LocationModal({ isOpen, onClose, onLocationSelect, recen
             </div>
 
             {/* Content */}
-            <div className="max-h-[60vh] overflow-y-auto p-3">
+           <div className="flex-1 overflow-y-auto p-3">
               {searchQuery ? (
                 // Search Results
                 <div className="space-y-1">
