@@ -49,9 +49,13 @@ const categories = [
   { name: "Pets", icon: "🐕", color: "from-teal-500 to-teal-600" },
 ];
 
+// Static cities for suggestions - user can also type any city
 const cities = [
   "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", 
-  "Pune", "Hyderabad", "Ahmedabad", "Jaipur", "Lucknow"
+  "Pune", "Hyderabad", "Ahmedabad", "Jaipur", "Lucknow",
+  "Nagpur", "Indore", "Bhopal", "Patna", "Chandigarh",
+  "Guwahati", "Bhubaneswar", "Thiruvananthapuram", "Kochi",
+  "Goa", "Shimla", "Dehradun", "Ranchi", "Raipur"
 ];
 
 export default function HomePage() {
@@ -314,7 +318,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Filters Bar */}
+      {/* ===== UPDATED FILTERS BAR WITH EDITABLE CITY ===== */}
       <div className="max-w-7xl mx-auto px-4 mb-8">
         <div className="bg-white/95 backdrop-blur-lg rounded-xl shadow-lg p-4">
           <button
@@ -342,20 +346,26 @@ export default function HomePage() {
               ))}
             </select>
 
-            {/* City Filter - only show if city is selected from location */}
-            <select
-              value={selectedCity}
-              onChange={(e) => {
-                setSelectedCity(e.target.value);
-                setPage(1);
-              }}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#23e5db] outline-none bg-white"
-            >
-              <option value="">All Cities</option>
-              {cities.map(city => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
+            {/* ===== EDITABLE CITY FILTER ===== */}
+            <div className="relative">
+              <input
+                type="text"
+                list="cities-list"
+                value={selectedCity}
+                onChange={(e) => {
+                  setSelectedCity(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search or type city"
+                className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#23e5db] outline-none bg-white w-40"
+              />
+              <datalist id="cities-list">
+                <option value="">All Cities</option>
+                {cities.map(city => (
+                  <option key={city} value={city} />
+                ))}
+              </datalist>
+            </div>
 
             {/* Price Range */}
             <div className="flex items-center space-x-2">
