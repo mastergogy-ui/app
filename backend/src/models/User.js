@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema(
   isActive: { type: Boolean, default: true },
   isBanned: { type: Boolean, default: false },
   rating: { type: Number, default: 0 },
-  totalReviews: { type: Number, default: 0 }
+  totalReviews: { type: Number, default: 0 },
+  unreadCount: { type: Number, default: 0 } // 👈 ADDED for notifications
 },
 { timestamps: true }
 );
