@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "cd mahalakshmi/frontend && npm install",
-  "buildCommand": "cd mahalakshmi/frontend && npm run build",
-  "outputDirectory": "mahalakshmi/frontend/.next"
-}
