@@ -96,13 +96,15 @@ app.get("/", (req, res) => {
 });
 
 /* =========================
-   HEALTH CHECK
+   HEALTH CHECK - CRITICAL for Railway
 ========================= */
 
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "OK",
-    timestamp: new Date().toISOString()
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
@@ -158,7 +160,8 @@ io.on("connection", (socket) => {
 });
 
 /* =========================
-   DATABASE CONNECTION
+   DATABASE CONNECTION & SERVER START
+   WITH GRACEFUL SHUTDOWN
 ========================= */
 
 const PORT = process.env.PORT || 5000;
@@ -174,11 +177,43 @@ mongoose
   .then(() => {
     console.log("✅ MongoDB connected successfully");
 
-    httpServer.listen(PORT, () => {
+    // Start server with proper error handling
+    const server = httpServer.listen(PORT, "0.0.0.0", () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`📍 API URL: http://localhost:${PORT}`);
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
     });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error("❌ Server error:", error);
+      process.exit(1);
+    });
+
+    // Handle graceful shutdown for Railway (SIGTERM)
+    process.on('SIGTERM', () => {
+      console.log('👋 SIGTERM received - closing server gracefully...');
+      server.close(() => {
+        console.log('✅ HTTP server closed');
+        mongoose.connection.close(false, () => {
+          console.log('✅ MongoDB connection closed');
+          process.exit(0);
+        });
+      });
+    });
+
+    // Handle graceful shutdown for other signals
+    process.on('SIGINT', () => {
+      console.log('👋 SIGINT received - closing server gracefully...');
+      server.close(() => {
+        console.log('✅ HTTP server closed');
+        mongoose.connection.close(false, () => {
+          console.log('✅ MongoDB connection closed');
+          process.exit(0);
+        });
+      });
+    });
+
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
