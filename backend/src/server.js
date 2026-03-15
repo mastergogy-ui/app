@@ -15,44 +15,76 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-// CORS configuration - VERY IMPORTANT
-const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:3000",
-  "https://maha-front.onrender.com",
-  "http://localhost:3000"
-];
+/* =========================
+   CORS CONFIGURATION
+========================= */
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://maha-front.onrender.com",
+  "https://mahafront.vercel.app",
+  "http://localhost:3000"
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow tools like Postman or server requests
+      if (!origin) return callback(null, true);
+
+      // allow exact origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // allow Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      // allow Render deployments
+      if (origin.endsWith(".onrender.com")) {
+        return callback(null, true);
+      }
+
+      console.log("⚠️ CORS allowed for:", origin);
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+app.options("*", cors());
+
+/* =========================
+   BODY PARSER
+========================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Socket.io
+/* =========================
+   SOCKET.IO SETUP
+========================= */
+
 const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
     credentials: true
   }
 });
-app.set('io', io);
 
-// ✅ ROOT ROUTE - FIXES "Cannot GET /"
+app.set("io", io);
+
+/* =========================
+   ROOT ROUTE
+========================= */
+
 app.get("/", (req, res) => {
-  res.json({ 
-    message: "RentWala API is running", 
+  res.json({
+    message: "RentWala API is running",
     status: "healthy",
     endpoints: {
       auth: "/api/auth",
@@ -63,51 +95,72 @@ app.get("/", (req, res) => {
   });
 });
 
-// Health check route
+/* =========================
+   HEALTH CHECK
+========================= */
+
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString()
+  });
 });
 
-// Routes
+/* =========================
+   ROUTES
+========================= */
+
 app.use("/api/ads", adRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-// 404 handler
+/* =========================
+   404 HANDLER
+========================= */
+
 app.use((req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: "Route not found",
     message: `Cannot ${req.method} ${req.url}`
   });
 });
 
-// Error handler
+/* =========================
+   ERROR HANDLER
+========================= */
+
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
-  res.status(500).json({ 
+  res.status(500).json({
     error: "Internal server error",
-    message: err.message 
+    message: err.message
   });
 });
 
-// Socket.io
-io.on('connection', (socket) => {
-  console.log('New client connected');
-  
-  socket.on('join-user', (userId) => {
+/* =========================
+   SOCKET CONNECTION
+========================= */
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  socket.on("join-user", (userId) => {
     if (userId) {
       socket.join(`user-${userId}`);
       console.log(`User ${userId} joined their room`);
     }
   });
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
   });
 });
 
-// Database connection
+/* =========================
+   DATABASE CONNECTION
+========================= */
+
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -116,9 +169,11 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-mongoose.connect(MONGO_URI)
+mongoose
+  .connect(MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected successfully");
+
     httpServer.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`📍 API URL: http://localhost:${PORT}`);
