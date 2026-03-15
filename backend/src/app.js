@@ -13,7 +13,10 @@ const httpServer = createServer(app);
 
 // Get allowed origins from environment variable or use defaults
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
-const VERCEL_URL = "http://mahafront.vercel.app";
+const allowedOrigins = [
+  CLIENT_URL,
+  "http://localhost:3000"
+].filter(Boolean);
 
 // Array of allowed origins
 const allowedOrigins = [
