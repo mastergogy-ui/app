@@ -11,92 +11,114 @@ import chatRoutes from "./routes/chatRoutes.js";
 const app = express();
 const httpServer = createServer(app);
 
-// Get allowed origins from environment variable or use defaults
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
-const allowedOrigins = [
-  CLIENT_URL,
-  "http://localhost:3000"
-].filter(Boolean);
+/* =========================
+   ALLOWED ORIGINS
+========================= */
 
-// Array of allowed origins
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
+
 const allowedOrigins = [
   CLIENT_URL,
-  VERCEL_URL,
-  "http://localhost:3000"
-].filter(Boolean); // Remove any undefined values
+  "http://localhost:3000",
+  "https://mahafront.vercel.app",
+  "https://mahalakshmi.onrender.com"
+].filter(Boolean);
 
 console.log("🔍 Allowed CORS origins:", allowedOrigins);
 
-// Socket.io with CORS
+/* =========================
+   SOCKET.IO SETUP
+========================= */
+
 const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
   }
 });
 
-// Express CORS middleware
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin) {
-      console.log("✅ Request with no origin allowed");
+/* =========================
+   EXPRESS CORS
+========================= */
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+
+      /* allow server-to-server / postman requests */
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        console.log("✅ Allowed Origin:", origin);
+        return callback(null, true);
+      }
+
+      console.log("⚠️ CORS allowed anyway:", origin);
       return callback(null, true);
-    }
-    
-    // Check if the origin is allowed
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log(`✅ Origin allowed: ${origin}`);
-      callback(null, true);
-    } else {
-      console.log(`❌ Origin blocked: ${origin}`);
-      console.log(`   Allowed origins: ${allowedOrigins.join(', ')}`);
-      callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  exposedHeaders: ["Content-Range", "X-Content-Range"]
-}));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+/* handle preflight requests */
+app.options("*", cors());
+
+/* =========================
+   BODY PARSERS
+========================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* Make io accessible */
-app.set('io', io);
+/* =========================
+   MAKE SOCKET AVAILABLE
+========================= */
 
-/* Health check route */
+app.set("io", io);
+
+/* =========================
+   HEALTH CHECK
+========================= */
+
 app.get("/health", (req, res) => {
-  res.json({ 
-    status: "OK", 
-    message: "Server is running",
-    cors: {
-      allowedOrigins,
-      clientUrl: CLIENT_URL
-    }
+  res.json({
+    status: "OK",
+    message: "Server running",
+    cors: allowedOrigins
   });
 });
 
-/* ROUTES */
+/* =========================
+   ROUTES
+========================= */
+
 app.use("/api/ads", adRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-/* SOCKET.IO */
-io.on('connection', (socket) => {
-  console.log('🔌 New client connected');
-  
-  socket.on('join-user', (userId) => {
-    console.log(`👤 User ${userId} joined their room`);
+/* =========================
+   SOCKET CONNECTION
+========================= */
+
+io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+
+  socket.on("join-user", (userId) => {
+    console.log(`👤 User joined room user-${userId}`);
     socket.join(`user-${userId}`);
   });
 
-  socket.on('disconnect', () => {
-    console.log('🔌 Client disconnected');
+  socket.on("disconnect", () => {
+    console.log("🔌 Client disconnected:", socket.id);
   });
 });
+
+/* =========================
+   EXPORTS
+========================= */
 
 export { app, httpServer, io };
